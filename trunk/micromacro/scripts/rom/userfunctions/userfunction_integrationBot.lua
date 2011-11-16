@@ -227,7 +227,7 @@ function getInventory()
 	local result = "";
  	for slot,item in pairs(inventory.BagSlot) do
 	    if (item.Available and (not item.Empty)) then
-			result = sprintf("%s%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\n",
+			result = sprintf("%s%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\3",
 							result, item.Name, item.ItemCount, item.SlotNumber, item.ItemLink, 
 							item.Durability, item.Quality, item.BoundStatus, item.RequiredLvl, item.ObjType, 
 							item.ObjSubType, item.ObjSubSubType);
@@ -246,7 +246,7 @@ function getEquipment()
 		local bind = 0;
 		if (item.Bound) then bind = 1; end;
 		
-			result = sprintf("%s%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\n",
+			result = sprintf("%s%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\3",
 							result, item.Name, item.ItemCount, item.Slot, item.ItemLink, 
 							item.Durability, item.Quality, bind, item.RequiredLvl, "", "", "");
 			
@@ -309,6 +309,12 @@ function sendTargetDetailsEx()
 	else
 		sendChatMessage("TargetDetails", "");
 	end
+end
+
+function sendACSSetup()
+	local s = sendMacro("acsGetSettings()");
+	
+	sendChatMessage("ACSSettings", s);
 end
 
 local playerAddress = addresses.staticbase_char;
@@ -387,3 +393,12 @@ function sendObjects()
 
 end
 
+local captureWaypointPress = false;
+
+wpKey = key.VK_NUMPAD1;			-- insert a movement point
+
+function SetWaypointCapture(state)
+	captureInsertPress = (state == "on");
+	
+	
+end

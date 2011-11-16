@@ -133,7 +133,7 @@ namespace RomViewer
                 //Sortable
                 BindingListEx<Item> inventory = new BindingListEx<Item>();
                 //clear inventory and re-pop
-                string[] lines = message.Message.Split('\n');
+                string[] lines = message.Message.Split((char)3);
                 foreach (string line in lines)
                 {
                     if (line.Length > 0) inventory.Add(new Item(line));
@@ -145,7 +145,7 @@ namespace RomViewer
                 //Sortable
                 BindingListEx<Item> inventory = new BindingListEx<Item>();
                 //clear inventory and re-pop
-                string[] lines = message.Message.Split('\n');
+                string[] lines = message.Message.Split((char)3);
                 foreach (string line in lines)
                 {
                     if (line.Length > 0) inventory.Add(new Item(line));
@@ -1094,7 +1094,7 @@ namespace RomViewer
 
         private void btnSetCommsOn_Click(object sender, EventArgs e)
         {
-            mmServer.ServerInstance.QueueCommand("SetCommsState\"on\"");
+            mmServer.ServerInstance.QueueCommand("setCommsState(\"on\")");
         }
 
         private void btnMount_Click(object sender, EventArgs e)
