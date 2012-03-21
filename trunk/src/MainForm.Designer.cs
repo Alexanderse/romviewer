@@ -60,7 +60,15 @@ namespace RomViewer
             System.Windows.Forms.Label xLabel1;
             System.Windows.Forms.Label yLabel1;
             System.Windows.Forms.Label zLabel1;
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle17 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle18 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle19 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle20 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle21 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle22 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle23 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle24 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tcChats = new System.Windows.Forms.TabControl();
             this.pageCharacter = new System.Windows.Forms.TabPage();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
@@ -77,6 +85,7 @@ namespace RomViewer
             this.yTextBox1 = new System.Windows.Forms.TextBox();
             this.zTextBox1 = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.pbModelProgressa = new System.Windows.Forms.ProgressBar();
             this.lblGold = new System.Windows.Forms.Label();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.nameDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -143,11 +152,20 @@ namespace RomViewer
             this.gameObjectsBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.gameNodeBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.xbUseBigSlowAttack = new System.Windows.Forms.CheckBox();
+            this.xbUseHeals = new System.Windows.Forms.CheckBox();
+            this.xbUseLongRoot = new System.Windows.Forms.CheckBox();
+            this.xbUseBuffs = new System.Windows.Forms.CheckBox();
+            this.groupBox9 = new System.Windows.Forms.GroupBox();
+            this.rbDIYCE = new System.Windows.Forms.RadioButton();
+            this.rbACS = new System.Windows.Forms.RadioButton();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.xbQFilterState = new System.Windows.Forms.CheckBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.btnApplyLootfilterSettings = new System.Windows.Forms.Button();
+            this.tbBlack = new System.Windows.Forms.TextBox();
+            this.tbPick = new System.Windows.Forms.TextBox();
             this.cbLFQuality = new System.Windows.Forms.ComboBox();
-            this.xbLFQualityFilter = new System.Windows.Forms.CheckBox();
             this.xbACSAutoTurn = new System.Windows.Forms.CheckBox();
             this.xbACSPaused = new System.Windows.Forms.CheckBox();
             this.rbPvp = new System.Windows.Forms.RadioButton();
@@ -155,30 +173,16 @@ namespace RomViewer
             this.rb1h = new System.Windows.Forms.RadioButton();
             this.xbACSOn = new System.Windows.Forms.CheckBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.tbTargets = new System.Windows.Forms.TextBox();
+            this.btnClearTargets = new System.Windows.Forms.Button();
             this.xbACSAutoTarget = new System.Windows.Forms.CheckBox();
-            this.lbACSTargets = new System.Windows.Forms.ListBox();
             this.tsACSTargets = new System.Windows.Forms.ToolStrip();
             this.tebTargetName = new System.Windows.Forms.ToolStripTextBox();
             this.tsbACSTargetAdd = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsACSTargetRemove = new System.Windows.Forms.ToolStripButton();
-            this.tbSendTo = new System.Windows.Forms.TextBox();
-            this.tbListenPort = new System.Windows.Forms.TextBox();
             this.tbCommand = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.tpInquiries = new System.Windows.Forms.TabPage();
-            this.btnLoadPawns = new System.Windows.Forms.Button();
-            this.btnSavePawns = new System.Windows.Forms.Button();
-            this.pawnDataGridView = new System.Windows.Forms.DataGridView();
-            this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn8 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn9 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.bsInquiry = new System.Windows.Forms.BindingSource(this.components);
             this.tpMap = new System.Windows.Forms.TabPage();
             this.pbMap = new System.Windows.Forms.PictureBox();
             this.tkScale = new System.Windows.Forms.TrackBar();
@@ -191,23 +195,48 @@ namespace RomViewer
             this.dataGridViewTextBoxColumn10 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn11 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewCheckBoxColumn1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.colDistance = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colAddObject = new System.Windows.Forms.DataGridViewButtonColumn();
             this.colTarget = new System.Windows.Forms.DataGridViewButtonColumn();
             this.foundObjectBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.settingsGrid = new System.Windows.Forms.PropertyGrid();
+            this.tpSummary = new System.Windows.Forms.TabPage();
+            this.gbCommands = new System.Windows.Forms.GroupBox();
+            this.btnMErchant = new System.Windows.Forms.Button();
+            this.gameNodeComboBox = new System.Windows.Forms.ComboBox();
+            this.gameNodeBindingSource2 = new System.Windows.Forms.BindingSource(this.components);
+            this.label8 = new System.Windows.Forms.Label();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.btnSummon = new System.Windows.Forms.Button();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.btnSwitchClass = new System.Windows.Forms.Button();
+            this.gbToon = new System.Windows.Forms.GroupBox();
+            this.pbMP2 = new ProgressODoom.ProgressBarEx();
+            this.plainBackgroundPainter1 = new ProgressODoom.PlainBackgroundPainter();
+            this.plainBorderPainter1 = new ProgressODoom.PlainBorderPainter();
+            this.plainProgressPainter3 = new ProgressODoom.PlainProgressPainter();
+            this.pbMP = new ProgressODoom.ProgressBarEx();
+            this.plainProgressPainter2 = new ProgressODoom.PlainProgressPainter();
+            this.pbHP = new ProgressODoom.ProgressBarEx();
+            this.plainProgressPainter1 = new ProgressODoom.PlainProgressPainter();
+            this.pbExperience = new System.Windows.Forms.ProgressBar();
+            this.lblPlayer1 = new System.Windows.Forms.Label();
+            this.flatGlossPainter1 = new ProgressODoom.FlatGlossPainter();
             this.label2 = new System.Windows.Forms.Label();
-            this.zoneBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.zoneComboBox = new System.Windows.Forms.ComboBox();
+            this.zoneBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.waypointsBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.waypointsComboBox = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.gameNodeBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.cbNearestNode = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
             this.xbComms = new System.Windows.Forms.CheckBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.startToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -222,21 +251,36 @@ namespace RomViewer
             this.vEndorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bankToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.housemaidToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.miGoto = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.miAddZone = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.rebuildToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.manageNodesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.mapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.commandSelectorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.mapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.manageNodesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pathBuilderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tmrKeyPress = new System.Windows.Forms.Timer(this.components);
             this.btnHideShow = new System.Windows.Forms.Button();
             this.cbSendKeys = new System.Windows.Forms.CheckBox();
             this.modelLoaderThread = new System.ComponentModel.BackgroundWorker();
-            this.pbModelProgress = new System.Windows.Forms.ProgressBar();
             this.lblProgress = new System.Windows.Forms.Label();
             this.btnSetCommsOn = new System.Windows.Forms.Button();
+            this.xbAutoMap = new System.Windows.Forms.CheckBox();
+            this.tmrMap = new System.Windows.Forms.Timer(this.components);
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.pbModelProgress = new System.Windows.Forms.ToolStripProgressBar();
+            this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.xbLoop = new System.Windows.Forms.CheckBox();
+            this.noteIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.btnUpdateWin = new System.Windows.Forms.Button();
+            this.gameNodeBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.cmWhisper = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.cmiOpenWhisper = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnToggleLooping = new System.Windows.Forms.Button();
             class1Label = new System.Windows.Forms.Label();
             class2Label = new System.Windows.Forms.Label();
             guildLabel = new System.Windows.Forms.Label();
@@ -284,22 +328,27 @@ namespace RomViewer
             ((System.ComponentModel.ISupportInitialize)(this.gameObjectsBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gameNodeBindingSource1)).BeginInit();
             this.groupBox4.SuspendLayout();
+            this.groupBox9.SuspendLayout();
             this.groupBox6.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.tsACSTargets.SuspendLayout();
-            this.tpInquiries.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pawnDataGridView)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.bsInquiry)).BeginInit();
             this.tpMap.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbMap)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tkScale)).BeginInit();
             this.tpFind.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.foundObjectDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.foundObjectBindingSource)).BeginInit();
+            this.tabPage1.SuspendLayout();
+            this.tpSummary.SuspendLayout();
+            this.gbCommands.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.gameNodeBindingSource2)).BeginInit();
+            this.gbToon.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.zoneBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.waypointsBindingSource)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gameNodeBindingSource)).BeginInit();
             this.menuStrip1.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.gameNodeBindingSource)).BeginInit();
+            this.cmWhisper.SuspendLayout();
             this.SuspendLayout();
             // 
             // class1Label
@@ -565,20 +614,22 @@ namespace RomViewer
             // 
             // tcChats
             // 
-            this.tcChats.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.tcChats.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tcChats.Controls.Add(this.pageCharacter);
             this.tcChats.Controls.Add(this.tpSettings);
-            this.tcChats.Controls.Add(this.tpInquiries);
             this.tcChats.Controls.Add(this.tpMap);
             this.tcChats.Controls.Add(this.tpFind);
+            this.tcChats.Controls.Add(this.tabPage1);
+            this.tcChats.Controls.Add(this.tpSummary);
             this.tcChats.Location = new System.Drawing.Point(14, 57);
             this.tcChats.Name = "tcChats";
             this.tcChats.SelectedIndex = 0;
-            this.tcChats.Size = new System.Drawing.Size(1109, 687);
+            this.tcChats.Size = new System.Drawing.Size(1109, 560);
             this.tcChats.TabIndex = 1;
             this.tcChats.Selected += new System.Windows.Forms.TabControlEventHandler(this.tcChats_Selected);
+            this.tcChats.TabIndexChanged += new System.EventHandler(this.tcChats_TabIndexChanged);
             // 
             // pageCharacter
             // 
@@ -589,7 +640,7 @@ namespace RomViewer
             this.pageCharacter.Location = new System.Drawing.Point(4, 22);
             this.pageCharacter.Name = "pageCharacter";
             this.pageCharacter.Padding = new System.Windows.Forms.Padding(3);
-            this.pageCharacter.Size = new System.Drawing.Size(1101, 661);
+            this.pageCharacter.Size = new System.Drawing.Size(1101, 534);
             this.pageCharacter.TabIndex = 0;
             this.pageCharacter.Text = "Character";
             this.pageCharacter.UseVisualStyleBackColor = true;
@@ -722,19 +773,28 @@ namespace RomViewer
             // 
             // groupBox2
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.pbModelProgressa);
             this.groupBox2.Controls.Add(this.lblGold);
             this.groupBox2.Controls.Add(this.dataGridView1);
             this.groupBox2.Controls.Add(this.btnRefreshInventory);
             this.groupBox2.Controls.Add(this.dgvInventory);
             this.groupBox2.Location = new System.Drawing.Point(6, 178);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(1089, 459);
+            this.groupBox2.Size = new System.Drawing.Size(1089, 332);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Inventory";
+            // 
+            // pbModelProgressa
+            // 
+            this.pbModelProgressa.Location = new System.Drawing.Point(399, 15);
+            this.pbModelProgressa.Name = "pbModelProgressa";
+            this.pbModelProgressa.Size = new System.Drawing.Size(389, 23);
+            this.pbModelProgressa.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.pbModelProgressa.TabIndex = 59;
             // 
             // lblGold
             // 
@@ -749,9 +809,17 @@ namespace RomViewer
             // 
             this.dataGridView1.AllowUserToAddRows = false;
             this.dataGridView1.AllowUserToDeleteRows = false;
-            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridView1.AutoGenerateColumns = false;
+            dataGridViewCellStyle17.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle17.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle17.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle17.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle17.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle17.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle17.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle17;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.nameDataGridViewTextBoxColumn1,
@@ -767,6 +835,14 @@ namespace RomViewer
             this.objectSubTypeDataGridViewTextBoxColumn1,
             this.objectSubSubTypeDataGridViewTextBoxColumn1});
             this.dataGridView1.DataSource = this.bsEquipment;
+            dataGridViewCellStyle18.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle18.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle18.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle18.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle18.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle18.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle18.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView1.DefaultCellStyle = dataGridViewCellStyle18;
             this.dataGridView1.Location = new System.Drawing.Point(-3, 44);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
@@ -877,10 +953,18 @@ namespace RomViewer
             // 
             this.dgvInventory.AllowUserToAddRows = false;
             this.dgvInventory.AllowUserToDeleteRows = false;
-            this.dgvInventory.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvInventory.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvInventory.AutoGenerateColumns = false;
+            dataGridViewCellStyle19.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle19.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle19.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle19.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle19.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle19.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle19.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvInventory.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle19;
             this.dgvInventory.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvInventory.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.nameDataGridViewTextBoxColumn,
@@ -896,11 +980,19 @@ namespace RomViewer
             this.objectSubTypeDataGridViewTextBoxColumn,
             this.objectSubSubTypeDataGridViewTextBoxColumn});
             this.dgvInventory.DataSource = this.bsInventory;
+            dataGridViewCellStyle20.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle20.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle20.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle20.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle20.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle20.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle20.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvInventory.DefaultCellStyle = dataGridViewCellStyle20;
             this.dgvInventory.Location = new System.Drawing.Point(0, 231);
             this.dgvInventory.Name = "dgvInventory";
             this.dgvInventory.ReadOnly = true;
             this.dgvInventory.RowHeadersVisible = false;
-            this.dgvInventory.Size = new System.Drawing.Size(1083, 249);
+            this.dgvInventory.Size = new System.Drawing.Size(1083, 122);
             this.dgvInventory.TabIndex = 0;
             // 
             // nameDataGridViewTextBoxColumn
@@ -993,8 +1085,8 @@ namespace RomViewer
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.btnMount);
             this.groupBox1.Controls.Add(this.btnTeleport);
             this.groupBox1.Controls.Add(this.btnPlayerUpdate);
@@ -1235,14 +1327,12 @@ namespace RomViewer
             this.tpSettings.Controls.Add(this.groupBox8);
             this.tpSettings.Controls.Add(this.groupBox7);
             this.tpSettings.Controls.Add(this.groupBox4);
-            this.tpSettings.Controls.Add(this.tbSendTo);
-            this.tpSettings.Controls.Add(this.tbListenPort);
             this.tpSettings.Controls.Add(this.tbCommand);
             this.tpSettings.Controls.Add(this.label1);
             this.tpSettings.Location = new System.Drawing.Point(4, 22);
             this.tpSettings.Name = "tpSettings";
             this.tpSettings.Padding = new System.Windows.Forms.Padding(3);
-            this.tpSettings.Size = new System.Drawing.Size(1101, 661);
+            this.tpSettings.Size = new System.Drawing.Size(1101, 534);
             this.tpSettings.TabIndex = 1;
             this.tpSettings.Text = "Settings";
             this.tpSettings.UseVisualStyleBackColor = true;
@@ -1294,12 +1384,28 @@ namespace RomViewer
             this.gameObjectsDataGridView.AllowUserToAddRows = false;
             this.gameObjectsDataGridView.AllowUserToDeleteRows = false;
             this.gameObjectsDataGridView.AutoGenerateColumns = false;
+            dataGridViewCellStyle21.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle21.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle21.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle21.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle21.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle21.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle21.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.gameObjectsDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle21;
             this.gameObjectsDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.gameObjectsDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.dataGridViewTextBoxColumn12,
             this.dataGridViewTextBoxColumn13,
             this.colInteract});
             this.gameObjectsDataGridView.DataSource = this.gameObjectsBindingSource;
+            dataGridViewCellStyle22.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle22.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle22.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle22.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle22.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle22.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle22.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.gameObjectsDataGridView.DefaultCellStyle = dataGridViewCellStyle22;
             this.gameObjectsDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gameObjectsDataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.gameObjectsDataGridView.Location = new System.Drawing.Point(3, 16);
@@ -1347,6 +1453,11 @@ namespace RomViewer
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.xbUseBigSlowAttack);
+            this.groupBox4.Controls.Add(this.xbUseHeals);
+            this.groupBox4.Controls.Add(this.xbUseLongRoot);
+            this.groupBox4.Controls.Add(this.xbUseBuffs);
+            this.groupBox4.Controls.Add(this.groupBox9);
             this.groupBox4.Controls.Add(this.groupBox6);
             this.groupBox4.Controls.Add(this.xbACSAutoTurn);
             this.groupBox4.Controls.Add(this.xbACSPaused);
@@ -1362,12 +1473,96 @@ namespace RomViewer
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Auto Combat";
             // 
+            // xbUseBigSlowAttack
+            // 
+            this.xbUseBigSlowAttack.AutoSize = true;
+            this.xbUseBigSlowAttack.Location = new System.Drawing.Point(12, 197);
+            this.xbUseBigSlowAttack.Name = "xbUseBigSlowAttack";
+            this.xbUseBigSlowAttack.Size = new System.Drawing.Size(123, 17);
+            this.xbUseBigSlowAttack.TabIndex = 13;
+            this.xbUseBigSlowAttack.Text = "Use Big Slow Attack";
+            this.xbUseBigSlowAttack.UseVisualStyleBackColor = true;
+            this.xbUseBigSlowAttack.CheckedChanged += new System.EventHandler(this.xbUseBigSlowAttack_CheckedChanged);
+            // 
+            // xbUseHeals
+            // 
+            this.xbUseHeals.AutoSize = true;
+            this.xbUseHeals.Checked = true;
+            this.xbUseHeals.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.xbUseHeals.Location = new System.Drawing.Point(12, 174);
+            this.xbUseHeals.Name = "xbUseHeals";
+            this.xbUseHeals.Size = new System.Drawing.Size(75, 17);
+            this.xbUseHeals.TabIndex = 12;
+            this.xbUseHeals.Text = "Use Heals";
+            this.xbUseHeals.UseVisualStyleBackColor = true;
+            this.xbUseHeals.CheckedChanged += new System.EventHandler(this.xbUseHeals_CheckedChanged);
+            // 
+            // xbUseLongRoot
+            // 
+            this.xbUseLongRoot.AutoSize = true;
+            this.xbUseLongRoot.Checked = true;
+            this.xbUseLongRoot.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.xbUseLongRoot.Location = new System.Drawing.Point(12, 151);
+            this.xbUseLongRoot.Name = "xbUseLongRoot";
+            this.xbUseLongRoot.Size = new System.Drawing.Size(98, 17);
+            this.xbUseLongRoot.TabIndex = 11;
+            this.xbUseLongRoot.Text = "Use Long Root";
+            this.xbUseLongRoot.UseVisualStyleBackColor = true;
+            this.xbUseLongRoot.CheckedChanged += new System.EventHandler(this.xbUseLongRoot_CheckedChanged);
+            // 
+            // xbUseBuffs
+            // 
+            this.xbUseBuffs.AutoSize = true;
+            this.xbUseBuffs.Checked = true;
+            this.xbUseBuffs.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.xbUseBuffs.Location = new System.Drawing.Point(12, 128);
+            this.xbUseBuffs.Name = "xbUseBuffs";
+            this.xbUseBuffs.Size = new System.Drawing.Size(72, 17);
+            this.xbUseBuffs.TabIndex = 10;
+            this.xbUseBuffs.Text = "Use Buffs";
+            this.xbUseBuffs.UseVisualStyleBackColor = true;
+            this.xbUseBuffs.CheckedChanged += new System.EventHandler(this.xbUseBuffs_CheckedChanged);
+            // 
+            // groupBox9
+            // 
+            this.groupBox9.Controls.Add(this.rbDIYCE);
+            this.groupBox9.Controls.Add(this.rbACS);
+            this.groupBox9.Location = new System.Drawing.Point(12, 16);
+            this.groupBox9.Name = "groupBox9";
+            this.groupBox9.Size = new System.Drawing.Size(239, 36);
+            this.groupBox9.TabIndex = 9;
+            this.groupBox9.TabStop = false;
+            // 
+            // rbDIYCE
+            // 
+            this.rbDIYCE.AutoSize = true;
+            this.rbDIYCE.Location = new System.Drawing.Point(159, 13);
+            this.rbDIYCE.Name = "rbDIYCE";
+            this.rbDIYCE.Size = new System.Drawing.Size(57, 17);
+            this.rbDIYCE.TabIndex = 1;
+            this.rbDIYCE.Text = "DIYCE";
+            this.rbDIYCE.UseVisualStyleBackColor = true;
+            // 
+            // rbACS
+            // 
+            this.rbACS.AutoSize = true;
+            this.rbACS.Checked = true;
+            this.rbACS.Location = new System.Drawing.Point(13, 13);
+            this.rbACS.Name = "rbACS";
+            this.rbACS.Size = new System.Drawing.Size(46, 17);
+            this.rbACS.TabIndex = 0;
+            this.rbACS.TabStop = true;
+            this.rbACS.Text = "ACS";
+            this.rbACS.UseVisualStyleBackColor = true;
+            // 
             // groupBox6
             // 
-            this.groupBox6.Controls.Add(this.panel2);
-            this.groupBox6.Controls.Add(this.panel1);
+            this.groupBox6.Controls.Add(this.xbQFilterState);
+            this.groupBox6.Controls.Add(this.label5);
+            this.groupBox6.Controls.Add(this.btnApplyLootfilterSettings);
+            this.groupBox6.Controls.Add(this.tbBlack);
+            this.groupBox6.Controls.Add(this.tbPick);
             this.groupBox6.Controls.Add(this.cbLFQuality);
-            this.groupBox6.Controls.Add(this.xbLFQualityFilter);
             this.groupBox6.Location = new System.Drawing.Point(576, 19);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Size = new System.Drawing.Size(404, 219);
@@ -1375,42 +1570,73 @@ namespace RomViewer
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "LootFilter";
             // 
-            // panel2
+            // xbQFilterState
             // 
-            this.panel2.Location = new System.Drawing.Point(178, 57);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(163, 148);
-            this.panel2.TabIndex = 3;
+            this.xbQFilterState.AutoSize = true;
+            this.xbQFilterState.Location = new System.Drawing.Point(64, 0);
+            this.xbQFilterState.Name = "xbQFilterState";
+            this.xbQFilterState.Size = new System.Drawing.Size(15, 14);
+            this.xbQFilterState.TabIndex = 6;
+            this.xbQFilterState.UseVisualStyleBackColor = true;
+            this.xbQFilterState.CheckedChanged += new System.EventHandler(this.xbQFilterState_CheckedChanged);
             // 
-            // panel1
+            // label5
             // 
-            this.panel1.Location = new System.Drawing.Point(9, 56);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(163, 148);
-            this.panel1.TabIndex = 2;
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(19, 23);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(39, 13);
+            this.label5.TabIndex = 5;
+            this.label5.Text = "Quality";
+            // 
+            // btnApplyLootfilterSettings
+            // 
+            this.btnApplyLootfilterSettings.Location = new System.Drawing.Point(317, 21);
+            this.btnApplyLootfilterSettings.Name = "btnApplyLootfilterSettings";
+            this.btnApplyLootfilterSettings.Size = new System.Drawing.Size(75, 23);
+            this.btnApplyLootfilterSettings.TabIndex = 4;
+            this.btnApplyLootfilterSettings.Text = "Apply";
+            this.btnApplyLootfilterSettings.UseVisualStyleBackColor = true;
+            this.btnApplyLootfilterSettings.Click += new System.EventHandler(this.btnApplyLootfilterSettings_Click);
+            // 
+            // tbBlack
+            // 
+            this.tbBlack.Location = new System.Drawing.Point(206, 61);
+            this.tbBlack.Multiline = true;
+            this.tbBlack.Name = "tbBlack";
+            this.tbBlack.Size = new System.Drawing.Size(186, 144);
+            this.tbBlack.TabIndex = 3;
+            this.tbBlack.Text = "*rrow*";
+            // 
+            // tbPick
+            // 
+            this.tbPick.Location = new System.Drawing.Point(14, 61);
+            this.tbPick.Multiline = true;
+            this.tbPick.Name = "tbPick";
+            this.tbPick.Size = new System.Drawing.Size(186, 144);
+            this.tbPick.TabIndex = 2;
+            this.tbPick.Text = "*meat*\r\n*rune\r\n*Rune\r\n*III\r\n*IV\r\nAncient*\r\n";
             // 
             // cbLFQuality
             // 
             this.cbLFQuality.FormattingEnabled = true;
-            this.cbLFQuality.Location = new System.Drawing.Point(108, 23);
+            this.cbLFQuality.Items.AddRange(new object[] {
+            "WHITE",
+            "GREEN",
+            "BLUE",
+            "PURPLE",
+            "ORANGE",
+            "GOLD"});
+            this.cbLFQuality.Location = new System.Drawing.Point(64, 23);
             this.cbLFQuality.Name = "cbLFQuality";
-            this.cbLFQuality.Size = new System.Drawing.Size(279, 21);
+            this.cbLFQuality.Size = new System.Drawing.Size(247, 21);
             this.cbLFQuality.TabIndex = 1;
-            // 
-            // xbLFQualityFilter
-            // 
-            this.xbLFQualityFilter.AutoSize = true;
-            this.xbLFQualityFilter.Location = new System.Drawing.Point(13, 25);
-            this.xbLFQualityFilter.Name = "xbLFQualityFilter";
-            this.xbLFQualityFilter.Size = new System.Drawing.Size(89, 17);
-            this.xbLFQualityFilter.TabIndex = 0;
-            this.xbLFQualityFilter.Text = "Quality Filter?";
-            this.xbLFQualityFilter.UseVisualStyleBackColor = true;
+            this.cbLFQuality.Text = "BLUE";
             // 
             // xbACSAutoTurn
             // 
             this.xbACSAutoTurn.AutoSize = true;
-            this.xbACSAutoTurn.Location = new System.Drawing.Point(137, 23);
+            this.xbACSAutoTurn.Location = new System.Drawing.Point(137, 58);
             this.xbACSAutoTurn.Name = "xbACSAutoTurn";
             this.xbACSAutoTurn.Size = new System.Drawing.Size(69, 17);
             this.xbACSAutoTurn.TabIndex = 5;
@@ -1421,7 +1647,7 @@ namespace RomViewer
             // xbACSPaused
             // 
             this.xbACSPaused.AutoSize = true;
-            this.xbACSPaused.Location = new System.Drawing.Point(69, 23);
+            this.xbACSPaused.Location = new System.Drawing.Point(69, 58);
             this.xbACSPaused.Name = "xbACSPaused";
             this.xbACSPaused.Size = new System.Drawing.Size(62, 17);
             this.xbACSPaused.TabIndex = 4;
@@ -1432,11 +1658,10 @@ namespace RomViewer
             // rbPvp
             // 
             this.rbPvp.AutoSize = true;
-            this.rbPvp.Location = new System.Drawing.Point(192, 57);
+            this.rbPvp.Location = new System.Drawing.Point(192, 92);
             this.rbPvp.Name = "rbPvp";
             this.rbPvp.Size = new System.Drawing.Size(46, 17);
             this.rbPvp.TabIndex = 3;
-            this.rbPvp.TabStop = true;
             this.rbPvp.Text = "PVP";
             this.rbPvp.UseVisualStyleBackColor = true;
             this.rbPvp.CheckedChanged += new System.EventHandler(this.rb2h_CheckedChanged);
@@ -1444,11 +1669,10 @@ namespace RomViewer
             // rb2h
             // 
             this.rb2h.AutoSize = true;
-            this.rb2h.Location = new System.Drawing.Point(105, 57);
+            this.rb2h.Location = new System.Drawing.Point(105, 92);
             this.rb2h.Name = "rb2h";
             this.rb2h.Size = new System.Drawing.Size(70, 17);
             this.rb2h.TabIndex = 2;
-            this.rb2h.TabStop = true;
             this.rb2h.Text = "2 handed";
             this.rb2h.UseVisualStyleBackColor = true;
             this.rb2h.CheckedChanged += new System.EventHandler(this.rb2h_CheckedChanged);
@@ -1456,11 +1680,10 @@ namespace RomViewer
             // rb1h
             // 
             this.rb1h.AutoSize = true;
-            this.rb1h.Location = new System.Drawing.Point(12, 57);
+            this.rb1h.Location = new System.Drawing.Point(12, 92);
             this.rb1h.Name = "rb1h";
             this.rb1h.Size = new System.Drawing.Size(70, 17);
             this.rb1h.TabIndex = 1;
-            this.rb1h.TabStop = true;
             this.rb1h.Text = "1 handed";
             this.rb1h.UseVisualStyleBackColor = true;
             this.rb1h.CheckedChanged += new System.EventHandler(this.rb2h_CheckedChanged);
@@ -1468,7 +1691,7 @@ namespace RomViewer
             // xbACSOn
             // 
             this.xbACSOn.AutoSize = true;
-            this.xbACSOn.Location = new System.Drawing.Point(12, 23);
+            this.xbACSOn.Location = new System.Drawing.Point(12, 58);
             this.xbACSOn.Name = "xbACSOn";
             this.xbACSOn.Size = new System.Drawing.Size(40, 17);
             this.xbACSOn.TabIndex = 0;
@@ -1478,8 +1701,9 @@ namespace RomViewer
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.tbTargets);
+            this.groupBox5.Controls.Add(this.btnClearTargets);
             this.groupBox5.Controls.Add(this.xbACSAutoTarget);
-            this.groupBox5.Controls.Add(this.lbACSTargets);
             this.groupBox5.Controls.Add(this.tsACSTargets);
             this.groupBox5.Location = new System.Drawing.Point(267, 19);
             this.groupBox5.Name = "groupBox5";
@@ -1487,6 +1711,24 @@ namespace RomViewer
             this.groupBox5.TabIndex = 7;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Targets";
+            // 
+            // tbTargets
+            // 
+            this.tbTargets.Location = new System.Drawing.Point(11, 47);
+            this.tbTargets.Multiline = true;
+            this.tbTargets.Name = "tbTargets";
+            this.tbTargets.Size = new System.Drawing.Size(269, 158);
+            this.tbTargets.TabIndex = 11;
+            // 
+            // btnClearTargets
+            // 
+            this.btnClearTargets.Location = new System.Drawing.Point(6, 15);
+            this.btnClearTargets.Name = "btnClearTargets";
+            this.btnClearTargets.Size = new System.Drawing.Size(195, 23);
+            this.btnClearTargets.TabIndex = 10;
+            this.btnClearTargets.Text = "Set Targets";
+            this.btnClearTargets.UseVisualStyleBackColor = true;
+            this.btnClearTargets.Click += new System.EventHandler(this.btnClearTargets_Click);
             // 
             // xbACSAutoTarget
             // 
@@ -1498,17 +1740,6 @@ namespace RomViewer
             this.xbACSAutoTarget.Text = "Auto Target";
             this.xbACSAutoTarget.UseVisualStyleBackColor = true;
             this.xbACSAutoTarget.CheckedChanged += new System.EventHandler(this.xbACSAutoTarget_CheckedChanged);
-            // 
-            // lbACSTargets
-            // 
-            this.lbACSTargets.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.lbACSTargets.FormattingEnabled = true;
-            this.lbACSTargets.Location = new System.Drawing.Point(6, 45);
-            this.lbACSTargets.Name = "lbACSTargets";
-            this.lbACSTargets.Size = new System.Drawing.Size(283, 160);
-            this.lbACSTargets.TabIndex = 0;
             // 
             // tsACSTargets
             // 
@@ -1522,6 +1753,7 @@ namespace RomViewer
             this.tsACSTargets.Size = new System.Drawing.Size(289, 25);
             this.tsACSTargets.TabIndex = 1;
             this.tsACSTargets.Text = "toolStrip1";
+            this.tsACSTargets.Visible = false;
             // 
             // tebTargetName
             // 
@@ -1553,146 +1785,22 @@ namespace RomViewer
             this.tsACSTargetRemove.Text = "-";
             this.tsACSTargetRemove.Click += new System.EventHandler(this.tsACSTargetRemove_Click);
             // 
-            // tbSendTo
-            // 
-            this.tbSendTo.Location = new System.Drawing.Point(72, 18);
-            this.tbSendTo.Name = "tbSendTo";
-            this.tbSendTo.Size = new System.Drawing.Size(45, 20);
-            this.tbSendTo.TabIndex = 6;
-            this.tbSendTo.Text = "60999";
-            // 
-            // tbListenPort
-            // 
-            this.tbListenPort.Location = new System.Drawing.Point(20, 18);
-            this.tbListenPort.Name = "tbListenPort";
-            this.tbListenPort.Size = new System.Drawing.Size(46, 20);
-            this.tbListenPort.TabIndex = 5;
-            this.tbListenPort.Text = "60000";
-            // 
             // tbCommand
             // 
-            this.tbCommand.Location = new System.Drawing.Point(221, 18);
+            this.tbCommand.Location = new System.Drawing.Point(77, 18);
             this.tbCommand.Name = "tbCommand";
-            this.tbCommand.Size = new System.Drawing.Size(854, 20);
+            this.tbCommand.Size = new System.Drawing.Size(998, 20);
             this.tbCommand.TabIndex = 4;
             this.tbCommand.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbCommand_KeyDown);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(153, 19);
+            this.label1.Location = new System.Drawing.Point(14, 21);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(57, 13);
             this.label1.TabIndex = 3;
             this.label1.Text = "Command:";
-            // 
-            // tpInquiries
-            // 
-            this.tpInquiries.Controls.Add(this.btnLoadPawns);
-            this.tpInquiries.Controls.Add(this.btnSavePawns);
-            this.tpInquiries.Controls.Add(this.pawnDataGridView);
-            this.tpInquiries.Location = new System.Drawing.Point(4, 22);
-            this.tpInquiries.Name = "tpInquiries";
-            this.tpInquiries.Padding = new System.Windows.Forms.Padding(3);
-            this.tpInquiries.Size = new System.Drawing.Size(1101, 661);
-            this.tpInquiries.TabIndex = 2;
-            this.tpInquiries.Text = "Inquiries";
-            this.tpInquiries.UseVisualStyleBackColor = true;
-            // 
-            // btnLoadPawns
-            // 
-            this.btnLoadPawns.Location = new System.Drawing.Point(87, 8);
-            this.btnLoadPawns.Name = "btnLoadPawns";
-            this.btnLoadPawns.Size = new System.Drawing.Size(75, 23);
-            this.btnLoadPawns.TabIndex = 2;
-            this.btnLoadPawns.Text = "Load";
-            this.btnLoadPawns.UseVisualStyleBackColor = true;
-            // 
-            // btnSavePawns
-            // 
-            this.btnSavePawns.Location = new System.Drawing.Point(6, 8);
-            this.btnSavePawns.Name = "btnSavePawns";
-            this.btnSavePawns.Size = new System.Drawing.Size(75, 23);
-            this.btnSavePawns.TabIndex = 1;
-            this.btnSavePawns.Text = "Save";
-            this.btnSavePawns.UseVisualStyleBackColor = true;
-            this.btnSavePawns.Click += new System.EventHandler(this.btnSavePawns_Click);
-            // 
-            // pawnDataGridView
-            // 
-            this.pawnDataGridView.AllowUserToAddRows = false;
-            this.pawnDataGridView.AllowUserToDeleteRows = false;
-            this.pawnDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.pawnDataGridView.AutoGenerateColumns = false;
-            this.pawnDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.pawnDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.dataGridViewTextBoxColumn3,
-            this.dataGridViewTextBoxColumn7,
-            this.dataGridViewTextBoxColumn5,
-            this.dataGridViewTextBoxColumn8,
-            this.dataGridViewTextBoxColumn6,
-            this.dataGridViewTextBoxColumn9,
-            this.dataGridViewTextBoxColumn1,
-            this.dataGridViewTextBoxColumn2});
-            this.pawnDataGridView.DataSource = this.bsInquiry;
-            this.pawnDataGridView.Location = new System.Drawing.Point(3, 37);
-            this.pawnDataGridView.Name = "pawnDataGridView";
-            this.pawnDataGridView.Size = new System.Drawing.Size(1026, 570);
-            this.pawnDataGridView.TabIndex = 0;
-            // 
-            // dataGridViewTextBoxColumn3
-            // 
-            this.dataGridViewTextBoxColumn3.DataPropertyName = "Name";
-            this.dataGridViewTextBoxColumn3.HeaderText = "Name";
-            this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
-            // 
-            // dataGridViewTextBoxColumn7
-            // 
-            this.dataGridViewTextBoxColumn7.DataPropertyName = "Guild";
-            this.dataGridViewTextBoxColumn7.HeaderText = "Guild";
-            this.dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
-            // 
-            // dataGridViewTextBoxColumn5
-            // 
-            this.dataGridViewTextBoxColumn5.DataPropertyName = "Class1";
-            this.dataGridViewTextBoxColumn5.HeaderText = "Class1";
-            this.dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
-            // 
-            // dataGridViewTextBoxColumn8
-            // 
-            this.dataGridViewTextBoxColumn8.DataPropertyName = "Level";
-            this.dataGridViewTextBoxColumn8.HeaderText = "Level";
-            this.dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
-            // 
-            // dataGridViewTextBoxColumn6
-            // 
-            this.dataGridViewTextBoxColumn6.DataPropertyName = "Class2";
-            this.dataGridViewTextBoxColumn6.HeaderText = "Class2";
-            this.dataGridViewTextBoxColumn6.Name = "dataGridViewTextBoxColumn6";
-            // 
-            // dataGridViewTextBoxColumn9
-            // 
-            this.dataGridViewTextBoxColumn9.DataPropertyName = "Level2";
-            this.dataGridViewTextBoxColumn9.HeaderText = "Level2";
-            this.dataGridViewTextBoxColumn9.Name = "dataGridViewTextBoxColumn9";
-            // 
-            // dataGridViewTextBoxColumn1
-            // 
-            this.dataGridViewTextBoxColumn1.DataPropertyName = "Location";
-            this.dataGridViewTextBoxColumn1.HeaderText = "Location";
-            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
-            // 
-            // dataGridViewTextBoxColumn2
-            // 
-            this.dataGridViewTextBoxColumn2.DataPropertyName = "Sex";
-            this.dataGridViewTextBoxColumn2.HeaderText = "Sex";
-            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
-            // 
-            // bsInquiry
-            // 
-            this.bsInquiry.DataSource = typeof(RomViewer.Domain.Pawn);
             // 
             // tpMap
             // 
@@ -1703,7 +1811,7 @@ namespace RomViewer
             this.tpMap.Location = new System.Drawing.Point(4, 22);
             this.tpMap.Name = "tpMap";
             this.tpMap.Padding = new System.Windows.Forms.Padding(3);
-            this.tpMap.Size = new System.Drawing.Size(1101, 661);
+            this.tpMap.Size = new System.Drawing.Size(1101, 534);
             this.tpMap.TabIndex = 3;
             this.tpMap.Text = "Map";
             this.tpMap.UseVisualStyleBackColor = true;
@@ -1713,7 +1821,7 @@ namespace RomViewer
             this.pbMap.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pbMap.Location = new System.Drawing.Point(3, 3);
             this.pbMap.Name = "pbMap";
-            this.pbMap.Size = new System.Drawing.Size(1060, 638);
+            this.pbMap.Size = new System.Drawing.Size(1060, 511);
             this.pbMap.TabIndex = 3;
             this.pbMap.TabStop = false;
             this.pbMap.Resize += new System.EventHandler(this.pbMap_Resize);
@@ -1737,7 +1845,7 @@ namespace RomViewer
             // hsbMap
             // 
             this.hsbMap.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.hsbMap.Location = new System.Drawing.Point(3, 641);
+            this.hsbMap.Location = new System.Drawing.Point(3, 514);
             this.hsbMap.Name = "hsbMap";
             this.hsbMap.Size = new System.Drawing.Size(1078, 17);
             this.hsbMap.TabIndex = 1;
@@ -1748,7 +1856,7 @@ namespace RomViewer
             this.vsbMap.Dock = System.Windows.Forms.DockStyle.Right;
             this.vsbMap.Location = new System.Drawing.Point(1081, 3);
             this.vsbMap.Name = "vsbMap";
-            this.vsbMap.Size = new System.Drawing.Size(17, 655);
+            this.vsbMap.Size = new System.Drawing.Size(17, 528);
             this.vsbMap.TabIndex = 0;
             this.vsbMap.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hsbMap_Scroll);
             // 
@@ -1759,7 +1867,7 @@ namespace RomViewer
             this.tpFind.Location = new System.Drawing.Point(4, 22);
             this.tpFind.Name = "tpFind";
             this.tpFind.Padding = new System.Windows.Forms.Padding(3);
-            this.tpFind.Size = new System.Drawing.Size(1101, 661);
+            this.tpFind.Size = new System.Drawing.Size(1101, 534);
             this.tpFind.TabIndex = 4;
             this.tpFind.Text = "Objects";
             this.tpFind.UseVisualStyleBackColor = true;
@@ -1778,19 +1886,36 @@ namespace RomViewer
             // 
             this.foundObjectDataGridView.AllowUserToAddRows = false;
             this.foundObjectDataGridView.AllowUserToDeleteRows = false;
-            this.foundObjectDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.foundObjectDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.foundObjectDataGridView.AutoGenerateColumns = false;
+            dataGridViewCellStyle23.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle23.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle23.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle23.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle23.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle23.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle23.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.foundObjectDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle23;
             this.foundObjectDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.foundObjectDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.dataGridViewTextBoxColumn4,
             this.dataGridViewTextBoxColumn10,
             this.dataGridViewTextBoxColumn11,
             this.dataGridViewCheckBoxColumn1,
+            this.colDistance,
             this.colAddObject,
             this.colTarget});
             this.foundObjectDataGridView.DataSource = this.foundObjectBindingSource;
+            dataGridViewCellStyle24.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle24.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle24.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle24.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle24.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle24.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle24.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.foundObjectDataGridView.DefaultCellStyle = dataGridViewCellStyle24;
             this.foundObjectDataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.foundObjectDataGridView.Location = new System.Drawing.Point(3, 35);
             this.foundObjectDataGridView.Name = "foundObjectDataGridView";
@@ -1799,6 +1924,7 @@ namespace RomViewer
             this.foundObjectDataGridView.Size = new System.Drawing.Size(1095, 623);
             this.foundObjectDataGridView.TabIndex = 0;
             this.foundObjectDataGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.foundObjectDataGridView_CellClick);
+            this.foundObjectDataGridView.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.foundObjectDataGridView_CellFormatting);
             // 
             // dataGridViewTextBoxColumn4
             // 
@@ -1835,6 +1961,12 @@ namespace RomViewer
             this.dataGridViewCheckBoxColumn1.ReadOnly = true;
             this.dataGridViewCheckBoxColumn1.Width = 64;
             // 
+            // colDistance
+            // 
+            this.colDistance.HeaderText = "Distance";
+            this.colDistance.Name = "colDistance";
+            this.colDistance.ReadOnly = true;
+            // 
             // colAddObject
             // 
             this.colAddObject.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
@@ -1856,6 +1988,270 @@ namespace RomViewer
             // 
             this.foundObjectBindingSource.DataSource = typeof(RomViewer.FoundObject);
             // 
+            // tabPage1
+            // 
+            this.tabPage1.Controls.Add(this.settingsGrid);
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(1101, 534);
+            this.tabPage1.TabIndex = 5;
+            this.tabPage1.Text = "tabPage1";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // settingsGrid
+            // 
+            this.settingsGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.settingsGrid.Location = new System.Drawing.Point(3, 3);
+            this.settingsGrid.Name = "settingsGrid";
+            this.settingsGrid.Size = new System.Drawing.Size(1095, 528);
+            this.settingsGrid.TabIndex = 0;
+            // 
+            // tpSummary
+            // 
+            this.tpSummary.Controls.Add(this.gbCommands);
+            this.tpSummary.Controls.Add(this.gbToon);
+            this.tpSummary.Location = new System.Drawing.Point(4, 22);
+            this.tpSummary.Name = "tpSummary";
+            this.tpSummary.Padding = new System.Windows.Forms.Padding(3);
+            this.tpSummary.Size = new System.Drawing.Size(1101, 534);
+            this.tpSummary.TabIndex = 6;
+            this.tpSummary.Text = "Summary";
+            this.tpSummary.UseVisualStyleBackColor = true;
+            // 
+            // gbCommands
+            // 
+            this.gbCommands.Controls.Add(this.btnMErchant);
+            this.gbCommands.Controls.Add(this.gameNodeComboBox);
+            this.gbCommands.Controls.Add(this.label8);
+            this.gbCommands.Controls.Add(this.textBox2);
+            this.gbCommands.Controls.Add(this.label7);
+            this.gbCommands.Controls.Add(this.btnSummon);
+            this.gbCommands.Controls.Add(this.textBox1);
+            this.gbCommands.Controls.Add(this.label6);
+            this.gbCommands.Controls.Add(this.btnSwitchClass);
+            this.gbCommands.Location = new System.Drawing.Point(299, 15);
+            this.gbCommands.Name = "gbCommands";
+            this.gbCommands.Size = new System.Drawing.Size(382, 132);
+            this.gbCommands.TabIndex = 1;
+            this.gbCommands.TabStop = false;
+            this.gbCommands.Text = "groupBox10";
+            // 
+            // btnMErchant
+            // 
+            this.btnMErchant.Location = new System.Drawing.Point(320, 77);
+            this.btnMErchant.Name = "btnMErchant";
+            this.btnMErchant.Size = new System.Drawing.Size(47, 23);
+            this.btnMErchant.TabIndex = 8;
+            this.btnMErchant.Text = "Go";
+            this.btnMErchant.UseVisualStyleBackColor = true;
+            this.btnMErchant.Click += new System.EventHandler(this.btnMErchant_Click);
+            // 
+            // gameNodeComboBox
+            // 
+            this.gameNodeComboBox.DataSource = this.gameNodeBindingSource2;
+            this.gameNodeComboBox.DisplayMember = "Name";
+            this.gameNodeComboBox.FormattingEnabled = true;
+            this.gameNodeComboBox.Location = new System.Drawing.Point(62, 79);
+            this.gameNodeComboBox.Name = "gameNodeComboBox";
+            this.gameNodeComboBox.Size = new System.Drawing.Size(249, 21);
+            this.gameNodeComboBox.TabIndex = 7;
+            this.gameNodeComboBox.ValueMember = "Coordinates";
+            // 
+            // gameNodeBindingSource2
+            // 
+            this.gameNodeBindingSource2.DataMember = "GameObjects";
+            this.gameNodeBindingSource2.DataSource = typeof(RomViewer.Model.GameNode);
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(6, 81);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(52, 13);
+            this.label8.TabIndex = 6;
+            this.label8.Text = "Merchant";
+            // 
+            // textBox2
+            // 
+            this.textBox2.Location = new System.Drawing.Point(60, 47);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(72, 20);
+            this.textBox2.TabIndex = 5;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(12, 49);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(44, 13);
+            this.label7.TabIndex = 4;
+            this.label7.Text = "Pet Slot";
+            // 
+            // btnSummon
+            // 
+            this.btnSummon.Location = new System.Drawing.Point(138, 45);
+            this.btnSummon.Name = "btnSummon";
+            this.btnSummon.Size = new System.Drawing.Size(75, 23);
+            this.btnSummon.TabIndex = 3;
+            this.btnSummon.Text = "Summon";
+            this.btnSummon.UseVisualStyleBackColor = true;
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(60, 21);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(198, 20);
+            this.textBox1.TabIndex = 2;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(12, 23);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(39, 13);
+            this.label6.TabIndex = 1;
+            this.label6.Text = "Inquire";
+            // 
+            // btnSwitchClass
+            // 
+            this.btnSwitchClass.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSwitchClass.Location = new System.Drawing.Point(301, 19);
+            this.btnSwitchClass.Name = "btnSwitchClass";
+            this.btnSwitchClass.Size = new System.Drawing.Size(75, 23);
+            this.btnSwitchClass.TabIndex = 0;
+            this.btnSwitchClass.Text = "Switch";
+            this.btnSwitchClass.UseVisualStyleBackColor = true;
+            // 
+            // gbToon
+            // 
+            this.gbToon.Controls.Add(this.pbMP2);
+            this.gbToon.Controls.Add(this.pbMP);
+            this.gbToon.Controls.Add(this.pbHP);
+            this.gbToon.Controls.Add(this.pbExperience);
+            this.gbToon.Controls.Add(this.lblPlayer1);
+            this.gbToon.Location = new System.Drawing.Point(6, 6);
+            this.gbToon.Name = "gbToon";
+            this.gbToon.Size = new System.Drawing.Size(272, 141);
+            this.gbToon.TabIndex = 0;
+            this.gbToon.TabStop = false;
+            this.gbToon.Text = "groupBox10";
+            // 
+            // pbMP2
+            // 
+            this.pbMP2.BackgroundPainter = this.plainBackgroundPainter1;
+            this.pbMP2.BorderPainter = this.plainBorderPainter1;
+            this.pbMP2.Location = new System.Drawing.Point(15, 90);
+            this.pbMP2.MarqueePercentage = 25;
+            this.pbMP2.MarqueeSpeed = 30;
+            this.pbMP2.MarqueeStep = 1;
+            this.pbMP2.Maximum = 100;
+            this.pbMP2.Minimum = 0;
+            this.pbMP2.Name = "pbMP2";
+            this.pbMP2.ProgressPadding = 0;
+            this.pbMP2.ProgressPainter = this.plainProgressPainter3;
+            this.pbMP2.ProgressType = ProgressODoom.ProgressType.Smooth;
+            this.pbMP2.ShowPercentage = false;
+            this.pbMP2.Size = new System.Drawing.Size(240, 10);
+            this.pbMP2.TabIndex = 7;
+            this.pbMP2.Value = 0;
+            // 
+            // plainBackgroundPainter1
+            // 
+            this.plainBackgroundPainter1.Color = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+            this.plainBackgroundPainter1.GlossPainter = null;
+            // 
+            // plainBorderPainter1
+            // 
+            this.plainBorderPainter1.Color = System.Drawing.Color.Black;
+            this.plainBorderPainter1.RoundedCorners = false;
+            this.plainBorderPainter1.Style = ProgressODoom.PlainBorderPainter.PlainBorderStyle.Flat;
+            // 
+            // plainProgressPainter3
+            // 
+            this.plainProgressPainter3.Color = System.Drawing.Color.Blue;
+            this.plainProgressPainter3.GlossPainter = null;
+            this.plainProgressPainter3.LeadingEdge = System.Drawing.Color.Transparent;
+            this.plainProgressPainter3.ProgressBorderPainter = null;
+            // 
+            // pbMP
+            // 
+            this.pbMP.BackgroundPainter = this.plainBackgroundPainter1;
+            this.pbMP.BorderPainter = this.plainBorderPainter1;
+            this.pbMP.Location = new System.Drawing.Point(15, 74);
+            this.pbMP.MarqueePercentage = 25;
+            this.pbMP.MarqueeSpeed = 30;
+            this.pbMP.MarqueeStep = 1;
+            this.pbMP.Maximum = 100;
+            this.pbMP.Minimum = 0;
+            this.pbMP.Name = "pbMP";
+            this.pbMP.ProgressPadding = 0;
+            this.pbMP.ProgressPainter = this.plainProgressPainter2;
+            this.pbMP.ProgressType = ProgressODoom.ProgressType.Smooth;
+            this.pbMP.ShowPercentage = false;
+            this.pbMP.Size = new System.Drawing.Size(240, 10);
+            this.pbMP.TabIndex = 6;
+            this.pbMP.Value = 0;
+            // 
+            // plainProgressPainter2
+            // 
+            this.plainProgressPainter2.Color = System.Drawing.Color.Lime;
+            this.plainProgressPainter2.GlossPainter = null;
+            this.plainProgressPainter2.LeadingEdge = System.Drawing.Color.Transparent;
+            this.plainProgressPainter2.ProgressBorderPainter = null;
+            // 
+            // pbHP
+            // 
+            this.pbHP.BackgroundPainter = this.plainBackgroundPainter1;
+            this.pbHP.BorderPainter = this.plainBorderPainter1;
+            this.pbHP.Location = new System.Drawing.Point(15, 58);
+            this.pbHP.MarqueePercentage = 25;
+            this.pbHP.MarqueeSpeed = 30;
+            this.pbHP.MarqueeStep = 1;
+            this.pbHP.Maximum = 100;
+            this.pbHP.Minimum = 0;
+            this.pbHP.Name = "pbHP";
+            this.pbHP.ProgressPadding = 0;
+            this.pbHP.ProgressPainter = this.plainProgressPainter1;
+            this.pbHP.ProgressType = ProgressODoom.ProgressType.Smooth;
+            this.pbHP.ShowPercentage = false;
+            this.pbHP.Size = new System.Drawing.Size(240, 10);
+            this.pbHP.TabIndex = 5;
+            this.pbHP.Value = 0;
+            // 
+            // plainProgressPainter1
+            // 
+            this.plainProgressPainter1.Color = System.Drawing.Color.Red;
+            this.plainProgressPainter1.GlossPainter = null;
+            this.plainProgressPainter1.LeadingEdge = System.Drawing.Color.Transparent;
+            this.plainProgressPainter1.ProgressBorderPainter = null;
+            // 
+            // pbExperience
+            // 
+            this.pbExperience.ForeColor = System.Drawing.Color.MidnightBlue;
+            this.pbExperience.Location = new System.Drawing.Point(17, 36);
+            this.pbExperience.Name = "pbExperience";
+            this.pbExperience.Size = new System.Drawing.Size(239, 15);
+            this.pbExperience.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.pbExperience.TabIndex = 4;
+            // 
+            // lblPlayer1
+            // 
+            this.lblPlayer1.AutoSize = true;
+            this.lblPlayer1.Location = new System.Drawing.Point(14, 20);
+            this.lblPlayer1.Name = "lblPlayer1";
+            this.lblPlayer1.Size = new System.Drawing.Size(163, 13);
+            this.lblPlayer1.TabIndex = 0;
+            this.lblPlayer1.Text = "S55/M50 Human (Female) [guild]";
+            // 
+            // flatGlossPainter1
+            // 
+            this.flatGlossPainter1.Alpha = 128;
+            this.flatGlossPainter1.Color = System.Drawing.Color.White;
+            this.flatGlossPainter1.PercentageCovered = 50;
+            this.flatGlossPainter1.Style = ProgressODoom.GlossStyle.Bottom;
+            this.flatGlossPainter1.Successor = null;
+            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -1864,11 +2260,6 @@ namespace RomViewer
             this.label2.Size = new System.Drawing.Size(32, 13);
             this.label2.TabIndex = 40;
             this.label2.Text = "Zone";
-            // 
-            // zoneBindingSource
-            // 
-            this.zoneBindingSource.DataSource = typeof(RomViewer.Model.Zone);
-            this.zoneBindingSource.PositionChanged += new System.EventHandler(this.zoneBindingSource_PositionChanged);
             // 
             // zoneComboBox
             // 
@@ -1880,6 +2271,11 @@ namespace RomViewer
             this.zoneComboBox.Size = new System.Drawing.Size(166, 21);
             this.zoneComboBox.TabIndex = 41;
             this.zoneComboBox.ValueMember = "Id";
+            // 
+            // zoneBindingSource
+            // 
+            this.zoneBindingSource.DataSource = typeof(RomViewer.Model.Zone);
+            this.zoneBindingSource.PositionChanged += new System.EventHandler(this.zoneBindingSource_PositionChanged);
             // 
             // waypointsBindingSource
             // 
@@ -1905,10 +2301,6 @@ namespace RomViewer
             this.label3.Size = new System.Drawing.Size(54, 13);
             this.label3.TabIndex = 42;
             this.label3.Text = "Last node";
-            // 
-            // gameNodeBindingSource
-            // 
-            this.gameNodeBindingSource.DataSource = typeof(RomViewer.Model.GameNode);
             // 
             // cbNearestNode
             // 
@@ -1959,7 +2351,6 @@ namespace RomViewer
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem3,
-            this.toolStripMenuItem4,
             this.toolStripSeparator3,
             this.startToolStripMenuItem,
             this.stopToolStripMenuItem,
@@ -1972,43 +2363,38 @@ namespace RomViewer
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(173, 22);
-            this.toolStripMenuItem3.Text = "Launch ROM Main";
-            // 
-            // toolStripMenuItem4
-            // 
-            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(173, 22);
-            this.toolStripMenuItem4.Text = "Launch ROM Bot";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(168, 22);
+            this.toolStripMenuItem3.Text = "Select Character...";
+            this.toolStripMenuItem3.Click += new System.EventHandler(this.toolStripMenuItem3_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(170, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(165, 6);
             // 
             // startToolStripMenuItem
             // 
             this.startToolStripMenuItem.Name = "startToolStripMenuItem";
-            this.startToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.startToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.startToolStripMenuItem.Text = "Start";
             this.startToolStripMenuItem.Click += new System.EventHandler(this.startToolStripMenuItem_Click);
             // 
             // stopToolStripMenuItem
             // 
             this.stopToolStripMenuItem.Name = "stopToolStripMenuItem";
-            this.stopToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.stopToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.stopToolStripMenuItem.Text = "Stop";
             this.stopToolStripMenuItem.Click += new System.EventHandler(this.stopToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(170, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(165, 6);
             // 
             // displayObjectsToolStripMenuItem
             // 
             this.displayObjectsToolStripMenuItem.Name = "displayObjectsToolStripMenuItem";
-            this.displayObjectsToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.displayObjectsToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.displayObjectsToolStripMenuItem.Text = "Display Objects";
             this.displayObjectsToolStripMenuItem.Click += new System.EventHandler(this.displayObjectsToolStripMenuItem_Click);
             // 
@@ -2017,6 +2403,7 @@ namespace RomViewer
             this.navigationToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.addNodeToolStripMenuItem,
             this.gotoToolStripMenuItem,
+            this.miGoto,
             this.toolStripMenuItem1,
             this.miAddZone,
             this.toolStripSeparator2,
@@ -2088,6 +2475,12 @@ namespace RomViewer
             this.housemaidToolStripMenuItem.Text = "Housemaid";
             this.housemaidToolStripMenuItem.Click += new System.EventHandler(this.housemaidToolStripMenuItem_Click);
             // 
+            // miGoto
+            // 
+            this.miGoto.Name = "miGoto";
+            this.miGoto.Size = new System.Drawing.Size(150, 22);
+            this.miGoto.Text = "Goto";
+            // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
@@ -2115,33 +2508,55 @@ namespace RomViewer
             // toolsToolStripMenuItem
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.manageNodesToolStripMenuItem,
+            this.commandSelectorToolStripMenuItem,
+            this.toolStripMenuItem4,
+            this.toolStripSeparator4,
             this.mapToolStripMenuItem,
-            this.commandSelectorToolStripMenuItem});
+            this.manageNodesToolStripMenuItem,
+            this.pathBuilderToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
             // 
-            // manageNodesToolStripMenuItem
+            // commandSelectorToolStripMenuItem
             // 
-            this.manageNodesToolStripMenuItem.Name = "manageNodesToolStripMenuItem";
-            this.manageNodesToolStripMenuItem.Size = new System.Drawing.Size(176, 22);
-            this.manageNodesToolStripMenuItem.Text = "Manage Nodes";
-            this.manageNodesToolStripMenuItem.Click += new System.EventHandler(this.manageNodesToolStripMenuItem_Click);
+            this.commandSelectorToolStripMenuItem.Name = "commandSelectorToolStripMenuItem";
+            this.commandSelectorToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.commandSelectorToolStripMenuItem.Text = "Command Selector";
+            this.commandSelectorToolStripMenuItem.Click += new System.EventHandler(this.commandSelectorToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem4
+            // 
+            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(204, 22);
+            this.toolStripMenuItem4.Text = "Send Multi-line message";
+            this.toolStripMenuItem4.Click += new System.EventHandler(this.toolStripMenuItem4_Click);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(201, 6);
             // 
             // mapToolStripMenuItem
             // 
             this.mapToolStripMenuItem.Name = "mapToolStripMenuItem";
-            this.mapToolStripMenuItem.Size = new System.Drawing.Size(176, 22);
+            this.mapToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
             this.mapToolStripMenuItem.Text = "Map";
             this.mapToolStripMenuItem.Click += new System.EventHandler(this.mapToolStripMenuItem_Click);
             // 
-            // commandSelectorToolStripMenuItem
+            // manageNodesToolStripMenuItem
             // 
-            this.commandSelectorToolStripMenuItem.Name = "commandSelectorToolStripMenuItem";
-            this.commandSelectorToolStripMenuItem.Size = new System.Drawing.Size(176, 22);
-            this.commandSelectorToolStripMenuItem.Text = "Command Selector";
-            this.commandSelectorToolStripMenuItem.Click += new System.EventHandler(this.commandSelectorToolStripMenuItem_Click);
+            this.manageNodesToolStripMenuItem.Name = "manageNodesToolStripMenuItem";
+            this.manageNodesToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.manageNodesToolStripMenuItem.Text = "Manage Nodes";
+            this.manageNodesToolStripMenuItem.Click += new System.EventHandler(this.manageNodesToolStripMenuItem_Click);
+            // 
+            // pathBuilderToolStripMenuItem
+            // 
+            this.pathBuilderToolStripMenuItem.Name = "pathBuilderToolStripMenuItem";
+            this.pathBuilderToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.pathBuilderToolStripMenuItem.Text = "Path Builder...";
+            this.pathBuilderToolStripMenuItem.Click += new System.EventHandler(this.pathBuilderToolStripMenuItem_Click);
             // 
             // tmrKeyPress
             // 
@@ -2175,14 +2590,6 @@ namespace RomViewer
             this.modelLoaderThread.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.modelLoaderThread_ProgressChanged);
             this.modelLoaderThread.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.modelLoaderThread_RunWorkerCompleted);
             // 
-            // pbModelProgress
-            // 
-            this.pbModelProgress.Location = new System.Drawing.Point(619, 1);
-            this.pbModelProgress.Name = "pbModelProgress";
-            this.pbModelProgress.Size = new System.Drawing.Size(389, 23);
-            this.pbModelProgress.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-            this.pbModelProgress.TabIndex = 54;
-            // 
             // lblProgress
             // 
             this.lblProgress.AutoSize = true;
@@ -2201,14 +2608,112 @@ namespace RomViewer
             this.btnSetCommsOn.UseVisualStyleBackColor = true;
             this.btnSetCommsOn.Click += new System.EventHandler(this.btnSetCommsOn_Click);
             // 
+            // xbAutoMap
+            // 
+            this.xbAutoMap.AutoSize = true;
+            this.xbAutoMap.Location = new System.Drawing.Point(459, 7);
+            this.xbAutoMap.Name = "xbAutoMap";
+            this.xbAutoMap.Size = new System.Drawing.Size(72, 17);
+            this.xbAutoMap.TabIndex = 57;
+            this.xbAutoMap.Text = "Auto Map";
+            this.xbAutoMap.UseVisualStyleBackColor = true;
+            this.xbAutoMap.CheckedChanged += new System.EventHandler(this.xbAutoMap_CheckedChanged);
+            // 
+            // tmrMap
+            // 
+            this.tmrMap.Interval = 3000;
+            this.tmrMap.Tick += new System.EventHandler(this.tmrMap_Tick);
+            // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.pbModelProgress,
+            this.lblStatus});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 609);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(1136, 22);
+            this.statusStrip1.TabIndex = 58;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // pbModelProgress
+            // 
+            this.pbModelProgress.Name = "pbModelProgress";
+            this.pbModelProgress.Size = new System.Drawing.Size(100, 16);
+            // 
+            // lblStatus
+            // 
+            this.lblStatus.Name = "lblStatus";
+            this.lblStatus.Size = new System.Drawing.Size(118, 17);
+            this.lblStatus.Text = "toolStripStatusLabel1";
+            // 
+            // xbLoop
+            // 
+            this.xbLoop.AutoSize = true;
+            this.xbLoop.Enabled = false;
+            this.xbLoop.Location = new System.Drawing.Point(597, 7);
+            this.xbLoop.Name = "xbLoop";
+            this.xbLoop.Size = new System.Drawing.Size(15, 14);
+            this.xbLoop.TabIndex = 59;
+            this.xbLoop.UseVisualStyleBackColor = true;
+            this.xbLoop.CheckedChanged += new System.EventHandler(this.xbLoop_CheckedChanged);
+            // 
+            // noteIcon
+            // 
+            this.noteIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("noteIcon.Icon")));
+            this.noteIcon.Text = "notifyIcon1";
+            this.noteIcon.Visible = true;
+            this.noteIcon.DoubleClick += new System.EventHandler(this.noteIcon_DoubleClick);
+            // 
+            // btnUpdateWin
+            // 
+            this.btnUpdateWin.Location = new System.Drawing.Point(893, 27);
+            this.btnUpdateWin.Name = "btnUpdateWin";
+            this.btnUpdateWin.Size = new System.Drawing.Size(75, 23);
+            this.btnUpdateWin.TabIndex = 60;
+            this.btnUpdateWin.Text = "Update Win";
+            this.btnUpdateWin.UseVisualStyleBackColor = true;
+            this.btnUpdateWin.Click += new System.EventHandler(this.btnUpdateWin_Click);
+            // 
+            // gameNodeBindingSource
+            // 
+            this.gameNodeBindingSource.DataSource = typeof(RomViewer.Model.GameNode);
+            // 
+            // cmWhisper
+            // 
+            this.cmWhisper.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmiOpenWhisper});
+            this.cmWhisper.Name = "cmWhisper";
+            this.cmWhisper.Size = new System.Drawing.Size(159, 48);
+            // 
+            // cmiOpenWhisper
+            // 
+            this.cmiOpenWhisper.Name = "cmiOpenWhisper";
+            this.cmiOpenWhisper.Size = new System.Drawing.Size(158, 22);
+            this.cmiOpenWhisper.Text = "Open Whisper...";
+            this.cmiOpenWhisper.Click += new System.EventHandler(this.cmiOpenWhisper_Click);
+            // 
+            // btnToggleLooping
+            // 
+            this.btnToggleLooping.Location = new System.Drawing.Point(618, 1);
+            this.btnToggleLooping.Name = "btnToggleLooping";
+            this.btnToggleLooping.Size = new System.Drawing.Size(189, 23);
+            this.btnToggleLooping.TabIndex = 61;
+            this.btnToggleLooping.Text = "Toggle Looping at Waypoint End";
+            this.btnToggleLooping.UseVisualStyleBackColor = true;
+            this.btnToggleLooping.Click += new System.EventHandler(this.btnToggleLooping_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1136, 758);
+            this.ClientSize = new System.Drawing.Size(1136, 631);
+            this.Controls.Add(this.btnToggleLooping);
+            this.Controls.Add(this.btnUpdateWin);
+            this.Controls.Add(this.xbLoop);
+            this.Controls.Add(this.statusStrip1);
+            this.Controls.Add(this.xbAutoMap);
             this.Controls.Add(this.btnSetCommsOn);
             this.Controls.Add(this.lblProgress);
-            this.Controls.Add(this.pbModelProgress);
             this.Controls.Add(this.cbSendKeys);
             this.Controls.Add(this.btnHideShow);
             this.Controls.Add(this.xbComms);
@@ -2225,6 +2730,8 @@ namespace RomViewer
             this.Text = "RomViewer";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
+            this.Shown += new System.EventHandler(this.MainForm_Shown);
+            this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.tcChats.ResumeLayout(false);
             this.pageCharacter.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
@@ -2249,15 +2756,14 @@ namespace RomViewer
             ((System.ComponentModel.ISupportInitialize)(this.gameNodeBindingSource1)).EndInit();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            this.groupBox9.ResumeLayout(false);
+            this.groupBox9.PerformLayout();
             this.groupBox6.ResumeLayout(false);
             this.groupBox6.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
             this.tsACSTargets.ResumeLayout(false);
             this.tsACSTargets.PerformLayout();
-            this.tpInquiries.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pawnDataGridView)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.bsInquiry)).EndInit();
             this.tpMap.ResumeLayout(false);
             this.tpMap.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbMap)).EndInit();
@@ -2265,11 +2771,21 @@ namespace RomViewer
             this.tpFind.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.foundObjectDataGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.foundObjectBindingSource)).EndInit();
+            this.tabPage1.ResumeLayout(false);
+            this.tpSummary.ResumeLayout(false);
+            this.gbCommands.ResumeLayout(false);
+            this.gbCommands.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.gameNodeBindingSource2)).EndInit();
+            this.gbToon.ResumeLayout(false);
+            this.gbToon.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.zoneBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.waypointsBindingSource)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gameNodeBindingSource)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.gameNodeBindingSource)).EndInit();
+            this.cmWhisper.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2347,8 +2863,6 @@ namespace RomViewer
         private System.Windows.Forms.DataGridViewTextBoxColumn objectSubTypeDataGridViewTextBoxColumn1;
         private System.Windows.Forms.DataGridViewTextBoxColumn objectSubSubTypeDataGridViewTextBoxColumn1;
         private System.Windows.Forms.Label lblGold;
-        private System.Windows.Forms.TextBox tbListenPort;
-        public System.Windows.Forms.TextBox tbSendTo;
         private System.Windows.Forms.TabPage tpSettings;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.CheckBox xbACSOn;
@@ -2358,7 +2872,6 @@ namespace RomViewer
         private System.Windows.Forms.CheckBox xbACSPaused;
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.CheckBox xbACSAutoTarget;
-        private System.Windows.Forms.ListBox lbACSTargets;
         private System.Windows.Forms.ToolStrip tsACSTargets;
         private System.Windows.Forms.ToolStripButton tsbACSTargetAdd;
         private System.Windows.Forms.ToolStripButton tsACSTargetRemove;
@@ -2366,23 +2879,7 @@ namespace RomViewer
         private System.Windows.Forms.ToolStripTextBox tebTargetName;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.GroupBox groupBox6;
-        private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.ComboBox cbLFQuality;
-        private System.Windows.Forms.CheckBox xbLFQualityFilter;
-        private System.Windows.Forms.TabPage tpInquiries;
-        private System.Windows.Forms.DataGridView pawnDataGridView;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn8;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn9;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
-        private System.Windows.Forms.BindingSource bsInquiry;
-        private System.Windows.Forms.Button btnSavePawns;
-        private System.Windows.Forms.Button btnLoadPawns;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.BindingSource zoneBindingSource;
         private System.Windows.Forms.ComboBox zoneComboBox;
@@ -2439,20 +2936,75 @@ namespace RomViewer
         private System.Windows.Forms.Button btnTeleport;
         private System.Windows.Forms.ToolStripMenuItem miAddZone;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem3;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem4;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.ComponentModel.BackgroundWorker modelLoaderThread;
-        private System.Windows.Forms.ProgressBar pbModelProgress;
         private System.Windows.Forms.Label lblProgress;
         private System.Windows.Forms.Button btnSetCommsOn;
         private System.Windows.Forms.Button btnMount;
+        private System.Windows.Forms.TextBox tbBlack;
+        private System.Windows.Forms.TextBox tbPick;
+        private System.Windows.Forms.Button btnApplyLootfilterSettings;
+        private System.Windows.Forms.CheckBox xbQFilterState;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.CheckBox xbAutoMap;
+        private System.Windows.Forms.Timer tmrMap;
+        private System.Windows.Forms.ToolStripMenuItem miGoto;
+        private System.Windows.Forms.GroupBox groupBox9;
+        private System.Windows.Forms.RadioButton rbDIYCE;
+        private System.Windows.Forms.RadioButton rbACS;
+        private System.Windows.Forms.Button btnClearTargets;
+        private System.Windows.Forms.ProgressBar pbModelProgressa;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripProgressBar pbModelProgress;
+        private System.Windows.Forms.ToolStripStatusLabel lblStatus;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem3;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem4;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn10;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn11;
         private System.Windows.Forms.DataGridViewCheckBoxColumn dataGridViewCheckBoxColumn1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colDistance;
         private System.Windows.Forms.DataGridViewButtonColumn colAddObject;
         private System.Windows.Forms.DataGridViewButtonColumn colTarget;
+        private System.Windows.Forms.TextBox tbTargets;
+        private System.Windows.Forms.ToolStripMenuItem pathBuilderToolStripMenuItem;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.PropertyGrid settingsGrid;
+        private System.Windows.Forms.CheckBox xbUseHeals;
+        private System.Windows.Forms.CheckBox xbUseLongRoot;
+        private System.Windows.Forms.CheckBox xbUseBuffs;
+        private System.Windows.Forms.CheckBox xbUseBigSlowAttack;
+        private System.Windows.Forms.CheckBox xbLoop;
+        private System.Windows.Forms.TabPage tpSummary;
+        private System.Windows.Forms.GroupBox gbToon;
+        private System.Windows.Forms.Label lblPlayer1;
+        private System.Windows.Forms.ProgressBar pbExperience;
+        private System.Windows.Forms.GroupBox gbCommands;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Button btnSwitchClass;
+        private System.Windows.Forms.NotifyIcon noteIcon;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Button btnSummon;
+        private System.Windows.Forms.Button btnUpdateWin;
+        private System.Windows.Forms.ContextMenuStrip cmWhisper;
+        private System.Windows.Forms.ToolStripMenuItem cmiOpenWhisper;
+        private ProgressODoom.ProgressBarEx pbMP2;
+        private ProgressODoom.PlainProgressPainter plainProgressPainter3;
+        private ProgressODoom.ProgressBarEx pbMP;
+        private ProgressODoom.PlainProgressPainter plainProgressPainter2;
+        private ProgressODoom.ProgressBarEx pbHP;
+        private ProgressODoom.PlainProgressPainter plainProgressPainter1;
+        private ProgressODoom.FlatGlossPainter flatGlossPainter1;
+        private System.Windows.Forms.ComboBox gameNodeComboBox;
+        private System.Windows.Forms.BindingSource gameNodeBindingSource2;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Button btnMErchant;
+        private ProgressODoom.PlainBackgroundPainter plainBackgroundPainter1;
+        private ProgressODoom.PlainBorderPainter plainBorderPainter1;
+        private System.Windows.Forms.Button btnToggleLooping;
     }
 }
 

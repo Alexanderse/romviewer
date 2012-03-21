@@ -1,18 +1,14 @@
 --=== 								===--
 --===    Original done by Tsutomu 	===--
---=== Version 1.5 patch 4.0.4.2456	===--
 --=== 		Updated by lisa			===--
 --=== 								===--
-
---===  								===--
---===  swimfunction_ptr = 0x44E230	===--
 --===  charPtr_offset = 0x598		===--
 --===  skillbuffFlag_offset = 0xF0	===--
 --===  swim_offset = 0xB4			===--
 --===  								===--
 
-local swimfunction_ptr = 0x44E240
-local offsets = {0x598, 0xF0, 0xB4}
+local offsets = {addresses.charPtr_offset, addresses.pawnSwim_offset1, addresses.pawnSwim_offset2}
+local swimfunction_ptr = addresses.swimAddress
 local active = 4
 
 function fly()

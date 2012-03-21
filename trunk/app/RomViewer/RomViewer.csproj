@@ -1,0 +1,323 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{F698DBA7-32B6-4E4E-9650-45D2AABF99AC}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>RomViewer</RootNamespace>
+    <AssemblyName>RomViewer</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\..\lib\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="ProgressODoom">
+      <HintPath>..\..\controls\ProgressODoom\ProgressODoom\bin\Debug\ProgressODoom.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpLite.Domain">
+      <HintPath>..\..\lib\SharpLite.Domain.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Windows.Input.Manipulations" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="XPicbox, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\XPicbox.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BindingListEx.cs" />
+    <Compile Include="ToonController.cs" />
+    <Compile Include="CommandSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CommandSelector.Designer.cs">
+      <DependentUpon>CommandSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="dlgMultiLineMessage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="dlgMultiLineMessage.Designer.cs">
+      <DependentUpon>dlgMultiLineMessage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="dlgPathBuilder.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="dlgPathBuilder.Designer.cs">
+      <DependentUpon>dlgPathBuilder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="dlgToonSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="dlgToonSelector.Designer.cs">
+      <DependentUpon>dlgToonSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="dlgWhisper.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="dlgWhisper.Designer.cs">
+      <DependentUpon>dlgWhisper.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Domain\Pawn.cs" />
+    <Compile Include="Domain\RomClass.cs" />
+    <Compile Include="Domain\Player.cs" />
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Domain\Item.cs" />
+    <Compile Include="GameCommand.cs" />
+    <Compile Include="ListManager.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ListManager.Designer.cs">
+      <DependentUpon>ListManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MicroMacroOptions.cs" />
+    <Compile Include="mmServer.cs" />
+    <Compile Include="Model\Vector3.cs" />
+    <Compile Include="Model\GameNode.cs" />
+    <Compile Include="Model\Waypoint.cs" />
+    <Compile Include="Model\World.cs" />
+    <Compile Include="Model\WorldData.cs" />
+    <Compile Include="Navigator\ctrlGameNodeSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Navigator\ctrlGameNodeSelector.Designer.cs">
+      <DependentUpon>ctrlGameNodeSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Navigator\ctrlGameObject.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Navigator\ctrlGameObject.Designer.cs">
+      <DependentUpon>ctrlGameObject.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Navigator\ctrlMovementLink.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Navigator\ctrlMovementLink.Designer.cs">
+      <DependentUpon>ctrlMovementLink.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Navigator\ctrlTransportLink.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Navigator\ctrlTransportLink.Designer.cs">
+      <DependentUpon>ctrlTransportLink.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Navigator\dlgGameNodeLink.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Navigator\dlgGameNodeLink.Designer.cs">
+      <DependentUpon>dlgGameNodeLink.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Navigator\dlgSelectGameNode.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Navigator\dlgSelectGameNode.Designer.cs">
+      <DependentUpon>dlgSelectGameNode.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Navigator\EditGameObject.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Navigator\EditGameObject.Designer.cs">
+      <DependentUpon>EditGameObject.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Navigator\EditTransportLinkForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Navigator\EditTransportLinkForm.Designer.cs">
+      <DependentUpon>EditTransportLinkForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Navigator\EditWaypoint.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Navigator\EditWaypoint.Designer.cs">
+      <DependentUpon>EditWaypoint.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Navigator\NodeManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Navigator\NodeManager.Designer.cs">
+      <DependentUpon>NodeManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Navigator\NodeViewer.cs" />
+    <Compile Include="Navigator\NodeVisualiser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Navigator\NodeVisualiser.Designer.cs">
+      <DependentUpon>NodeVisualiser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ObjectSaver.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Domain\ROMHelper.cs" />
+    <Compile Include="RomSettings.cs" />
+    <Compile Include="ToonSettings.cs" />
+    <Compile Include="WinHelp.cs" />
+    <Compile Include="ZoneForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ZoneForm.Designer.cs">
+      <DependentUpon>ZoneForm.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="CommandSelector.resx">
+      <DependentUpon>CommandSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="dlgMultiLineMessage.resx">
+      <DependentUpon>dlgMultiLineMessage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="dlgPathBuilder.resx">
+      <DependentUpon>dlgPathBuilder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="dlgToonSelector.resx">
+      <DependentUpon>dlgToonSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="dlgWhisper.resx">
+      <DependentUpon>dlgWhisper.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ListManager.resx">
+      <DependentUpon>ListManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Navigator\ctrlGameNodeSelector.resx">
+      <DependentUpon>ctrlGameNodeSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Navigator\ctrlGameObject.resx">
+      <DependentUpon>ctrlGameObject.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Navigator\ctrlMovementLink.resx">
+      <DependentUpon>ctrlMovementLink.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Navigator\ctrlTransportLink.resx">
+      <DependentUpon>ctrlTransportLink.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Navigator\dlgGameNodeLink.resx">
+      <DependentUpon>dlgGameNodeLink.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Navigator\dlgSelectGameNode.resx">
+      <DependentUpon>dlgSelectGameNode.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Navigator\EditGameObject.resx">
+      <DependentUpon>EditGameObject.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Navigator\EditTransportLinkForm.resx">
+      <DependentUpon>EditTransportLinkForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Navigator\EditWaypoint.resx">
+      <DependentUpon>EditWaypoint.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Navigator\NodeManager.resx">
+      <DependentUpon>NodeManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Navigator\NodeVisualiser.resx">
+      <DependentUpon>NodeVisualiser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="ZoneForm.resx">
+      <DependentUpon>ZoneForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Properties\DataSources\FoundObject.datasource" />
+    <None Include="Properties\DataSources\PathWaypoint.datasource" />
+    <None Include="Properties\DataSources\RomViewer.Model.GameNode.datasource" />
+    <None Include="Properties\DataSources\RomViewer.Model.GameNodeLink.datasource" />
+    <None Include="Properties\DataSources\RomViewer.Model.WaypointLink.datasource" />
+    <None Include="Properties\DataSources\RomViewer.Model.Zone.datasource" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <None Include="RomViewer.exe.log4net" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RomViewer.Core\RomViewer.Core.csproj">
+      <Project>{E3EC854C-424B-4A23-8692-FDF2F3A2FF92}</Project>
+      <Name>RomViewer.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RomViewer.NHibernateProvider\RomViewer.NHibernateProvider.csproj">
+      <Project>{4E471CAC-A108-49AE-A4D6-155DC35712C9}</Project>
+      <Name>RomViewer.NHibernateProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RomViewer.Tasks\RomViewer.Tasks.csproj">
+      <Project>{BE147A77-3E59-40E6-822D-5AEDFD5D383C}</Project>
+      <Name>RomViewer.Tasks</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

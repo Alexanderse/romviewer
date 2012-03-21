@@ -1,5 +1,5 @@
 --==<<          Rock5's mail related functions            >>==--
---==<<           By Rock5        Version 1.7              >>==--
+--==<<           By Rock5        Version 1.72             >>==--
 --==<<                                                    >>==--
 --==<<   Requirements: modified Ultimate Mail Mod addon   >>==--
 --==<<                 ingamefunction addon installed     >>==--
@@ -9,6 +9,10 @@
 
 local UMM_FromSlot = 61 -- Default 61, first slot
 local UMM_ToSlot = 240 -- Default 240, last slot of bag 6
+
+local restPerItem = 30 -- This is the time, in seconds, that the functions wait per item to send, when sending starts failing.
+local lastSentTime --
+local delayed
 
 function UMM_SetSlotRange(_from, _to)
 	-------------------------------
@@ -25,6 +29,10 @@ function UMM_SetSlotRange(_from, _to)
 end
 
 local function markToSend(_slotnumber)
+	local item = inventory.BagSlot[_slotnumber + 60]
+	item:update()
+	if item.Empty then return end
+
 	local bagid = math.floor((_slotnumber-1)/30+1)
 	local slotid = _slotnumber - (bagid * 30 - 30)
 	RoMScript("UMMMassSendItemsSlotTemplate_OnClick(_G['UMMFrameTab3BagsBag"..bagid.."Slot"..slotid.."'])")
@@ -55,7 +63,7 @@ function UMM_TakeMail()
 	-- Error checks
 	repeat UMMOpen = RoMScript("UMMFrame:IsVisible()") until UMMOpen ~= nil
 	if UMMOpen ~= true then
-		error("The UMM mail interface needs to be open first before using the UMM_SendByQuality() function.")
+		error("The UMM mail interface needs to be open first before using the UMM_TakeMail() function.")
 	end
 
 	-- Open correct tab
@@ -69,9 +77,10 @@ function UMM_TakeMail()
 	end
 
 	-- Taking mail
+	local starttimer = os.clock()
 	repeat
-		RoMScript("UMMFrameTab1Tools:ButtonClick('take');"); yrest(2000)
-	until RoMScript("UMMMailManager.priv_AutoRunning") == true or RoMScript("UMMMailManager.MailCount") == 0
+		RoMScript("UMMFrameTab1Tools:ButtonClick('take');"); yrest(1000)
+	until RoMScript("UMMMailManager.priv_AutoRunning") == true or RoMScript("UMMMailManager.MailCount") == 0 or os.clock() - starttimer > 5
 	repeat
 		yrest(2000)
 	until RoMScript("UMMMailManager.priv_AutoRunning") == nil
@@ -197,7 +206,7 @@ function UMM_SendAdvanced(_recipient, _itemTable, _quality, _reqlevel, _worth, _
 		-- Check Stacksize
 		if _stacksize ~= nil then
 			-- Full stack?
-			if string.lower(_stacksize) == "max" and _slotitem.ItemCount ~= _stacksize then
+			if string.lower(_stacksize) == "max" and _slotitem.ItemCount ~= _slotitem.MaxStack then
 				return false
 			end
 
@@ -338,22 +347,68 @@ function UMM_SendAdvanced(_recipient, _itemTable, _quality, _reqlevel, _worth, _
 	-- Open correct tab
 	openTab(3)
 
-	-- Selecting items
-	for __, slotNumber in pairs(sendlist) do
-		markToSend(slotNumber)
+	-- If 'delayed' then see if we have to wait
+	if delayed then
+		if os.time() - lastSentTime > (30*60) then
+			-- reset 'delayed'
+			delayed = false
+		else
+			-- count items to send
+			local numberLeft = 0
+			inventory:update()
+			for __, slotNumber in pairs(sendlist) do
+				if not inventory.BagSlot[slotNumber + 60].Empty then
+					numberLeft = numberLeft + 1
+				end
+			end
+
+			-- calculate when to send
+			local targetTime = lastSentTime + numberLeft * restPerItem
+
+			if targetTime > os.time() then
+				-- wait before sending
+				printf("\nMailing delayed. Waiting %d seconds before continuing to send.\n",(targetTime - os.time()))
+				yrest((targetTime - os.time())*1000)
+			end
+		end
 	end
-	yrest(1000)
 
-	-- Enter recipients name
-	RoMScript("UMMFrameTab3RecipientRecipient:SetText('".._recipient.."');")
-
-	-- Sending
-	RoMScript("UMMFrameTab3Action:Send()")
-
-	-- Waiting until finished
 	repeat
-		yrest(2000)
-	until RoMScript("UMMFrameTab3Status:IsVisible()") == false
+		-- Selecting items
+		for __, slotNumber in pairs(sendlist) do
+			markToSend(slotNumber)
+		end
+		yrest(1000)
+
+		-- Enter recipients name
+		RoMScript("UMMFrameTab3RecipientRecipient:SetText('".._recipient.."');")
+
+		-- Sending
+		RoMScript("UMMFrameTab3Action:Send()")
+
+		-- Waiting until finished
+		repeat
+			yrest(2000)
+		until RoMScript("UMMFrameTab3Status:IsVisible()") == false
+
+		-- Check if all items are gone
+		local numberLeft = 0
+		inventory:update()
+		for __, slotNumber in pairs(sendlist) do
+			if not inventory.BagSlot[slotNumber + 60].Empty then
+				numberLeft = numberLeft + 1
+			end
+		end
+
+		if numberLeft ~= 0 then
+			-- Wait before sending the rest
+			printf("\nMailing delayed. Waiting %d seconds before continuing to send.\n",(numberLeft * restPerItem))
+			yrest(numberLeft * restPerItem * 1000)
+			delayed = true
+		end
+	until numberLeft == 0
+
+	lastSentTime = os.time()
 
 	cprintf(cli.green,"Items sent.\n")
 
@@ -367,13 +422,13 @@ function UMM_SendInventoryItem(_recipient, _item)
 	-- Error checks
 	repeat UMMOpen = RoMScript("UMMFrame:IsVisible()") until UMMOpen ~= nil
 	if UMMOpen ~= true then
-		error("The UMM mail interface needs to be open first before using the UMM_SendItem() function.")
+		error("The UMM mail interface needs to be open first before using the UMM_SendInventoryItem() function.")
 	elseif _recipient == nil or _item == nil then
-		error("You must specify a recipient and item or slotnumber when using UMM_SendItem()")
+		error("You must specify a recipient and item or slotnumber when using UMM_SendInventoryItem()")
 	elseif type(_item) ~= "table" and type(_item) ~= "number" then
-		error("Argument #2 to UMM_SendItem(): Expected type 'table' or 'number', got '" .. type(_itemTable) .. "'")
+		error("Argument #2 to UMM_SendInventoryItem(): Expected type 'table' or 'number', got '" .. type(_itemTable) .. "'")
 	elseif type(_item) == "number" and (_item < 61 or _item > 240) then
-		error("UMM_SendItem() can only send items from the bags, from slot 61 to 240.")
+		error("UMM_SendInventoryItem() can only send items from the bags, from slot 61 to 240.")
 	end
 
 	printf("Sending inventory item to ".._recipient.."...  ")
@@ -598,7 +653,7 @@ function UMM_SendByStackSize(_recipient, _itemTable, _stacksize)
 	UMM_SendAdvanced(_recipient, _itemTable, nil, nil, nil, nil, nil, nil, nil, _stacksize)
 end
 
-function UMM_SendByFusedTierLevel(_recipient, _fusedtier)
+function UMM_SendByFusedTierLevel(_recipient, _fusedtier, _amount)
 	---------------------------------
 	-- Sends bag items by fused tier.
 
@@ -610,10 +665,12 @@ function UMM_SendByFusedTierLevel(_recipient, _fusedtier)
 		error("You must specify a recipient and fused tier when using UMM_SendByFusedTierLevel()")
 	elseif type(_fusedtier) ~= "number" then
 		error("Argument #2 to UMM_SendByFusedTierLevel(): Expected type 'number', got '" .. type(_fusedtier) .. "'")
+	elseif _amount and type(_amount) ~= "number" then
+		error("Argument #3 to UMM_SendByFusedTierLevel(): Expected type 'number' or 'nil', got '" .. type(_amount) .. "'")
 	end
 
 	printf("Sending items by fused tier.\n")
 
 	-- Sending items
-	UMM_SendAdvanced(_recipient, nil, nil, nil, nil, nil, nil, nil, nil, nil, _fusedtier)
+	UMM_SendAdvanced(_recipient, nil, nil, nil, nil, nil, nil, nil, _amount, nil, _fusedtier)
 end

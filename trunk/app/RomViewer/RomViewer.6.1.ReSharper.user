@@ -1,0 +1,565 @@
+<Configuration>
+  <RecentFiles>
+    <RecentFiles>
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/d:Model/f:Waypoint.cs" caret="1501" fromTop="13" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/d:Navigator/f:NodeManager.cs" caret="4303" fromTop="15" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/d:Model/f:GameNode.cs" caret="171" fromTop="1" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:ObjectSaver.cs" caret="793" fromTop="21" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/d:Navigator/f:NodeVisualiser.cs" caret="9295" fromTop="10" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:CommandSelector.cs" caret="7040" fromTop="27" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/d:Navigator/f:NodeViewer.cs" caret="1934" fromTop="29" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/d:Domain/f:Item.cs" caret="1333" fromTop="6" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:app.config" caret="1161" fromTop="21" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:Program.cs" caret="496" fromTop="15" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:dlgToonSelector.Designer.cs" caret="0" fromTop="0" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.Designer.cs" caret="122537" fromTop="26" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:dlgToonSelector.cs" caret="1182" fromTop="41" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:dlgMultiLineMessage.Designer.cs" caret="0" fromTop="0" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:RomSettings.cs" caret="994" fromTop="30" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:ToonSettings.cs" caret="470" fromTop="15" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:mmServer.cs" caret="6279" fromTop="15" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:BotSettings.cs" caret="359" fromTop="6" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:dlgMultiLineMessage.cs" caret="767" fromTop="28" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/d:Model/f:World.cs" caret="0" fromTop="0" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="49167" fromTop="22" />
+    </RecentFiles>
+    <RecentEdits>
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="26078" fromTop="25" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="49779" fromTop="30" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:ToonSettings.cs" caret="470" fromTop="15" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="47235" fromTop="27" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="25165" fromTop="0" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:dlgMultiLineMessage.cs" caret="1199" fromTop="21" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:dlgMultiLineMessage.cs" caret="639" fromTop="22" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:dlgMultiLineMessage.cs" caret="1046" fromTop="34" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="50473" fromTop="29" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="50473" fromTop="34" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="1724" fromTop="0" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="49952" fromTop="6" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:dlgMultiLineMessage.cs" caret="327" fromTop="13" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:dlgMultiLineMessage.cs" caret="441" fromTop="17" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:dlgMultiLineMessage.cs" caret="751" fromTop="28" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="0" fromTop="0" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="50694" fromTop="44" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="50473" fromTop="38" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="50417" fromTop="36" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="20976" fromTop="44" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="51150" fromTop="34" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="49345" fromTop="33" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="29062" fromTop="27" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="29748" fromTop="41" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="29222" fromTop="33" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="52291" fromTop="20" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="48812" fromTop="36" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="49211" fromTop="45" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="28552" fromTop="33" />
+      <File id="F698DBA7-32B6-4E4E-9650-45D2AABF99AC/f:MainForm.cs" caret="48576" fromTop="22" />
+    </RecentEdits>
+  </RecentFiles>
+  <NAntValidationSettings>
+    <NAntPath value="" />
+  </NAntValidationSettings>
+  <UnitTestRunner>
+    <Providers />
+  </UnitTestRunner>
+  <UnitTestRunnerNUnit>
+    <NUnitInstallDir>C:\Program Files (x86)\NUnit 2.4.8\bin\net-2.0\lib</NUnitInstallDir>
+    <UseAddins>Never</UseAddins>
+  </UnitTestRunnerNUnit>
+  <SettingsComponent>
+    <string />
+    <integer />
+    <boolean>
+      <setting name="livetemplates.csharp.usevar">True</setting>
+      <setting name="SolutionAnalysisEnabled">False</setting>
+    </boolean>
+  </SettingsComponent>
+  <CompletionStatisticsManager>
+    <ItemStatistics item="CSharpCodeCompletionContext">
+      <Item value="private" priority="447" />
+      <Item value="public" priority="860" />
+      <Item value="static" priority="479" />
+      <Item value="void" priority="255" />
+      <Item value="new" priority="864" />
+      <Item value="Queue&lt;FoundObject&gt;" priority="28" />
+      <Item value="ReaderWriterLockSlim`0" priority="31" />
+      <Item value="ReaderWriterLockSlim" priority="28" />
+      <Item value="_witeThread" priority="191" />
+      <Item value="Thread" priority="28" />
+      <Item value="ProcessQueue`0" priority="32" />
+      <Item value="if" priority="1279" />
+      <Item value="null" priority="351" />
+      <Item value="WaitHandle`0" priority="31" />
+      <Item value="ManualResetEvent" priority="28" />
+      <Item value="while" priority="63" />
+      <Item value="_runHandle" priority="94" />
+      <Item value="_lock" priority="127" />
+      <Item value="_queue" priority="127" />
+      <Item value="tryf" priority="63" />
+      <Item value="FoundObject`0" priority="159" />
+      <Item value="List" priority="255" />
+      <Item value="List&lt;FoundObject&gt;" priority="28" />
+      <Item value="_currentObjects" priority="95" />
+      <Item value="Hashtable" priority="86" />
+      <Item value="_filenames" priority="63" />
+      <Item value="throw" priority="63" />
+      <Item value="Exception" priority="58" />
+      <Item value="string" priority="1240" />
+      <Item value="object" priority="31" />
+      <Item value="int" priority="319" />
+      <Item value="continue" priority="127" />
+      <Item value="CreateLambda" priority="91" />
+      <Item value="foundObject" priority="129" />
+      <Item value="o" priority="672" />
+      <Item value="FileStream" priority="57" />
+      <Item value="filename" priority="214" />
+      <Item value="FileMode`0" priority="63" />
+      <Item value="fs" priority="31" />
+      <Item value="File`0" priority="223" />
+      <Item value="obj" priority="86" />
+      <Item value="detail" priority="31" />
+      <Item value="Convert`0" priority="95" />
+      <Item value="World`0" priority="256" />
+      <Item value="Environment`0" priority="159" />
+      <Item value="class" priority="123" />
+      <Item value="DataMember" priority="31" />
+      <Item value="name" priority="31" />
+      <Item value="id" priority="63" />
+      <Item value="x" priority="31" />
+      <Item value="zoneid" priority="31" />
+      <Item value="NPCRecord`0" priority="95" />
+      <Item value="NPCRecord" priority="28" />
+      <Item value="IFormatter`0" priority="31" />
+      <Item value="_npcs" priority="159" />
+      <Item value="IFormatterConverter`0" priority="31" />
+      <Item value="SaveNPCs`0" priority="31" />
+      <Item value="ObjectSaver`0" priority="122" />
+      <Item value="bool" priority="223" />
+      <Item value="false" priority="191" />
+      <Item value="Started" priority="31" />
+      <Item value="Start`0" priority="31" />
+      <Item value="true" priority="63" />
+      <Item value="p" priority="31" />
+      <Item value="Stop`0" priority="31" />
+      <Item value="_server" priority="31" />
+      <Item value="catch" priority="31" />
+      <Item value="Serializable" priority="127" />
+      <Item value="XmlAttribute" priority="31" />
+      <Item value="XmlElement" priority="31" />
+      <Item value="XmlRoot" priority="63" />
+      <Item value="XmlAttributeOverrides`0" priority="26" />
+      <Item value="NPCList" priority="28" />
+      <Item value="list" priority="95" />
+      <Item value="ser" priority="159" />
+      <Item value="stream" priority="77" />
+      <Item value="return" priority="319" />
+      <Item value="f" priority="63" />
+      <Item value="gameNodeBindingSource" priority="95" />
+      <Item value="e" priority="319" />
+      <Item value="Delete" priority="16" />
+      <Item value="GameNodeLink`0" priority="31" />
+      <Item value="node" priority="278" />
+      <Item value="nodeLink" priority="31" />
+      <Item value="link" priority="63" />
+      <Item value="_currentCoordinates" priority="63" />
+      <Item value="suppressRedraw" priority="31" />
+      <Item value="interface" priority="63" />
+      <Item value="internal" priority="95" />
+      <Item value="cmd" priority="86" />
+      <Item value="mmServer`0" priority="191" />
+      <Item value="DisplayMap`0" priority="63" />
+      <Item value="tcChats" priority="62" />
+      <Item value="tpMap" priority="31" />
+      <Item value="btnApplyLootfilterSettings" priority="31" />
+      <Item value="cbLFQuality" priority="95" />
+      <Item value="tbPick" priority="127" />
+      <Item value="tbBlack" priority="31" />
+      <Item value="sendMacroLine" priority="63" />
+      <Item value="excludes" priority="63" />
+      <Item value="RemoveEmptyEntries" priority="45" />
+      <Item value="foreach" priority="447" />
+      <Item value="picks" priority="63" />
+      <Item value="IFormattable`0" priority="31" />
+      <Item value="qfilter" priority="63" />
+      <Item value="BadImageFormatException`0" priority="31" />
+      <Item value="on" priority="31" />
+      <Item value="ToonController`0" priority="127" />
+      <Item value="xbQFilterState" priority="95" />
+      <Item value="Hashtable`0" priority="127" />
+      <Item value="for" priority="31" />
+      <Item value="ListManager`0" priority="31" />
+      <Item value="List&lt;string&gt;" priority="86" />
+      <Item value="ToonSettings`0" priority="352" />
+      <Item value="ToonSettings" priority="28" />
+      <Item value="settings" priority="513" />
+      <Item value="ConfigurationManager`0" priority="191" />
+      <Item value="toon" priority="31" />
+      <Item value="toonRef" priority="127" />
+      <Item value="details" priority="95" />
+      <Item value="cbToons" priority="191" />
+      <Item value="_toonSettings" priority="63" />
+      <Item value="ServerInstance" priority="63" />
+      <Item value="targetBox" priority="31" />
+      <Item value="tb" priority="63" />
+      <Item value="_maxDepth" priority="31" />
+      <Item value="path" priority="31" />
+      <Item value="xbAutoMap" priority="53" />
+      <Item value="canAdd" priority="95" />
+      <Item value="autoAdd" priority="31" />
+      <Item value="AddNewNode`0" priority="31" />
+      <Item value="GameNode`0" priority="190" />
+      <Item value="lastNode" priority="63" />
+      <Item value="tmrMap" priority="31" />
+      <Item value="WorldData`0" priority="30" />
+      <Item value="Data" priority="63" />
+      <Item value="result" priority="159" />
+      <Item value="zone" priority="63" />
+      <Item value="data" priority="31" />
+      <Item value="ToolStripMenuItem`0" priority="31" />
+      <Item value="miGoto" priority="31" />
+      <Item value="ToolStripItem`0" priority="63" />
+      <Item value="miZone" priority="31" />
+      <Item value="GetShortestPath`0" priority="22" />
+      <Item value="Waypoints" priority="63" />
+      <Item value="Waypoint`0" priority="63" />
+      <Item value="waypoint" priority="31" />
+      <Item value="startNode" priority="31" />
+      <Item value="start" priority="68" />
+      <Item value="dest" priority="22" />
+      <Item value="PlayerName" priority="63" />
+      <Item value="playerFilename" priority="63" />
+      <Item value="item" priority="63" />
+      <Item value="Dictionary" priority="31" />
+      <Item value="Dictionary&lt;ToolStripItem,GameNode&gt;" priority="28" />
+      <Item value="_menuMap" priority="63" />
+      <Item value="CreateDelegate" priority="22" />
+      <Item value="StringBuilder`0" priority="31" />
+      <Item value="StringBuilder" priority="28" />
+      <Item value="sb" priority="31" />
+      <Item value="rbDIYCE" priority="63" />
+      <Item value="command" priority="86" />
+      <Item value="xbACSAutoTurn" priority="31" />
+      <Item value="RomViewer" priority="31" />
+      <Item value="List&lt;ToonSettings&gt;" priority="28" />
+      <Item value="RomSettings`0" priority="223" />
+      <Item value="RomSettings" priority="57" />
+      <Item value="XmlSerializer" priority="28" />
+      <Item value="typeof" priority="31" />
+      <Item value="FileStream`0" priority="31" />
+      <Item value="romSettings" priority="160" />
+      <Item value="else" priority="31" />
+      <Item value="Selected" priority="31" />
+      <Item value="cbToon" priority="63" />
+      <Item value="dlgToonSelector`0" priority="95" />
+      <Item value="_settings" priority="31" />
+      <Item value="using" priority="31" />
+      <Item value="dlgToonSelector" priority="28" />
+      <Item value="dlg" priority="63" />
+      <Item value="OK" priority="16" />
+      <Item value="_selectedToon" priority="410" />
+      <Item value="this" priority="31" />
+      <Item value="lblStatus" priority="31" />
+      <Item value="status" priority="31" />
+      <Item value="SetStatus`0" priority="31" />
+      <Item value="modelLoaderThread" priority="26" />
+      <Item value="SettingsAttributeDictionary`0" priority="31" />
+      <Item value="setting" priority="31" />
+      <Item value="lbACSTargets" priority="31" />
+      <Item value="cbChannel" priority="95" />
+      <Item value="tbTarget" priority="192" />
+      <Item value="MessageBox`0" priority="31" />
+      <Item value="tbMessage" priority="31" />
+      <Item value="line" priority="31" />
+      <Item value="page" priority="31" />
+      <Item value="channels" priority="54" />
+      <Item value="dlgMultiLineMessage" priority="28" />
+      <Item value="_dlgMultiLineChat" priority="159" />
+      <Item value="EventHandler" priority="28" />
+      <Item value="_dlgMultiLineChat_Closed`0" priority="22" />
+      <Item value="Channel" priority="31" />
+      <Item value="cInt" priority="31" />
+      <Item value="ClassInterfaceType`0" priority="31" />
+      <Item value="colDistance" priority="31" />
+      <Item value="distance" priority="31" />
+      <Item value="bindingDetailsDataGridViewTextBoxColumn" priority="31" />
+      <Item value="tbTargets" priority="31" />
+      <Item value="foundObjectBindingSource" priority="31" />
+      <Item value="SendCommand`0" priority="127" />
+      <Item value="AutoScaleDimensions" priority="31" />
+      <Item value="targets" priority="159" />
+      <Item value="s" priority="31" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Threading.Thread">
+      <Item value="Join`0" priority="26" />
+      <Item value="Abort`0" priority="26" />
+      <Item value="Start`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Threading.WaitHandle">
+      <Item value="WaitOne`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Threading.ManualResetEvent">
+      <Item value="Set`0" priority="22" />
+      <Item value="Reset`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Threading.ReaderWriterLockSlim">
+      <Item value="EnterWriteLock`0" priority="26" />
+      <Item value="ExitWriteLock`0" priority="22" />
+      <Item value="EnterReadLock`0" priority="26" />
+      <Item value="ExitReadLock`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Collections.Generic.Queue`1">
+      <Item value="Dequeue`0" priority="26" />
+      <Item value="Enqueue`0" priority="26" />
+      <Item value="Count" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Collections.Generic.List`1">
+      <Item value="Clear`0" priority="53" />
+      <Item value="Find`0" priority="107" />
+      <Item value="Add`0" priority="134" />
+      <Item value="CopyTo`0" priority="26" />
+      <Item value="Count" priority="107" />
+      <Item value="Remove`0" priority="26" />
+      <Item value="ToArray`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Collections.Hashtable">
+      <Item value="Count" priority="26" />
+      <Item value="Add`0" priority="80" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:RomViewer.FoundObject">
+      <Item value="ObjectType" priority="76" />
+      <Item value="Id" priority="161" />
+      <Item value="Name" priority="80" />
+      <Item value="Coordinates" priority="188" />
+      <Item value="ZoneId" priority="107" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.String">
+      <Item value="IsNullOrEmpty`0" priority="26" />
+      <Item value="Format`0" priority="242" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.IO.FileMode">
+      <Item value="Append" priority="26" />
+      <Item value="Open" priority="49" />
+      <Item value="CreateNew" priority="22" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.IO.File">
+      <Item value="AppendText`0" priority="81" />
+      <Item value="AppendAllText`0" priority="22" />
+      <Item value="Exists`0" priority="53" />
+      <Item value="Delete`0" priority="53" />
+      <Item value="WriteAllText`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:RomViewer.Model.Vector3">
+      <Item value="X" priority="53" />
+      <Item value="Z" priority="26" />
+      <Item value="Y" priority="26" />
+      <Item value="Distance`0" priority="108" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.Convert">
+      <Item value="ToInt32`0" priority="80" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.String">
+      <Item value="Trim`0" priority="53" />
+      <Item value="Length" priority="188" />
+      <Item value="Split`0" priority="107" />
+      <Item value="ToCharArray`0" priority="26" />
+      <Item value="ToString`0" priority="27" />
+      <Item value="IndexOf`0" priority="49" />
+      <Item value="ToLower`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@RomViewer.Model.World">
+      <Item value="CurrentZone" priority="26" />
+      <Item value="Data" priority="53" />
+      <Item value="DeleteNode`0" priority="22" />
+      <Item value="PlayerPos" priority="54" />
+      <Item value="Goto`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:RomViewer.Model.Zone">
+      <Item value="Id" priority="26" />
+      <Item value="Name" priority="80" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.Environment">
+      <Item value="NewLine" priority="134" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@RomViewer.ObjectSaver">
+      <Item value="Add`0" priority="26" />
+      <Item value="_filenames" priority="26" />
+      <Item value="Started" priority="26" />
+      <Item value="Start`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:RomViewer.Domain.Player">
+      <Item value="Name" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:RomViewer.NPCList">
+      <Item value="AddRange`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.IO.FileAccess">
+      <Item value="Read" priority="22" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Xml.Serialization.XmlSerializer">
+      <Item value="Deserialize`0" priority="53" />
+      <Item value="Serialize`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:RomViewer.NPCRecord">
+      <Item value="zoneid" priority="26" />
+      <Item value="x" priority="53" />
+      <Item value="y" priority="26" />
+      <Item value="z" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.KeyEventArgs">
+      <Item value="KeyCode" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.BindingSource">
+      <Item value="Current" priority="26" />
+      <Item value="ResetBindings`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:RomViewer.Model.GameNode">
+      <Item value="GameNodeLinks" priority="53" />
+      <Item value="Coordinates" priority="26" />
+      <Item value="Zone" priority="26" />
+      <Item value="Name" priority="53" />
+      <Item value="Id" priority="107" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:RomViewer.Model.GameNodeLink">
+      <Item value="Target" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@RomViewer.mmServer">
+      <Item value="ServerInstance" priority="161" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:RomViewer.mmServer">
+      <Item value="QueueCommand`0" priority="107" />
+      <Item value="SendToPort" priority="26" />
+      <Item value="QueueChat`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@RomViewer.ToonController">
+      <Item value="SetCommsState`0" priority="26" />
+      <Item value="SetLootfilterState`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.TabControl">
+      <Item value="SelectedTab" priority="26" />
+      <Item value="TabPages" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.ComboBox">
+      <Item value="Text" priority="161" />
+      <Item value="Enabled" priority="26" />
+      <Item value="Items" priority="107" />
+      <Item value="SelectedIndex" priority="26" />
+      <Item value="SelectedItem" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.TextBox">
+      <Item value="Text" priority="215" />
+      <Item value="Clear`0" priority="53" />
+      <Item value="Enabled" priority="135" />
+      <Item value="Lines" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.CheckBox">
+      <Item value="Checked" priority="134" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.Configuration.ConfigurationManager">
+      <Item value="AppSettings" priority="189" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:RomViewer.ToonSettings">
+      <Item value="name" priority="161" />
+      <Item value="msgPort" priority="53" />
+      <Item value="lootActive" priority="80" />
+      <Item value="lootIncludes" priority="107" />
+      <Item value="lootExcludes" priority="45" />
+      <Item value="cmdPort" priority="53" />
+      <Item value="quality" priority="54" />
+      <Item value="targets" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.Boolean">
+      <Item value="Parse`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.ComboBox+ObjectCollection">
+      <Item value="Add`0" priority="53" />
+      <Item value="AddRange`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.Timer">
+      <Item value="Enabled" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:RomViewer.Model.WorldData">
+      <Item value="Nodes" priority="26" />
+      <Item value="Zones" priority="80" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Int32">
+      <Item value="ToString`0" priority="107" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.ToolStripMenuItem">
+      <Item value="DropDownItems" priority="76" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.ToolStripItemCollection">
+      <Item value="Add`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:RomViewer.Model.Waypoint">
+      <Item value="Node" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.ToolStripItem">
+      <Item value="Click" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Collections.Generic.Dictionary`2">
+      <Item value="Add`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Text.StringBuilder">
+      <Item value="AppendLine`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.RadioButton">
+      <Item value="Checked" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Boolean">
+      <Item value="ToString`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:RomViewer.RomSettings">
+      <Item value="Toons" priority="107" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@RomViewer.RomSettings">
+      <Item value="SaveToFile`0" priority="26" />
+      <Item value="ReadFromFile`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.ListControlConvertEventArgs">
+      <Item value="ListItem" priority="53" />
+      <Item value="Value" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:RomViewer.dlgToonSelector">
+      <Item value="ShowDialog`0" priority="26" />
+      <Item value="Selected" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:RomViewer.MainForm">
+      <Item value="Text" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.ToolStripStatusLabel">
+      <Item value="Text" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.ComponentModel.BackgroundWorker">
+      <Item value="CancelAsync`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@RomViewer.dlgToonSelector">
+      <Item value="SelectToon`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.ListBox+ObjectCollection">
+      <Item value="Clear`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.Windows.Forms.MessageBox">
+      <Item value="Show`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:RomViewer.dlgMultiLineMessage">
+      <Item value="Show`0" priority="26" />
+      <Item value="Opacity" priority="26" />
+      <Item value="Closed" priority="54" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:RomViewer.ChannelPage">
+      <Item value="Page" priority="26" />
+      <Item value="Channel" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.TabPage">
+      <Item value="Text" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.DataGridViewCellFormattingEventArgs">
+      <Item value="ColumnIndex" priority="26" />
+      <Item value="Value" priority="26" />
+      <Item value="RowIndex" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.DataGridViewTextBoxColumn">
+      <Item value="Index" priority="27" />
+    </ItemStatistics>
+  </CompletionStatisticsManager>
+</Configuration>
