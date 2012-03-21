@@ -38,7 +38,11 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ProgressODoom">
+      <HintPath>..\..\controls\ProgressODoom\ProgressODoom\bin\Debug\ProgressODoom.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
@@ -65,7 +69,32 @@
     <Compile Include="CommandSelector.Designer.cs">
       <DependentUpon>CommandSelector.cs</DependentUpon>
     </Compile>
+    <Compile Include="dlgMultiLineMessage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="dlgMultiLineMessage.Designer.cs">
+      <DependentUpon>dlgMultiLineMessage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="dlgPathBuilder.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="dlgPathBuilder.Designer.cs">
+      <DependentUpon>dlgPathBuilder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="dlgToonSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="dlgToonSelector.Designer.cs">
+      <DependentUpon>dlgToonSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="dlgWhisper.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="dlgWhisper.Designer.cs">
+      <DependentUpon>dlgWhisper.cs</DependentUpon>
+    </Compile>
     <Compile Include="Domain\Pawn.cs" />
+    <Compile Include="Domain\RomClass.cs" />
     <Compile Include="Domain\Player.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -81,6 +110,7 @@
     <Compile Include="ListManager.Designer.cs">
       <DependentUpon>ListManager.cs</DependentUpon>
     </Compile>
+    <Compile Include="MicroMacroOptions.cs" />
     <Compile Include="mmServer.cs" />
     <Compile Include="Model\Vector3.cs" />
     <Compile Include="Model\GameNode.cs" />
@@ -154,9 +184,12 @@
     <Compile Include="Navigator\NodeVisualiser.Designer.cs">
       <DependentUpon>NodeVisualiser.cs</DependentUpon>
     </Compile>
+    <Compile Include="ObjectSaver.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Domain\ROMHelper.cs" />
+    <Compile Include="RomSettings.cs" />
+    <Compile Include="ToonSettings.cs" />
     <Compile Include="WinHelp.cs" />
     <Compile Include="ZoneForm.cs">
       <SubType>Form</SubType>
@@ -166,6 +199,18 @@
     </Compile>
     <EmbeddedResource Include="CommandSelector.resx">
       <DependentUpon>CommandSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="dlgMultiLineMessage.resx">
+      <DependentUpon>dlgMultiLineMessage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="dlgPathBuilder.resx">
+      <DependentUpon>dlgPathBuilder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="dlgToonSelector.resx">
+      <DependentUpon>dlgToonSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="dlgWhisper.resx">
+      <DependentUpon>dlgWhisper.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
@@ -219,8 +264,11 @@
     <EmbeddedResource Include="ZoneForm.resx">
       <DependentUpon>ZoneForm.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\DataSources\FoundObject.datasource" />
+    <None Include="Properties\DataSources\PathWaypoint.datasource" />
     <None Include="Properties\DataSources\RomViewer.Model.GameNode.datasource" />
     <None Include="Properties\DataSources\RomViewer.Model.GameNodeLink.datasource" />
     <None Include="Properties\DataSources\RomViewer.Model.WaypointLink.datasource" />
@@ -236,6 +284,9 @@
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy $(TargetPath) $(TargetDir)_$(TargetFileName) /Y</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

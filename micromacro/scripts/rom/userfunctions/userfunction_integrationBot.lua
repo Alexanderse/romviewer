@@ -1,6 +1,23 @@
 require "socket"
+include "../classes/viewerlink.lua";
+include "../functions.lua";
+include "../queues.lua";
 
 local commsEnabled = true;
+
+local oldPrintF = printf;
+local function locPrintf(format, ...)
+	pcall(sendChatMessage, "Printf", sprintf(format, ...));
+	oldPrintF(format,...);
+end
+printf = locPrintf;
+
+local oldCPrintF = cprintf;
+local function locCPrintf(color, format, ...)
+	pcall(sendChatMessage, "Printf", sprintf(format, ...));
+	oldCPrintF(color, format,...);
+end
+global.cprintf = locCPrintf;
 
 function SetCommsState(state)
 	if (state=="off") then
@@ -35,6 +52,7 @@ function runChatMonitors()
 			printEvents("Sale", cli.lightblue)
 			printEvents("System", cli.lightgray)
 			printEvents("Channel", cli.lightgray)
+			printEvents("newQuest", cli.lightgray)
 			--printEvents("Combat", cli.lightgray)
 		end;
 		sendPlayerCoords();
@@ -85,11 +103,11 @@ function runCommandListener()
 				if type(funct) == "function" then
 					local status,err = pcall(funct);
 					if status == false then
-						sendChatMessage("Error", "onLoad error: %s\n"..err);
+						sendChatMessage("Error", "onLoad error: "..err);
 					end
 
 				else
-					sendChatMessage("Error", "Invalid Command");
+					sendChatMessage("Error", "Invalid Command: "..p1);
 				end
 			end
 		end	
@@ -103,6 +121,7 @@ function startChatMonitors()
 	EventMonitorStart("allSay", "CHAT_MSG_SAY")
 	EventMonitorStart("allWhisper", "CHAT_MSG_WHISPER")
 	EventMonitorStart("allZone", "CHAT_MSG_ZONE")
+	EventMonitorStart("allZone", "CHAT_MSG_ZONE")
 	EventMonitorStart("allWorld", "CHAT_MSG_YELL")
 	EventMonitorStart("allParty", "CHAT_MSG_PARTY")
 	EventMonitorStart("allTrade", "CHAT_MSG_TRADE")
@@ -111,6 +130,8 @@ function startChatMonitors()
 	EventMonitorStart("allSale", "CHAT_MSG_SALE")
 	EventMonitorStart("allSystem", "CHAT_MSG_SYSTEM")
 	EventMonitorStart("allChannel", "CHAT_MSG_CHANNEL")
+	EventMonitorStart("allnewQuest", "ADDNEW_QUESTBOOK")
+	 
 end
 
 function stopChatMonitors()
@@ -126,7 +147,22 @@ function stopChatMonitors()
 	EventMonitorEnd("allSale")
 	EventMonitorEnd("allSystem")
 	EventMonitorEnd("allChannel")
+	EventMonitorEnd("allnewQuest")
 end
+
+function runQueueProcessor()
+	while (true) do
+		if ((__npcQ) and (not __npcQ:isEmpty())) then
+			local link = CServerLink(nil,nil, 5);
+			while (not __npcQ:isEmpty()) do
+				--printf("Count: "..tostring(__npcQ:count()).."\n");
+				link:send(__npcQ:pop(),false);
+			end;
+			link:close();
+		end;
+		yrest(500);
+	end;
+end;
 
 function printEvents(channel, color)
 	local _count = 0;
@@ -201,14 +237,9 @@ end
 
 function sendChatMessage(channel, message)
 	if (settings.profile.options.UDP_ENABLED) then
-		local sock = socket.udp()
-		sock:settimeout(0)
-		sock:setpeername(settings.profile.options.UDP_HOST, settings.profile.options.UDP_HOSTPORT)
-		
-		-- cprintf(cli.white, "[%s - %s] %s: %s\n", tostring(channel), tostring(os.date()), "", tostring(message)) 
+		local sock = CViewerLink(0);
 		local st = sprintf("CHAT\1%s\1%s\1%s\1%s", channel, "", message, os.date())
 		sock:send(st)
-
 		sock:close()
 	end
 end
@@ -262,7 +293,7 @@ function getGold()
 end
 
 function sendPlayerCoords()
-	local result = sprintf("%s\2%s\2%s\2%s\2%s\2%s\2%s", player.Name, player.HP, player.MaxHP, player.X, player.Y, player.Z, getZone());
+	local result = sprintf("%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s", player.Name, player.HP, player.MaxHP, player.X, player.Y, player.Z, getZoneId(), player.MP, player.MaxMP, player.MP2, player.MaxMP2);
 					
 	sendChatMessage("PlayerUpdate", result);
 end
@@ -279,6 +310,20 @@ function sendPlayerDetails()
 	sendChatMessage("PlayerDetails", result);
 end
 
+local function myUnstick3()
+			local wp = nil; local wpnum = nil;
+			local isEndWP = false;
+			
+			if( player.Returning ) then
+				wp = __RPL:getNextWaypoint();
+				wpnum = __RPL.CurrentWaypoint;
+			else
+				wp = __WPL:getNextWaypoint();
+				wpnum = __WPL.CurrentWaypoint;
+			end;
+	teleportToWP(wp.wpnum);
+end;
+unStick3 = myUnstick3;
 
 function sendTargetDetails()
 	player:update();
@@ -321,25 +366,24 @@ local playerAddress = addresses.staticbase_char;
 local charZoneID_offset = 0x6FE; -- I only checked the character
 local charZoneID = 0;
 
-function refreshZoneID()
-	local zoneID = memoryReadShortPtr(getProc(),playerAddress,charZoneID_offset);
-	return zoneID;
-end
-
--- Returns the ZoneID
-function getZone()
-	return refreshZoneID();
-end
-
 local newWPL = {};
+
+loadingNewWaypoint = false
 
 --methods for creating waypoints etc!!!
 function LoadNewWaypointList(filename)
+	loadingNewWaypoint = true
 	printf("Received new waypoint file: "..filename)
 	SetCommsState("off");
 	loadPaths(filename);
 	--__WPL.Type = WPT_TRAVEL;
 	sendChatMessage("NavPoint", "start");
+	loadingNewWaypoint = false;
+end
+
+function refreshZoneID()
+	local zoneID = memoryReadShortPtr(getProc(),playerAddress,charZoneID_offset);
+	return zoneID;
 end
 
 local function roundIt(_number)
@@ -366,19 +410,19 @@ function sendObjects()
 	local objectList = CObjectList();
 	objectList:update();
 	local objSize = objectList:size();
+	
+
 	sendChatMessage("romObjects", "new");
 	local lncolor,obj;
 	local setCount = 10;
 	local s = "";
+	
+	
 	for i = 0,objSize do 
 		obj = objectList:getObject(i);
-		if (i == 0) or ((i / 2) == (math.floor(i/2))) then
-			_lncolor = cli.lightgray;
-		else
-			_lncolor = cli.white;
-		end
-		
-		s = sprintf("%s%d\2%d\2%d\2%s\2%s\2%s\2%s\2%x\3",s, roundIt(obj.X), roundIt(obj.Z), roundIt(obj.Y), fixString(tostring(obj.TYPE),5), fixString(obj.Name,24), fixString(tostring(obj.Id),7), fixString(tostring(obj.Attackable),7), obj.Address);
+				
+		s = sprintf("%s%d\2%d\2%d\2%s\2%s\2%s\2%s\2%x\2%d\3",s, roundIt(obj.X), roundIt(obj.Z), roundIt(obj.Y), fixString(tostring(obj.Type),5), fixString(obj.Name,24), fixString(tostring(obj.Id),7), fixString(tostring(obj.Attackable),7), obj.Address, obj.GUID);
+           -- return string.Format("{1}{0}{2}{0}{3}{0}{4}{0}{5}{0}{6}{0}{7}{0}{8}", (char)2, RomId, UniqueId, Name, ZoneId, X, Y, Z, (byte)EntityTypes);
 
 		setCount = setCount -1;
 		if (setCount <= 1) then
@@ -386,11 +430,16 @@ function sendObjects()
 			setCount = 10;
 			s = "";
 		end;
+
+		if (obj.Type == PT_NPC and (obj.Id > 0) and (string.len(obj.Name) > 0) and (obj.Name~="<UNKNOWN>")) then
+			local npc = sprintf("NPC\1BOTUPDATE\1%d\2%d\2%s\2%d\2%d\2%d\2%d\2%d\0",obj.Id, obj.GUID, tostring(obj.Name), getZoneId(), roundIt(obj.X), roundIt(obj.Y), roundIt(obj.Z), 0);
+
+			__npcQ:push(npc);		
+		end;
 	end
 	if (setCount > 0) then sendChatMessage("romObjects", s); end;
 	
 	sendChatMessage("romObjects", "end");
-
 end
 
 local captureWaypointPress = false;
@@ -399,6 +448,64 @@ wpKey = key.VK_NUMPAD1;			-- insert a movement point
 
 function SetWaypointCapture(state)
 	captureInsertPress = (state == "on");
-	
-	
 end
+
+function __log(filename, text)
+	if ((filename ~= nil) and (text ~= nil)) then
+		filename = getExecutionPath() .. "/logs/"..filename;
+		file, err = io.open(filename, "a+");
+		if( not file ) then
+			error(err, 0);
+		end
+
+		file:write(text.."\n")
+		file:close();
+	end
+end
+
+function __logWithTime(filename, text)
+	text = tostring(os.date("%c"))..": "..text
+	__log(filename, text)
+end
+
+function CreateItemLink( item_id, quality )
+  assert(type(item_id)=="number")
+  qualit = quality or 1;
+  local r,g,b = RoMScript("GetItemQualityColor("..tostring(quality).." or 1)");
+  return string.format('|Hitem:%6x|h|cff%2x%2x%2x[dummy]|r|h',item_id,r*255,g*255,b*255)
+end
+
+function RVGetPath(x,y,z,zoneid,npcid)
+	local data = sprintf("%s\2%s\2%s\2%s\2%s", tostring(x), tostring(y), tostring(z), tostring(zoneid), tostring(npcid));
+	local query = sprintf("MAP\1GETROUTE\1%s\0", data);
+	
+	local link = CServerLink();
+	printf("RVGetPath-sending: "..tostring(query).."\n");
+	local q=link:send(query, true);
+	printf("RVGetPath-got: "..tostring(q).."\n");
+	link:close();
+end;
+
+--player:update();
+--yrest(100);
+--RVGetPath(player.X, player.Y, player.Z, getZoneId(), 110245);
+
+function SendQuestStatus(questId)
+	printf("SendQuestStatus("..tostring(questId)..")\n");
+	if (questId == nil) then return; end;
+	if (type(questId)=='string') then questId = tonumber(questId); end;
+	
+	quest = CQuest(questId,0,0,0,0,0,0,0,"","");
+	--self, qId, minLevel, level, starterid, enderid, gold, xp, tp, rewardcategory, rewardsubcategory
+	quest:update();
+
+	if (quest.Completed) then
+		local link = CServerLink("127.0.0.1", 31001, 5);
+		local data = sprintf("TOON\1SETQUESTCOMPLETED\1%s\1%d\0",player.Name,questId);
+		printf("sending: "..data.."\n");
+		link:send(data,false);
+		link:close();
+		yrest(50);
+	end;
+
+end;

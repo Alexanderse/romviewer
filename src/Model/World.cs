@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
@@ -20,6 +21,8 @@ namespace RomViewer.Model
         public static Zone PlayerZone;
         public static bool IsTravelling;
         public static Zone CurrentZone;
+        private static int _maxDepth;
+        public static string PlayerName;
 
         public static void SaveToDirectory(string path)
         {
@@ -92,6 +95,13 @@ namespace RomViewer.Model
             foreach (GameNode node in Data.Nodes)
             {
                 if (node.Zone != null) node.Zone.Waypoints.Add(node);
+
+                GameNodeLink link = node.GameNodeLinks.Find(nodeLink => nodeLink.Target == node);
+                while (link != null)
+                {
+                    node.GameNodeLinks.Remove(link); //remove links to self (happens somehow)
+                    link = node.GameNodeLinks.Find(nodeLink => nodeLink.Target == node);
+                }
             }
 
             foreach (GameNode node in Data.Nodes)
@@ -334,6 +344,7 @@ namespace RomViewer.Model
 
         public static List<WaypointLink> GetShortestPath(Waypoint target, Waypoint startPoint)
         {
+            _maxDepth = 150;
             List<WaypointLink> path = new List<WaypointLink>();
             List<WaypointLink> currentShortestPath = new List<WaypointLink>();
             List<Waypoint> visitedList = new List<Waypoint>();
@@ -369,9 +380,12 @@ namespace RomViewer.Model
             visitedList.Add(waypointLink.Destination);
             path.Add(waypointLink);
 
-            foreach (KeyValuePair<int, WaypointLink> pair in waypointLink.Destination.Links)
+            if (_maxDepth > path.Count)
             {
-                FindShortestPath(target, path, visitedList, currentShortestPath, pair.Value);
+                foreach (KeyValuePair<int, WaypointLink> pair in waypointLink.Destination.Links)
+                {
+                    FindShortestPath(target, path, visitedList, currentShortestPath, pair.Value);
+                }
             }
 
             path.Remove(waypointLink);
@@ -469,6 +483,67 @@ namespace RomViewer.Model
             }
 
             node.Zone.Waypoints.Remove(node);
+        }
+
+        internal static Hashtable GetNamedNodesByZone()
+        {
+            Hashtable result = new Hashtable(Data.Zones.Count);
+            foreach (Zone zone in Data.Zones)
+            {
+                result.Add(zone.Name, new List<GameNode>());
+            }
+
+            foreach (GameNode node in Data.Nodes)
+            {
+                string id = node.Id.ToString();
+
+                if (node.Name.IndexOf(id) < 0)
+                {
+                    string zoneName = node.Zone.Name;
+
+                    List<GameNode> list = (List<GameNode>) result[zoneName];
+                    list.Add(node);
+                }
+            }
+
+            return result;
+        }
+
+        internal static void Goto(GameNode node)
+        {
+            GameNode startNode = FindNearestNode(PlayerPos);
+
+            if (startNode != null)
+            {
+                Waypoint start = Waypoints.Find(waypoint => waypoint.Node.Id == startNode.Id);
+                Waypoint dest = Waypoints.Find(waypoint => waypoint.Node.Id == node.Id);
+
+                List<WaypointLink> path = GetShortestPath(dest, start);
+
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?><waypoints>");
+                for (int i = 0; i < path.Count; i++)
+                {
+                    string script = "";
+                    //if (i < path.Count - 1) script = path[i + 1].Script;
+                    sb.AppendLine(path[i].Source.ToRomBotXML(i + 1, path[i].Script));
+                }
+                if (path.Count > 0) sb.AppendLine(path[path.Count-1].Destination.ToRomBotXML(path.Count, ""));
+
+                sb.AppendLine("</waypoints>");
+
+                string playerFilename = string.Format("{0}_movement.xml", PlayerName);
+                
+                string filename = string.Format(Path.Combine(ToonController.MicroMacroFolder, @"waypoints\{0}"), playerFilename);
+
+                if (File.Exists(filename)) File.Delete(filename);
+                string data = sb.ToString();
+                File.WriteAllLines(filename, new string[] { data });
+
+                //send a message
+                filename = filename.Replace("\"", "\\\"");
+                mmServer.ServerInstance.QueueCommand(string.Format("LoadNewWaypointList(\"{0}\")", playerFilename));
+            }            
         }
     }
 }

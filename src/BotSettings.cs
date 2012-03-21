@@ -438,5 +438,61 @@ namespace RomViewer
         {
             mmServer.ServerInstance.QueueCommand(string.Format("player:target_NPC(\"{0}\");", p));
         }
+
+        internal static void SetCommsState(bool on)
+        {
+            string cmd = "SetCommsState(\"{0}\")";
+
+            cmd = string.Format(cmd, on ? "on" : "off");
+
+            mmServer.ServerInstance.QueueCommand(cmd);
+        }
+
+        public static void ApplyLootfilterSettings(string qfilter, string picks, string excludes)
+        {
+            string sendMacroLine = "SlashCommand(\"{0}\")";
+
+            //clear first
+            mmServer.ServerInstance.QueueCommand(string.Format(sendMacroLine, "/lf CLEAR"));
+
+            //send excludes
+            if (excludes.Length > 0)
+            {
+                string[] exs = excludes.Split(new string[]{Environment.NewLine},StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string ex in exs)
+                {
+                    mmServer.ServerInstance.QueueCommand(string.Format(sendMacroLine, "/lf add " + ex));
+                }
+                mmServer.ServerInstance.QueueCommand(string.Format(sendMacroLine, "/lf list"));
+
+            }
+
+            //send picks
+            if (picks.Length > 0)
+            {
+                string[] pcks = picks.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string pick in pcks)
+                {
+                    mmServer.ServerInstance.QueueCommand(string.Format(sendMacroLine, "/lf pick " + pick));
+                }
+                mmServer.ServerInstance.QueueCommand(string.Format(sendMacroLine, "/lf show"));
+            }
+
+            if (qfilter.Length > 0)
+            {
+                mmServer.ServerInstance.QueueCommand(string.Format(sendMacroLine, "/lf SETQ " + qfilter));
+                mmServer.ServerInstance.QueueCommand(string.Format(sendMacroLine, "/lf QFILTER ON"));
+            }
+
+
+        }
+
+        internal static void SetLootfilterState(bool on)
+        {
+            string sendMacroLine = string.Format("SlashCommand(\"/lf {0}\")", on ? "ON" : "OFF");
+            mmServer.ServerInstance.QueueCommand(sendMacroLine);
+        }
     }
 }

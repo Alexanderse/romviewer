@@ -32,7 +32,7 @@ namespace RomViewer.Navigator
         {
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.Label zoneLabel;
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NodeManager));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -193,6 +193,7 @@ namespace RomViewer.Navigator
             this.gameNodeDataGridView.RowHeadersVisible = false;
             this.gameNodeDataGridView.Size = new System.Drawing.Size(213, 614);
             this.gameNodeDataGridView.TabIndex = 0;
+            this.gameNodeDataGridView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.gameNodeDataGridView_KeyDown);
             // 
             // idDataGridViewTextBoxColumn
             // 
@@ -258,11 +259,11 @@ namespace RomViewer.Navigator
             // 
             this.gameObjectsDataGridView.AllowUserToAddRows = false;
             this.gameObjectsDataGridView.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.gameObjectsDataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle3;
-            this.gameObjectsDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.gameObjectsDataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            this.gameObjectsDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.gameObjectsDataGridView.AutoGenerateColumns = false;
             this.gameObjectsDataGridView.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
             this.gameObjectsDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;

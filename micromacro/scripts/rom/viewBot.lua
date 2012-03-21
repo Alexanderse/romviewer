@@ -27,6 +27,14 @@ include("classes/party.lua");
 include("classes/itemtypes.lua");
 include("settings.lua");
 include("macros.lua");
+include("classes/quest.lua");
+include("classes/questlist.lua");
+include("classes/questbook.lua");
+include("classes/serverlink.lua");
+include("classes/dbitem.lua");
+include("classes/dbquest.lua");
+include("classes/queue.lua");
+include("queues.lua");
 
 if( fileExists(getExecutionPath().."/userfunctions.lua") ) then
 	include("userfunctions.lua");
@@ -44,6 +52,7 @@ for i,v in pairs(addondir) do
 	end
 end
 
+local filename = getExecutionPath() .. "/database/questlist.xml";
 
 setPriority(priority.high);  
 
@@ -52,7 +61,8 @@ settings.load();
 setStartKey(settings.hotkeys.START_BOT.key);
 setStopKey(settings.hotkeys.STOP_BOT.key);
 
-
+loopAtEnd = false;
+endMoveNow = false;
 
 __WPL = nil;	-- Way Point List
 __RPL = nil;	-- Return Point List
@@ -63,6 +73,19 @@ text = sprintf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" ..
 	"RoM Bot Version %0.2f, Revision %s\n", BOT_VERSION, BOT_REVISION);
 print(text);
 --printPicture("logo", text, 4);
+
+function setWaypointLooping(loop)
+	printf("setWaypointLooping("..tostring(loop)..") called\n");
+	loopAtEnd = loop;
+	
+	sendWaypointLoopingState();
+end;
+
+function sendWaypointLoopingState()
+	if (loopAtEnd == nil) then loopAtEnd=false; end;
+	
+	sendChatMessage("Settings", "Looping\2"..tostring(loopAtEnd));
+end;
 
 function releaseKeys()
 	if( settings.hotkeys.MOVE_FORWARD) then
@@ -89,6 +112,13 @@ function releaseKeys()
 		keyboardRelease(settings.hotkeys.STRAFF_RIGHT.key);
 	end
 end
+
+function _loadQuests()
+	printf("Loading quests from: "..tostring(filename).."\n");
+	__QL:load(filename);
+	__QB = CQuestBook();
+	--__QB:update();
+end;
 
 function main()
 	local forcedProfile = nil;
@@ -251,7 +281,10 @@ function main()
 	if (settings.profile.options.UDP_ENABLED == true) then
 		createThread("listenThread", runChatMonitors);
 		createThread("commandListener", runCommandListener);	
+		createThread("queueProc", runQueueProcessor);
 	end
+	
+	createThread("kickoffQuests", _loadQuests);
 	
 	-- list waypoint files and files in folders
 	-- only files with filetype '.xml' are listed
@@ -400,6 +433,7 @@ function main()
 
 	-- Update inventory
 	inventory:update();
+	
 
 	-- Profile onLoad event
 	-- possibility for users to overwrite profile settings
@@ -419,16 +453,18 @@ function main()
 			error(msg);
 		end
 	end
-	
-	createThread("listenThread", runChatMonitors);
-	createThread("commandListener", runCommandListener);
-
 
 	local distBreakCount = 0; -- If exceedes 3 in a row, unstick.
 	while(true) do
 		if (registeringForSW) then
 			yrest(500);
 		end
+		
+		if (loadingNewWaypoint and (loadingNewWaypoint == true)) then
+			while (loadingNewWaypoint == true) do
+				yrest(500);
+			end;
+		end;
 
 		player:update();
 		player:logoutCheck();
@@ -509,6 +545,11 @@ function main()
 		local aggroWaitStart = os.time();
 		local msg_print = false;
 		while(player.Battling) do
+			if (loadingNewWaypoint and (loadingNewWaypoint == true)) then
+				while (loadingNewWaypoint == true) do
+					yrest(500);
+				end;
+			end;		
 			sendTargetDetails();
 			
 			if( player.Current_waypoint_type == WPT_TRAVEL ) then
@@ -686,7 +727,7 @@ function main()
 				wpnum = __WPL.CurrentWaypoint;
 				--need to make sure we don't loop as I don't want looping
 				--printf("\nAt waypoint num "..tostring(wp.wpnum).. " / "..tostring(#__WPL.Waypoints));
-				if (wp.wpnum == #__WPL.Waypoints) then isEndWP = true; end;
+				if ((loopAtEnd == false) and (wp.wpnum == #__WPL.Waypoints)) then isEndWP = true; end;
 				--cprintf(cli.green, language[6], wpnum, wp.X, wp.Z);	-- Moving to waypoint
 				if ((wp ~= nil) and (wp.wpnum ~= nil)) then sendChatMessage("NavPoint", wp.wpnum); end;
 			end;
@@ -710,7 +751,9 @@ function main()
 			player:checkSkills( ONLY_FRIENDLY );	-- only cast hot spells to ourselfe
 
 			if( success ) then
-				if (isEndWP) then
+				if (wp ~= nil) then printf("At waypoint #"..tostring(wp.wpnum).."\n"); end;
+				
+				if (isEndWP or endMoveNow) then
 					printf("\nAt end\n");
 					loadPaths("wander", rp_to_load);
 					__WPL:setRadius(settings.profile.options.WANDER_RADIUS);
@@ -718,6 +761,7 @@ function main()
 					releaseKeys();
 					SetCommsState("on");
 					sendChatMessage("NavPoint", "end");
+					endMoveNow = false;
 				end;
 				-- if we stick directly at a wp the counter would reseted even if we are sticked
 				-- hence we reset the counter only after 3 successfull waypoints
@@ -754,6 +798,7 @@ function main()
 					if( wp.Action and type(wp.Action) == "string" and string.find(wp.Action,"%a") ) then
 						keyboardRelease( settings.hotkeys.MOVE_FORWARD.key ); yrest(200) -- Stop moving
 						local actionchunk = loadstring(wp.Action);
+						--printf(wp.Action.."\n\n");
 						assert( actionchunk,  sprintf(language[150], __WPL.CurrentWaypoint) );
 						actionchunk();
 					end

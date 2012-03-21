@@ -101,7 +101,9 @@
 		<!--<option name="UDP_HOSTPORT" value="60000" /> -->
 		<!--<option name="UDP_LOCALPORT" value="60999" /> -->
 		<!--<option name="STOP_TARGET_CLEARING" value="true" /> --> <!-- stops the bot from clearing the target so we can target NPC's etc when playing the bot -->
-	
+		
+		<!--<option name="SERVER_NAME" value="127.0.0.1" /> -->
+		<!--<option name="SERVER_PORT" value="31001" />		-->
 		<!-- For more options and documentation see the RoM Bot Wiki:  -->
 		<!-- http://www.solarstrike.net/wiki/index.php5?title=RoM_Bot  -->
 

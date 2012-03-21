@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -39,6 +40,14 @@ namespace RomViewer
         private MapSettings _mapSettings;
         private List<FoundObject> _objectList = new List<FoundObject>();
         private List<FoundObject> _newobjectList = new List<FoundObject>();
+        private Dictionary<ToolStripItem, GameNode> _menuMap = new Dictionary<ToolStripItem, GameNode>();
+        private RomSettings _settings;
+        private ToonSettings _selectedToon;
+        private dlgMultiLineMessage _dlgMultiLineChat = null;
+        private Player _player;
+        private RichTextBox _whisperBox;
+        private Hashtable _whispers = new Hashtable();
+        private bool _mmUpdateSetting = false;
 
         public MainForm()
         {
@@ -46,8 +55,11 @@ namespace RomViewer
 
             try {
                 World.Initialise(Path.GetFullPath("."));
+                BuildGotoMenu();
                 modelLoaderThread.RunWorkerAsync();
-
+                MicroMacroOptions opt = new MicroMacroOptions();
+                opt.OnValueChanged += _onOptionChanged; 
+                settingsGrid.SelectedObject = opt;
             }catch { }
 
             
@@ -55,14 +67,103 @@ namespace RomViewer
             if (zoneComboBox.Items.Count > 0) zoneComboBox.SelectedIndex = 0;
             gameNodeBindingSource1.DataSource = World.Data.Nodes;
             foundObjectBindingSource.DataSource = _objectList;
+
+            LoadToonList();
+
+        }
+
+        public void AddWhisperText(string from, string text)
+        {
+            _whisperBox.AppendText(string.Format("{0} {1}{2}",from, text,Environment.NewLine));
+        }
+
+        private void _onOptionChanged(string option, string value)
+        {
+            mmServer.ServerInstance.QueueCommand(string.Format("settings.profile.options.{0}={1}", option, value));
+
+        }
+
+        private void BuildGotoMenu()
+        {
+            Hashtable data = World.GetNamedNodesByZone();
+
+            foreach (Zone zone in World.Data.Zones)
+            {
+                List<GameNode> list = (List<GameNode>) data[zone.Name];
+
+                if (list.Count > 0)
+                {
+                    ToolStripMenuItem miZone = (ToolStripMenuItem)miGoto.DropDownItems.Add(zone.Name);
+
+                    foreach (GameNode node in list)
+                    {
+                        ToolStripItem item = miZone.DropDownItems.Add(node.Name);
+                        _menuMap.Add(item, node);
+                        item.Click += ItemOnClick;
+                    }
+                }
+            }
+        }
+
+        private void ItemOnClick(object sender, EventArgs eventArgs)
+        {
+            GameNode node = _menuMap[(ToolStripItem) sender];
+            World.Goto(node);
+        }
+
+        private void LoadToonList()
+        {
+            _settings = RomSettings.ReadFromFile("RomSettings.xml");
+
+            /*
+            RomSettings romSettings = new RomSettings();
+
+            //load the player loot settings too
+            int count = Convert.ToInt32(ConfigurationManager.AppSettings["ToonCount"]);
+
+            string toon = "Toon.{0}";
+            for (int i = 1; i <= count; i++)
+            {
+                string toonRef = string.Format(toon, i);
+                ToonSettings settings = new ToonSettings();
+                string[] details = ConfigurationManager.AppSettings[toonRef].ToString().Split(',');
+
+                settings.name = details[0];
+                settings.msgPort = Convert.ToInt32(details[1]);
+                settings.cmdPort = Convert.ToInt32(details[2]);
+
+                settings.lootActive = bool.Parse(ConfigurationManager.AppSettings[toonRef + ".LootFilter.Active"]);
+                details = ConfigurationManager.AppSettings[toonRef + ".LootFilter.Picks"].Split(',');
+                foreach (string s in details)
+                {
+                    settings.lootIncludes.Add(s);
+                }
+
+                details = ConfigurationManager.AppSettings[toonRef + ".LootFilter.Excludes"].Split(',');
+                foreach (string s in details)
+                {
+                    settings.lootExcludes.Add(s);
+                }
+
+                settings.quality = ConfigurationManager.AppSettings[toonRef + ".LootFilter.Quality"];
+                cbToons.Items.Add(settings.name);
+                _toonSettings.Add(settings.name, settings);
+                romSettings.Toons.Add(settings);
+            }
+
+            RomSettings.SaveToFile("RomSettings.xml", romSettings);
+             */
         }
 
         private void Start()
         {
-            LoadPlayers();
+            World.PlayerName = _selectedToon.name;
+            this.Text = "RomViewer v" + RV_VERSION + " - " + _selectedToon.name + " (" + _selectedToon.cmdPort.ToString() + ")";
+
             _onData = OnData;
             _onDataList = OnDataList;
-            _server = new mmServer(Convert.ToInt32(tbListenPort.Text), Convert.ToInt32(tbSendTo.Text), _onDataList);
+            _server = new mmServer(_selectedToon.msgPort, _selectedToon.cmdPort, _onDataList);
+//            _server = new mmServer(Convert.ToInt32(tbListenPort.Text), Convert.ToInt32(tbSendTo.Text), _onDataList);
             _server.Start();
 
             AddMessage(new ReceivedChat("Guild", "", "Starting", ""));
@@ -70,15 +171,36 @@ namespace RomViewer
             AddMessage(new ReceivedChat("Say", "", "Starting", ""));
             AddMessage(new ReceivedChat("World", "", "Starting", ""));
             AddMessage(new ReceivedChat("Zone", "", "Starting", ""));
-
-            bsInquiry.DataSource = _inquiries;
+            AddMessage(new ReceivedChat("Party", "", "Starting", ""));
 
             ToonController.QueryPlayerDetails();
             ToonController.QueryInventory();
             ToonController.QueryWindows();
             ToonController.QueryExecutionPath();
 
+            LoadLootFilters();
+
             tmrKeyPress.Enabled = true;
+        }
+
+        private void LoadLootFilters()
+        {
+            cbLFQuality.Text = _selectedToon.quality;
+
+            tbPick.Clear();
+            foreach (string s in _selectedToon.lootIncludes)
+            {
+                tbPick.Text += s + Environment.NewLine;
+            }
+
+            tbBlack.Clear();
+            foreach (string s in _selectedToon.lootExcludes)
+            {
+                tbBlack.Text += s + Environment.NewLine;
+            }
+            xbQFilterState.Checked = _selectedToon.lootActive;
+
+            ToonController.ApplyLootfilterSettings(cbLFQuality.Text, tbPick.Text, tbBlack.Text);
         }
 
         private void ShowSelector()
@@ -160,6 +282,31 @@ namespace RomViewer
             {
                 Player p = new Player(message.Message);
                 bsPlayer.DataSource = p;
+
+                if (!ObjectSaver.Started)
+                {
+                    ObjectSaver._filenames.Add(4, p.Name + "_npcs.xml");
+                    ObjectSaver.Start();
+
+                }
+
+                _onPlayerUpdate(p);
+            }
+            else if (message.Channel.ToUpper() == "SETTINGS")
+            {
+                string[] detail = message.Message.Split((char)2);
+                int i = 0;
+
+                while (i < detail.Length)
+                {
+                    string setting = detail[i].ToUpper();
+                    i++;
+                    string value = detail[i];
+                    i++;
+
+                    UpdateSetting(setting, value);
+
+                }
             }
             else if (message.Channel.ToUpper() == "PID")
             {
@@ -191,7 +338,20 @@ namespace RomViewer
                 detail[4] = (Math.Round(Convert.ToDouble(detail[4]), 0)).ToString();
                 detail[5] = (Math.Round(Convert.ToDouble(detail[5]), 0)).ToString();
 
+                if (_player == null) _player = new Player();
+                _player.HP = (int)Convert.ToDouble(detail[1]);
+                _player.MaxHP = (int)Convert.ToDouble(detail[2]);
+                _player.MP = (int)Convert.ToDouble(detail[7]);
+                _player.MaxMP = (int)Convert.ToDouble(detail[8]); 
+                _player.MP2 = (int)Convert.ToDouble(detail[9]);
+                _player.MaxMP2 = (int)Convert.ToDouble(detail[10]);
+
                 _currentCoordinates = new Vector3((Math.Round(Convert.ToDouble(detail[3]), 0)), (Math.Round(Convert.ToDouble(detail[4]), 0)), (Math.Round(Convert.ToDouble(detail[5]), 0)));
+
+                _onPlayerUpdate(_player);
+
+                bool suppressRedraw = (World.PlayerPos.Distance(_currentCoordinates) < 1);
+
                 World.PlayerPos = _currentCoordinates;
 
                 this.Text = string.Format("{0} ({1}/{2}) {3},{4},{5}", detail);
@@ -206,12 +366,13 @@ namespace RomViewer
                         z = new Zone();
                         z.Id = zoneId;
                         z.Name = "New Zone Discovered";
+                        World.Data.Zones.Add(z);
 
                         if (!ZoneForm.EditZone(z)) return;
 
-                        World.Data.Zones.Add(z);
                         World.SaveToDirectory(Path.GetFullPath("."));
                         zoneBindingSource.ResetBindings(false);
+                        suppressRedraw = false;
                     }
 
                     World.CurrentZone = z;
@@ -226,8 +387,11 @@ namespace RomViewer
                 }
 
                 if (NodeVisualiser.Visualiser != null) NodeVisualiser.Visualiser.UpdatePlayerPosition();
-                DisplayMap();
-                CenterOnPlayer();
+                if (!suppressRedraw)
+                {
+                    DisplayMap();
+                    CenterOnPlayer();
+                }
             }
             else if (message.Channel.ToUpper() == "TARGETDETAILS")
             {
@@ -283,6 +447,8 @@ namespace RomViewer
 
                     foundObjectBindingSource.RaiseListChangedEvents = true;
                     foundObjectBindingSource.ResetBindings(false);
+
+                    DisplayMap();
                 }
                 else
                 {
@@ -311,14 +477,24 @@ namespace RomViewer
                             FoundObject obj = new FoundObject();
                             obj.Id = id;
                             obj.Name = detail[4].Trim();
+
+                            try
+                            {
+                                obj.ObjectType = Convert.ToInt32(detail[3].Trim());
+                            } catch
+                            {
+                            }
+
                             obj.Coordinates = new Vector3((Math.Round(Convert.ToDouble(detail[0]), 0)),
                                                          (Math.Round(Convert.ToDouble(detail[2]), 0)),
                                                          (Math.Round(Convert.ToDouble(detail[1]), 0)));
 
                             obj.Attackable = (detail[6].Trim().ToUpper() == "TRUE");
+                            obj.ZoneId = World.CurrentZone.Id;
                             _objectList.Add(obj);
 
                             _newobjectList.Add(obj);
+                            ObjectSaver.Add(obj);
                         }
                         else
                         {
@@ -369,9 +545,9 @@ namespace RomViewer
                             Pawn p = new Pawn();
                             p.Name = tokens[0];
                             p.Guild = tokens[1].Trim('(', ')');
-                            p.Class1 = tokens[2];
+                            p.Class1 = Convert.ToInt32(tokens[2]);
                             p.Level = Convert.ToInt32(tokens[3].Trim('(', ')'));
-                            p.Class2 = tokens[4];
+                            p.Class2 = Convert.ToInt32(tokens[4]);
                             p.Level2 = Convert.ToInt32(tokens[5].Trim('(', ')'));
                             int i = 6;
                             p.Location = tokens[i];
@@ -402,11 +578,83 @@ namespace RomViewer
                 ChannelPage cInt = (ChannelPage)_tabChannelMap[message.Channel];
 
                 cInt.MessageBox.AppendText(message.ToString() + Environment.NewLine);
-                if (cInt.Page != tcChats.SelectedTab) cInt.Page.Text = cInt.Channel + "*";
+                if (message.Channel.ToUpper()=="WHISPER")
+                {
+                    if (this.WindowState == FormWindowState.Minimized)
+                    {
+                        noteIcon.BalloonTipText = message.ToString();
+                        noteIcon.ShowBalloonTip(1000);
+                    }
+
+                    if (_whispers.ContainsKey(message.Player))
+                    {
+                        dlgWhisper d = (dlgWhisper) _whispers[message.Player];
+                        d.AddText(message.ToString() + Environment.NewLine);
+                    }
+                }
+
+                if (message.Channel.ToUpper() == "SAY")
+                {
+                    if (this.WindowState == FormWindowState.Minimized)
+                    {
+                        noteIcon.BalloonTipText = message.ToString();
+                        noteIcon.ShowBalloonTip(1000);
+                    }                    
+                }
+
+                if (cInt.Page != tcChats.SelectedTab)
+                {
+                    if (cInt.Page.Text != cInt.Channel + "*")
+                        cInt.Page.Text = cInt.Channel + "*";
+                }
 
                 cInt.MessageBox.SelectionStart = cInt.MessageBox.Text.Length;
                 cInt.MessageBox.ScrollToCaret();
             }
+        }
+
+        private void UpdateSetting(string setting, string value)
+        {
+            _mmUpdateSetting = true;
+            switch (setting)
+            {
+                case "LOOPING":
+                    try
+                    {
+                        bool val = bool.Parse(value);
+                        xbLoop.Checked = val;
+                    }
+                    finally
+                    {
+                        _mmUpdateSetting = false;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void _onPlayerUpdate(Player player)
+        {
+            //"S55/M50 Human (Female) [guild]")
+            string display = string.Format("{0}{1:00}/{2}{3:00} {4} ({5}) [{6}]", RomClassHelper.GetPrefixChar(player.Class1 + 1), player.Level, 
+                                                    RomClassHelper.GetPrefixChar(player.Class2+1), player.Level2, player.Race, player.Sex,
+                                                    player.Guild);
+            lblPlayer1.Text = display;
+
+            pbHP.Maximum = player.MaxHP;
+            pbHP.Minimum = 0;
+            pbHP.Value = player.HP;
+
+            pbMP.Maximum = player.MaxMP;
+            pbMP.Minimum = 0;
+            pbMP.Value = player.MP;
+
+            pbMP2.Maximum = player.MaxMP2;
+            pbMP2.Minimum = 0;
+            pbMP2.Value = player.MP2;
+
+            _player = player;
         }
 
         private void CenterOnPlayer()
@@ -445,6 +693,8 @@ namespace RomViewer
 
                 if (message.Channel.ToUpper() == "WHISPER")
                 {
+                    _whisperBox = box;
+                    box.ContextMenuStrip = cmWhisper;
                     TextBox targetBox = new TextBox();
                     page.Controls.Add(targetBox);
                     targetBox.Top = box.Bottom + 3;
@@ -463,10 +713,9 @@ namespace RomViewer
                                       {
                                           if (args.KeyCode == Keys.Enter)
                                           {
-                                              ChatMessage gm = new ChatMessage(message.Channel, tb.Text, targetBox.Text, Convert.ToInt32(tbSendTo.Text));
-                                              box.AppendText(gm.ToString() + Environment.NewLine);
+                                              mmServer.ServerInstance.QueueChat(message.Channel, tb.Text, targetBox.Text);
+                                              AddWhisperText("-->["+targetBox.Text+"]", tb.Text);
                                               tb.Text = "";
-                                              Queue.Synchronized(_server.MessageQueue).Enqueue(gm);
                                           }
                                       };
                     ci = new TargettedPage(tcChats, page, box, message.Channel, targetBox);
@@ -483,9 +732,8 @@ namespace RomViewer
                     {
                         if (args.KeyCode == Keys.Enter)
                         {
-                            ChatMessage gm = new ChatMessage(message.Channel, tb.Text, "", Convert.ToInt32(tbSendTo.Text));
+                            mmServer.ServerInstance.QueueChat(message.Channel, tb.Text, "");
                             tb.Text = "";
-                            Queue.Synchronized(_server.MessageQueue).Enqueue(gm);
                         }
                     };
                     ci = new ChannelPage(tcChats, page, box, message.Channel);
@@ -511,14 +759,15 @@ namespace RomViewer
         {
             if (e.KeyCode == Keys.Enter)
             {
-                CommandMessage gm = new CommandMessage(tbCommand.Text, Convert.ToInt32(tbSendTo.Text));
-                Queue.Synchronized(_server.MessageQueue).Enqueue(gm);
+                mmServer.ServerInstance.QueueCommand(tbCommand.Text);
             }
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (_server != null) _server.Stop();
+            //modelLoaderThread.CancelAsync();
+            Stop();
+            //if (_server != null) _server.Stop();
 
         }
 
@@ -540,6 +789,7 @@ namespace RomViewer
 
         private void xbACSOn_CheckedChanged(object sender, EventArgs e)
         {
+
             string state = "on";
             if (!xbACSOn.Checked) state = "off";
 
@@ -558,6 +808,8 @@ namespace RomViewer
             if (xbACSPaused.Checked) command += "pause\\\")\")";
             else command += "resume\\\")\")";
 
+            if (rbDIYCE.Checked) command = "sendMacro(\"DIYCE_Pause(" + xbACSPaused.Checked.ToString().ToLower() + ");";
+
             SendCommand(command);
         }
 
@@ -566,7 +818,10 @@ namespace RomViewer
             string state = "on";
             if (!xbACSAutoTurn.Checked) state = "off";
 
+
             string command = "sendMacro(\"acsSlash(\\\"autoturn " + state + "\\\")\")";
+            if (rbDIYCE.Checked) command = "sendMacro(\"DIYCE_AutoTurn(" + xbACSAutoTurn.Checked.ToString().ToLower() + ")\");";
+            
             SendCommand(command);
         }
 
@@ -576,6 +831,9 @@ namespace RomViewer
             if (!xbACSAutoTarget.Checked) state = "off";
 
             string command = "sendMacro(\"acsSlash(\\\"autotarget " + state + "\\\")\")";
+            if (rbDIYCE.Checked) command = "sendMacro(\"DIYCE_AutoTarget(" + xbACSAutoTarget.Checked.ToString().ToLower() + ")\");";
+            SendCommand(command);
+            command = "settings.profile.options.AUTO_TARGET = " + xbACSAutoTarget.Checked.ToString().ToLower();
             SendCommand(command);
         }
 
@@ -586,20 +844,24 @@ namespace RomViewer
             if (!string.IsNullOrEmpty(target))
             {
                 string command = "sendMacro(\"acsSlash(\\\"autotarget add " + target + "\\\")\")";
+                if (rbDIYCE.Checked) command = "sendMacro(\"DIYCE_AddTarget(\\\"" + target + "\\\")\");sendMacro(\"DIYCE_ListTargets()\")";
                 SendCommand(command);
-                lbACSTargets.Items.Add(target);
+                //lbACSTargets.Items.Add(target);
             }
         }
 
         private void tsACSTargetRemove_Click(object sender, EventArgs e)
         {
+            /*
             if (lbACSTargets.SelectedItem != null)
             {
                 string target = lbACSTargets.SelectedItem.ToString();
                 string command = "sendMacro(\"acsSlash(\\\"autotarget remove " + target + "\\\")\")";
+                if (rbDIYCE.Checked) command = "sendMacro(\"DIYCE_RemoveTarget(\\\"" + target + "\\\")\");sendMacro(\"DIYCE_ListTargets()\")";
                 SendCommand(command);
                 lbACSTargets.Items.Remove(lbACSTargets.SelectedItem);
             }
+            */
         }
 
         private void rb2h_CheckedChanged(object sender, EventArgs e)
@@ -645,25 +907,7 @@ namespace RomViewer
             }
         }
 
-        private void LoadPlayers()
-        {
-            lock (_inquiries)
-            {
-                if (File.Exists("ROM.inquiries"))
-                {
-                    using (FileStream inquiries = new FileStream("ROM.inquiries", FileMode.Open, FileAccess.Read, FileShare.None))
-                    {
-                        XmlSerializer ser = new XmlSerializer(typeof(BindingListEx<Pawn>));
-                        _inquiries = (BindingListEx<Pawn>)ser.Deserialize(inquiries);
-                        foreach (Pawn pawn in _inquiries)
-                            _toons[pawn.Name.ToLower()] = pawn;
-                        bsInquiry.DataSource = _inquiries;
-                    }
-                }
-            }
-        }
-
-        private void AddNewNode()
+        private void AddNewNode(bool autoAdd)
         {
             //could push this all into the world class to centralise all updatres
             GameNode node = new GameNode();
@@ -672,32 +916,39 @@ namespace RomViewer
             node.Name = node.Id.ToString();
             node.Zone = (Zone) zoneComboBox.SelectedItem;
 
+            bool canAdd = autoAdd;
 
-            using (EditWaypointForm f = new EditWaypointForm(node))
+            if (!canAdd)
             {
-                if (f.ShowDialog() == DialogResult.OK)
+                using (EditWaypointForm f = new EditWaypointForm(node))
                 {
-                    World.Data.Nodes.Add(node);
-                    Zone currentZone = (Zone) zoneBindingSource.Current;
-
-                    //currentZone.AddNode(node);
-                    GameNode lastNode = null;
-                    if (waypointsBindingSource.Position > -1) lastNode = (GameNode)waypointsBindingSource.Current;
-                    int idx = waypointsBindingSource.Add(node);
-
-                    if (lastNode != null) lastNode.AddNeighbour(node, true);
-
-                    waypointsBindingSource.Position = idx;
-
-                    gameNodeBindingSource.ResetBindings(false);
-                    gameNodeBindingSource1.ResetBindings(false);
-                    
-                }
-                else
-                {
-                    World.Data.Zones[0].Waypoints.Remove(node);
+                    canAdd = (f.ShowDialog() == DialogResult.OK);
                 }
             }
+
+            if (canAdd)
+            {
+                World.Data.Nodes.Add(node);
+                Zone currentZone = (Zone)zoneBindingSource.Current;
+
+                //currentZone.AddNode(node);
+                GameNode lastNode = null;
+                if (waypointsBindingSource.Position > -1) lastNode = (GameNode)waypointsBindingSource.Current;
+                int idx = waypointsBindingSource.Add(node);
+
+                if (lastNode != null) lastNode.AddNeighbour(node, true);
+
+                waypointsBindingSource.Position = idx;
+
+                gameNodeBindingSource.ResetBindings(false);
+                gameNodeBindingSource1.ResetBindings(false);
+
+            }
+            else
+            {
+                World.Data.Zones[0].Waypoints.Remove(node);
+            }
+
 
 
         }
@@ -778,6 +1029,12 @@ namespace RomViewer
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (_selectedToon == null)
+            {
+                _selectedToon = dlgToonSelector.SelectToon(_settings.Toons);
+                if (_selectedToon == null) return;
+            }
+
             Start();
         }
 
@@ -788,8 +1045,13 @@ namespace RomViewer
 
         private void Stop()
         {
-            _server.Stop();
-            _server = null;
+            ObjectSaver.Stop();
+
+            if (_server != null)
+            {
+                _server.Stop();
+                _server = null;
+            }
         }
 
         private void manageNodesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -815,7 +1077,7 @@ namespace RomViewer
 
         private void addNodeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AddNewNode();
+            AddNewNode(false);
         }
 
         private void displayObjectsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -912,6 +1174,8 @@ namespace RomViewer
 
         private void DisplayMap()
         {
+            if (tcChats.SelectedTab != tpMap) return;
+
             _dontRepaint = true;
             try
             {
@@ -1083,18 +1347,23 @@ namespace RomViewer
         private void modelLoaderThread_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
             pbModelProgress.Value = 100;
-            lblProgress.Text = "Ready";
+            SetStatus("Ready");
+        }
+
+        private void SetStatus(string status)
+        {
+            lblStatus.Text = status;
         }
 
         private void modelLoaderThread_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
         {
             pbModelProgress.Value = e.ProgressPercentage;
-            if (e.UserState != null) lblProgress.Text = (string)e.UserState;
+            if (e.UserState != null) SetStatus((string)e.UserState);
         }
 
         private void btnSetCommsOn_Click(object sender, EventArgs e)
         {
-            mmServer.ServerInstance.QueueCommand("setCommsState(\"on\")");
+            ToonController.SetCommsState(true);
         }
 
         private void btnMount_Click(object sender, EventArgs e)
@@ -1107,6 +1376,241 @@ namespace RomViewer
             this.Text = "RomViewer v" + RV_VERSION;
         }
 
+        private void tcChats_TabIndexChanged(object sender, EventArgs e)
+        {
+            DisplayMap();
+        }
+
+        private void btnApplyLootfilterSettings_Click(object sender, EventArgs e)
+        {
+            ToonController.ApplyLootfilterSettings(cbLFQuality.Text, tbPick.Text, tbBlack.Text);
+            //_selectedToon.quality = cbLFQuality.Text;
+            //_selectedToon.lootActive = xbQFilterState.Checked;
+            //_selectedToon.lootIncludes
+        }
+
+        private void xbQFilterState_CheckedChanged(object sender, EventArgs e)
+        {
+            ToonController.SetLootfilterState(xbQFilterState.Checked);
+        }
+
+        private void tmrMap_Tick(object sender, EventArgs e)
+        {
+            if (xbAutoMap.Checked)
+            {
+                GameNode lastNode = null;
+
+                if (waypointsBindingSource.Position > -1) lastNode = (GameNode)waypointsBindingSource.Current;
+                if (lastNode != null)
+                {
+                    if (lastNode.Coordinates.Distance(_currentCoordinates) < 3) return;
+                }
+
+                //map this waypoint!!!!
+                AddNewNode(true);
+            }
+        }
+
+        private void xbAutoMap_CheckedChanged(object sender, EventArgs e)
+        {
+            tmrMap.Enabled = xbAutoMap.Checked;
+        }
+
+        private void btnClearTargets_Click(object sender, EventArgs e)
+        {
+            if (rbDIYCE.Checked)
+            {
+                string command = "sendMacro(\"DIYCE_ClearTargets()\")";
+                SendCommand(command);
+
+                SendCommand("settings.profile.mobs = {}");
+
+                string[] details = tbTargets.Text.Split(new string[] {Environment.NewLine},
+                                                        StringSplitOptions.RemoveEmptyEntries);
+
+                string targets = "";
+                foreach (var s in details)
+                {
+                    command = "sendMacro(\"DIYCE_AddTarget(\\\"" + s + "\\\")\");sendMacro(\"DIYCE_ListTargets()\")";
+                    SendCommand(command);
+                    if (targets.Length > 0) targets += ", ";
+                    targets += "\"" + s + "\"";
+                }
+
+                if (targets.Length > 0) SendCommand(string.Format("settings.profile.mobs = {{{0}}}", targets));
+            }
+
+            _selectedToon.targets.Clear();
+        }
+
+        private void MainForm_Shown(object sender, EventArgs e)
+        {
+            _selectedToon = dlgToonSelector.SelectToon(_settings.Toons);
+        }
+
+        private void toolStripMenuItem3_Click(object sender, EventArgs e)
+        {
+            ToonSettings setting = dlgToonSelector.SelectToon(_settings.Toons);
+            if (setting != null)
+            {
+                _selectedToon = setting;
+
+            }
+        }
+
+        private void toolStripMenuItem4_Click(object sender, EventArgs e)
+        {
+            if (_dlgMultiLineChat == null)
+            {
+                List<string> channels = new List<string>();
+                channels.Add("guild");
+                channels.Add("party");
+                channels.Add("say");
+                channels.Add("whisper");
+                channels.Add("world");
+                channels.Add("zone");
+
+                _dlgMultiLineChat = new dlgMultiLineMessage(channels);
+                _dlgMultiLineChat.Closed += new EventHandler(_dlgMultiLineChat_Closed);
+            }
+
+            _dlgMultiLineChat.Show();
+        }
+
+        private void _dlgMultiLineChat_Closed(object sender, EventArgs e)
+        {
+            _dlgMultiLineChat.Closed -= new EventHandler(_dlgMultiLineChat_Closed);
+            _dlgMultiLineChat = null;
+        }
+
+        private void foundObjectDataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.ColumnIndex == colDistance.Index)
+            {
+                FoundObject o = (FoundObject) _objectList[e.RowIndex];
+                if (o != null)
+                {
+                    int distance = (int) World.PlayerPos.Distance(o.Coordinates);
+                    e.Value = distance;
+                }
+            }
+        }
+
+        private void pathBuilderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            dlgPathBuilder f = new dlgPathBuilder();
+            f.Show();
+        }
+
+        private void xbUseBuffs_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbDIYCE.Checked)
+            {
+                string command = "sendMacro(\"DIYCE_SetOption(\\\"buffs\\\", " + xbUseBuffs.Checked.ToString().ToLower() + ");\")";
+                SendCommand(command);
+            }
+        }
+
+        private void xbUseLongRoot_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbDIYCE.Checked)
+            {
+                string command = "sendMacro(\"DIYCE_SetOption(\\\"longroot\\\", " + xbUseLongRoot.Checked.ToString().ToLower() + ");\")";
+                SendCommand(command);
+            }
+
+        }
+
+        private void xbUseHeals_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbDIYCE.Checked)
+            {
+                string command = "sendMacro(\"DIYCE_SetOption(\\\"heals\\\", " + xbUseHeals.Checked.ToString().ToLower() + ");\")";
+                SendCommand(command);
+            }
+
+        }
+
+        private void xbUseBigSlowAttack_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbDIYCE.Checked)
+            {
+                string command = "sendMacro(\"DIYCE_SetOption(\\\"bigslowattack\\\", " + xbUseBigSlowAttack.Checked.ToString().ToLower() + ");\")";
+                SendCommand(command);
+            }
+
+        }
+
+        private void xbLoop_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void MainForm_Resize(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                noteIcon.Visible = true;
+                noteIcon.BalloonTipText = (string.IsNullOrEmpty(World.PlayerName)) ? "Rom1" : World.PlayerName;
+                //noteIcon.ShowBalloonTip(2);  //show balloon tip for 2 seconds
+                noteIcon.Text = noteIcon.BalloonTipText;
+                this.WindowState = FormWindowState.Minimized;
+                this.ShowInTaskbar = false;
+                Hide();
+            }
+
+        }
+
+        private void noteIcon_DoubleClick(object sender, EventArgs e)
+        {
+            this.Show();
+            //noteIcon.ShowBalloonTip(1000);
+            WindowState = FormWindowState.Normal;
+            this.BringToFront();
+            this.Activate();
+        }
+
+        private void btnUpdateWin_Click(object sender, EventArgs e)
+        {
+            ToonController.QueryWindows();
+        }
+
+        private void cmiOpenWhisper_Click(object sender, EventArgs e)
+        {
+            if (_whisperBox != null)
+            {
+                string target = _whisperBox.SelectedText.Trim();
+                if (string.IsNullOrEmpty(target)) return;
+
+                dlgWhisper d;
+                if (!_whispers.ContainsKey(target))
+                {
+                    d = new dlgWhisper(target, this);
+                    _whispers.Add(target, d);
+                    d.FormClosed += delegate(object o, FormClosedEventArgs args) { _whispers.Remove(target); };
+                }
+
+                d = (dlgWhisper) _whispers[target];
+                d.Show();
+                d.WindowState = FormWindowState.Normal;
+                d.BringToFront();
+                d.Focus();
+            }
+        }
+
+        private void btnMErchant_Click(object sender, EventArgs e)
+        {
+            if (gameNodeComboBox.Text != null)
+            {
+                    mmServer.ServerInstance.QueueCommand("player:merchant(\"" + gameNodeComboBox.Text + "\")");
+            }
+        }
+
+        private void btnToggleLooping_Click(object sender, EventArgs e)
+        {
+            string command = "setWaypointLooping(" + (!xbLoop.Checked).ToString().ToLower() + ")";
+            SendCommand(command);
+        }
 
     }
 
@@ -1142,5 +1646,7 @@ namespace RomViewer
         public string Name { get; set; }
         public Vector3 Coordinates { get; set; }
         public bool Attackable { get; set; }
+        public int ObjectType { get; set;  }
+        public int ZoneId { get; set; }
     }
 }

@@ -152,6 +152,15 @@ namespace RomViewer.Navigator
             _currentNode.Coordinates = newV;
         }
 
+        private void gameNodeDataGridView_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+            {
+                World.DeleteNode((GameNode) gameNodeBindingSource.Current);
+                gameNodeBindingSource.ResetBindings(false);
+            }
+        }
+
 
 
     }
