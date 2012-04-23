@@ -9,7 +9,7 @@ namespace RomViewer
     public class RomSettings
     {
         public List<ToonSettings> Toons = new List<ToonSettings>();
-
+        public string MicroMacroPath = "";
 
         public static RomSettings ReadFromFile(string filename)
         {

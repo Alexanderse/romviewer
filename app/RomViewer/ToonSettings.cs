@@ -14,6 +14,12 @@ namespace RomViewer
         public List<string> lootExcludes = new List<string>();
         public string quality;
         public List<string>  targets = new List<string>();
+        public string profile;
+        public string romInstall;
+        public string accountUser;
+        public string accountPwd;
+        public string accountSecondaryPwd;
+        public int charIndex;
     }
 
 }

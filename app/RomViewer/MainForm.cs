@@ -1,4 +1,6 @@
-﻿using System.Windows.Forms;
+﻿using System.Reflection;
+using System.Windows.Forms;
+using WindowsInput;
 using log4net.Config;
 
 using System;
@@ -60,6 +62,10 @@ namespace RomViewer
         private Hashtable _whispers = new Hashtable();
         private bool _mmUpdateSetting = false;
         private List<string> channelsToMonitor = new List<string>();
+        private Process _currentROMProcess = null;
+        Process _currentMMProcess = null;
+        private bool _restartingProcesses;
+        private string _currentWaypointFile = "";
 
         public MainForm()
         {
@@ -275,12 +281,13 @@ namespace RomViewer
         private void ItemOnClick(object sender, EventArgs eventArgs)
         {
             GameNode node = _menuMap[(ToolStripItem) sender];
-            World.Goto(node);
+            _currentWaypointFile = World.Goto(node);
         }
 
         private void LoadToonList()
         {
             _settings = RomSettings.ReadFromFile("RomSettings.xml");
+            ToonController._settings = _settings;
 
             /*
             RomSettings romSettings = new RomSettings();
@@ -329,7 +336,7 @@ namespace RomViewer
 
             _onData = OnData;
             _onDataList = OnDataList;
-            _server = new mmServer(_selectedToon.msgPort, _selectedToon.cmdPort, _onDataList);
+            _server = new mmServer(_selectedToon.msgPort, _selectedToon.cmdPort, _onDataList, _onNoComms);
 //            _server = new mmServer(Convert.ToInt32(tbListenPort.Text), Convert.ToInt32(tbSendTo.Text), _onDataList);
             _server.Start();
 
@@ -348,6 +355,48 @@ namespace RomViewer
             LoadLootFilters();
 
             tmrKeyPress.Enabled = true;
+        }
+
+        private void _onNoComms(int seconds)
+        {
+            if (_restartingProcesses) return;
+            if (!xbAutoRestart.Checked) return;
+            if (seconds < Convert.ToInt32(tbRestartCount.Text)) return;
+
+            _restartingProcesses = true;
+            try
+            {
+                string currentPlayer = _player.Name;
+
+                miLaunch_Click(null, null);
+
+                //force settings to be resent
+                ToonController.QueryPlayerDetails();
+                ToonController.QueryInventory();
+                xbACSOn_CheckedChanged(null, null);
+                xbACSPaused_CheckedChanged(null, null);
+                xbAutoTurn_CheckedChanged(null, null);
+                xbACSAutoTarget_CheckedChanged(null, null);
+                btnClearTargets_Click(null, null);
+                xbUseBuffs_CheckedChanged(null, null);
+                xbUseLongRoot_CheckedChanged(null, null);
+                xbUseHeals_CheckedChanged(null, null);
+                xbUseBigSlowAttack_CheckedChanged(null, null);
+                xbLoot_CheckedChanged(null, null);
+                btnApplyLootfilterSettings_Click(null, null);
+                string command = "setWaypointLooping(" + (xbLoop.Checked).ToString().ToLower() + ")";
+                SendCommand(command);
+
+                mmServer.ServerInstance.QueueCommand(tbRestartCommands.Text);
+
+                if (World.IsTravelling) mmServer.ServerInstance.QueueCommand(_currentWaypointFile);
+            }
+            finally
+            {
+                mmServer.ServerInstance.updateLastCommsTime();
+                _restartingProcesses = false;
+            }
+            //restart!!!!!
         }
 
         private void LoadLootFilters()
@@ -452,7 +501,7 @@ namespace RomViewer
 
                 if (!ObjectSaver.Started)
                 {
-                    ObjectSaver._filenames.Add(4, p.Name + "_npcs.xml");
+                    ObjectSaver._filenames.Add(4, Path.Combine(Application.StartupPath, p.Name + "_npcs.xml"));
                     ObjectSaver.Start();
 
                 }
@@ -478,10 +527,10 @@ namespace RomViewer
             else if (message.Channel.ToUpper() == "PID")
             {
                 string[] detail = message.Message.Split((char)2);
-                ToonController.PID = Convert.ToInt32(detail[0]);
-                ToonController.GameWindowHandle = Convert.ToInt32(detail[1]);
+                ToonController.romPID = Convert.ToInt32(detail[0]);
+                ToonController.romWinHandle = Convert.ToInt32(detail[1]);
                 ToonController.mmPID = Convert.ToInt32(detail[2]);
-                ToonController.mmHandle = Convert.ToInt32(detail[3]);
+                ToonController.mmWinHandle = Convert.ToInt32(detail[3]);
 
                 ToonController.proccessGame = null;
                 ToonController.proccessMM = null;
@@ -579,12 +628,13 @@ namespace RomViewer
                     if (message.Message == "start")
                     {
                         World.IsTravelling = true;
-                        cbSendKeys.Checked = false;
+                        //cbSendKeys.Checked = false;
                     }
                     else if (message.Message == "end")
                     {
                         World.IsTravelling = false;
-                        cbSendKeys.Checked = true;
+                        _currentWaypointFile = "";
+                        //cbSendKeys.Checked = true;
                     }
                     else
                     {
@@ -611,6 +661,9 @@ namespace RomViewer
                     {
                         _objectList.Remove(obj);
                     }
+                    Vector3 playerPos = World.PlayerPos;
+
+                    _objectList.Sort((o, foundObject) => o.Distance.CompareTo(foundObject.Distance));
 
                     foundObjectBindingSource.RaiseListChangedEvents = true;
                     foundObjectBindingSource.ResetBindings(false);
@@ -660,7 +713,7 @@ namespace RomViewer
                             obj.Coordinates = new Vector3((Math.Round(Convert.ToDouble(detail[0]), 0)),
                                                          (Math.Round(Convert.ToDouble(detail[2]), 0)),
                                                          (Math.Round(Convert.ToDouble(detail[1]), 0)));
-
+                            obj.Distance = World.PlayerPos.Distance(obj.Coordinates);
                             obj.Attackable = (detail[6].Trim().ToUpper() == "TRUE");
                             obj.ZoneId = World.CurrentZone.Id;
                             _objectList.Add(obj);
@@ -1198,6 +1251,7 @@ namespace RomViewer
             if (_selectedToon == null)
             {
                 _selectedToon = dlgToonSelector.SelectToon(_settings.Toons);
+                ToonController._selectedToon = _selectedToon;
                 if (_selectedToon == null) return;
             }
 
@@ -1617,6 +1671,7 @@ namespace RomViewer
         private void MainForm_Shown(object sender, EventArgs e)
         {
             _selectedToon = dlgToonSelector.SelectToon(_settings.Toons);
+            ToonController._selectedToon = _selectedToon;
         }
 
         private void toolStripMenuItem3_Click(object sender, EventArgs e)
@@ -1625,7 +1680,7 @@ namespace RomViewer
             if (setting != null)
             {
                 _selectedToon = setting;
-
+                miLaunch.Enabled = true;
             }
         }
 
@@ -1794,6 +1849,142 @@ namespace RomViewer
             World.UseTransporters = xbUseTeleporters.Checked;
         }
 
+        [DllImport("user32.dll")]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
+        [DllImport("User32.dll", EntryPoint = "ShowWindowAsync")]
+        private static extern bool ShowWindowAsync(IntPtr hWnd, int cmdShow);
+        private const int SW_SHOWNORMAL = 1;
+        private const int SW_HIDE = 0;
+
+        private bool killMMProcess()
+        {
+            if (_currentMMProcess == null) return false;
+
+            bool result = true;
+            try
+            {
+                _currentMMProcess.CloseMainWindow();
+                _currentMMProcess.WaitForExit(5000);
+                result = _currentMMProcess.HasExited;
+                if (result) _currentMMProcess = null;
+            }
+            catch
+            {
+                _currentMMProcess = null;
+            }
+            ToonController.mmPID = -1;
+            ToonController.mmWinHandle = -1;
+            ToonController.proccessMM = null; 
+            return result;
+        }
+
+        private bool killROMProcess()
+        {
+            if (_currentROMProcess == null) return false;
+
+            bool result;
+            try
+            {
+                if (!_currentROMProcess.HasExited)
+                {
+                    _currentROMProcess.Kill();
+                    _currentROMProcess.WaitForExit(5000);
+                }
+                result = _currentROMProcess.HasExited;
+                _currentROMProcess = null;
+            }
+            catch
+            {
+                _currentROMProcess = null;
+                result = true;
+            }
+            ToonController.romPID = -1;
+            ToonController.romWinHandle = -1;
+            ToonController.proccessGame = null;
+            return result;
+        }
+
+
+        private void miLaunch_Click(object sender, EventArgs e)
+        {
+            killROMProcess();
+            killMMProcess();
+
+            ProcessStartInfo info = new ProcessStartInfo(_selectedToon.romInstall, "NoCheckVersion");
+            info.WorkingDirectory = Path.GetDirectoryName(_selectedToon.romInstall);
+            info.Verb = "runas";
+            
+            //update the autologin first
+            string autoLogin = Path.Combine(Path.GetDirectoryName(_selectedToon.romInstall), "interface\\Loginxml\\accountlogin.lua");
+
+            if (File.Exists(autoLogin)) File.Delete(autoLogin);
+            string autoLoginContents = File.ReadAllText(Path.Combine(Application.StartupPath, "Configuration\\accountlogin.txt"));
+            autoLoginContents = string.Format(autoLoginContents, _selectedToon.accountUser, _selectedToon.accountPwd, _selectedToon.charIndex.ToString());
+            File.WriteAllText(autoLogin, autoLoginContents);
+
+            autoLogin = Path.Combine(Path.GetDirectoryName(_selectedToon.romInstall), "interface\\Loginxml\\logindialog.lua");
+            if (File.Exists(autoLogin)) File.Delete(autoLogin);
+            autoLoginContents = File.ReadAllText(Path.Combine(Application.StartupPath, "Configuration\\logindialog.txt"));
+            autoLoginContents = string.Format(autoLoginContents, _selectedToon.accountSecondaryPwd);
+            File.WriteAllText(autoLogin, autoLoginContents);
+
+
+            _currentROMProcess = Process.Start(info);
+
+
+            //wait for game to load
+            Thread.Sleep(500);
+            ToonController.romPID = _currentROMProcess.Id;
+            ToonController.romWinHandle = (int)_currentROMProcess.MainWindowHandle;
+            ToonController.proccessGame = null;
+            ToonController.AttachProcesses();
+            ToonController.proccessGame.Window.Visible = false;
+
+            Thread.Sleep(40000);
+
+
+            //start MM with the selected toon and run script
+            string launchFile = Path.Combine(Path.GetDirectoryName(_settings.MicroMacroPath), string.Format("start_{0}.lua", _selectedToon.name));
+            string txt = "";
+            //txt = string.Format("rom/edbot.lua profile:{0} character:{1}", _selectedToon.profile, _selectedToon.name);
+            txt = string.Format("__profile=\"{1}\";{0}__character=\"{2}\";{0}{0}include(\"scripts/rom/edbot.lua\");{0}", Environment.NewLine, _selectedToon.profile, _selectedToon.name);
+            if (File.Exists(launchFile)) File.Delete(launchFile);
+            File.WriteAllText(launchFile, txt);
+            info = new ProcessStartInfo(_settings.MicroMacroPath);
+            //info.WorkingDirectory = Path.Combine(Path.GetDirectoryName(_settings.MicroMacroPath), "scripts");
+            info.UseShellExecute = false;
+            info.Verb = "runas";
+            info.Arguments = string.Format("start_{0}.lua", _selectedToon.name);
+            _currentMMProcess = Process.Start(info);
+            Thread.Sleep(5000);
+
+            ToonController.mmPID = _currentMMProcess.Id;
+            ToonController.mmWinHandle = (int) _currentMMProcess.MainWindowHandle;
+            ToonController.proccessMM = null;
+            ToonController.AttachProcesses();
+            ToonController.proccessMM.Window.Visible = false;
+
+            if (_server == null)
+            {
+                Start();
+                Thread.Sleep(2000);
+            }
+        }
+
+        private void cbSendKeys_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void xbLoot_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbDIYCE.Checked)
+            {
+                string command = "sendMacro(\"DIYCE_SetOption(\\\"loot\\\", " + xbLoot.Checked.ToString().ToLower() + ");\")";
+                SendCommand(command);
+            }
+        }
+
     }
 
     public class ChannelPage
@@ -1824,6 +2015,7 @@ namespace RomViewer
 
     public class FoundObject
     {
+        public double Distance { get; set; }
         public int Id { get; set; }
         public int Guid { get; set; }
         public string Name { get; set; }
