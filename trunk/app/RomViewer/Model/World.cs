@@ -528,8 +528,10 @@ namespace RomViewer.Model
             return result;
         }
 
-        internal static void Goto(GameNode node)
+        internal static string Goto(GameNode node)
         {
+            string result = "";
+
             GameNode startNode = FindNearestNode(PlayerPos);
 
             if (startNode != null)
@@ -553,7 +555,7 @@ namespace RomViewer.Model
 
                 string playerFilename = string.Format("{0}_movement.xml", PlayerName);
                 
-                string filename = string.Format(Path.Combine(ToonController.MicroMacroFolder, @"waypoints\{0}"), playerFilename);
+                string filename = string.Format(Path.Combine(Path.GetDirectoryName(ToonController._settings.MicroMacroPath), "scripts\\rom\\", @"waypoints\{0}"), playerFilename);
 
                 if (File.Exists(filename)) File.Delete(filename);
                 string data = sb.ToString();
@@ -561,8 +563,10 @@ namespace RomViewer.Model
 
                 //send a message
                 filename = filename.Replace("\"", "\\\"");
-                mmServer.ServerInstance.QueueCommand(string.Format("LoadNewWaypointList(\"{0}\")", playerFilename));
-            }            
+                result = string.Format("LoadNewWaypointList(\"{0}\")", playerFilename);
+                mmServer.ServerInstance.QueueCommand(result);
+            }
+            return result;
         }
     }
 }

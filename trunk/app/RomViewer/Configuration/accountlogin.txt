@@ -1,0 +1,225 @@
+﻿--===============================================================================
+--============================ login screen settings ============================
+--===============================================================================
+-- >>>>>>>>>>>>>>>>>>>> CHOOSE WHETHER TO AUTO LOGIN OR NOT <<<<<<<<<<<<<<<<<<<<<
+fastLoginAutoLogin=true
+-- >>>>>>>>>>>>>>> ENTER YOUR USERNAME BETWEEN THE QUOTES BELOW <<<<<<<<<<<<<<<<<
+fastLoginUser="{0}"
+-- >>>>>>>>>>>>>>> ENTER YOUR PASSWORD BETWEEN THE QUOTES BELOW <<<<<<<<<<<<<<<<<
+local fastLoginPass="{1}"
+--===============================================================================
+--========================== character select settings ==========================
+--===============================================================================
+-- >>>>> CHOOSE WHETHER TO AUTO ENTER THE GAME WORLD WITH THAT CHAR OR NOT <<<<<<
+fastLoginAutoEnter=true
+-- >>>>>>> ENTER THE NUMBER OF THE CHARACTER YOU WANT TO BE AUTO SELECTED <<<<<<<
+fastLoginChrSel={2}
+-- >>>>>>>> ENTER THE NUMBER OF THE CHANNEL YOU WANT TO BE AUTO SELECTED <<<<<<<<
+fastLoginRegSel=1
+-- >>>>>>>>> SHOULD WE RELOG IN AFTER RETURNING TO CHARACTER SELECTION <<<<<<<<<<
+fastLoginRelog=false
+-- >>>>>>> CHOOSE WHETHER TO REMOVE THE ZOOM FROM THE CHAR SELECT OR NOT <<<<<<<<
+fastLoginNoZoom=false
+--===============================================================================
+-- New in game feature: Set LoginNextToon=true at end of your 1-10 scripts when
+-- you want to load another character and then log out. This script will then
+-- load the next character.
+--===============================================================================
+--========================== character Acc & Pass  ==============================
+--===============================================================================
+-- Here is a button map to help with button placement. 
+--
+--    Account4                                            Account8
+--    Account3                                            Account7
+--    Account2     Account1      Log In      Account5     Account6
+--    Account9     Account10    Account11    Account12    Account13
+--    Account14    Account15    Account16    Account17    Account18
+--===============================================================================
+
+local CustomLogin = {{
+	Account1 = {{	UserName = "{0}",	Password = "{1}",	}},
+	Account2 = {{	UserName = "acc2",	Password = "pass6",	}},
+	Account3 = {{	UserName = "acc3",	Password = "pass6",	}},
+	Account4 = {{	UserName = "acc4",	Password = "pass6",	}},
+	Account5 = {{	UserName = "acc5",	Password = "pass6",	}},
+	Account6 = {{	UserName = "acc6",	Password = "pass6",	}},
+	Account7 = {{	UserName = "acc7",	Password = "pass7",	}},
+	Account8 = {{	UserName = "acc8",	Password = "pass8",	}},
+	Account9 = {{	UserName = "acc9",	Password = "pass9",	}}, 
+	Account10 = {{	UserName = "acc10",	Password = "pass10",	}},
+	Account11 = {{	UserName = "acc11",	Password = "pass11",	}},
+	Account12 = {{	UserName = "acc12",	Password = "pass12",	}},
+	Account13 = {{	UserName = "acc13",	Password = "pass13",	}},
+	Account14 = {{	UserName = "acc14",	Password = "pass14",	}},
+	Account15 = {{	UserName = "acc15",	Password = "pass15",	}},
+	Account16 = {{	UserName = "acc16",	Password = "pass16",	}},
+	Account17 = {{	UserName = "acc17",	Password = "pass17",	}},
+	Account18 = {{	UserName = "acc18",	Password = "pass18",	}} 	
+	}}
+
+
+ACCOUNTLOGIN_FADEIN_TIME1 = 0.001;
+ACCOUNTLOGIN_FADEIN_TIME2 = 0.001;
+ACCOUNTLOGIN_AGREEMENT = false;
+LoginNextToon=false -- Do not change this here. Change it in game to log into next character
+AutoLoginAccount=0 -- Do not change this here. Change it in game to log into other account
+
+
+function AccountLogin_OnShow()
+
+	if ( fastLoginAutoLogin and ( not fastLoginTriedOnce ) ) then
+		AccountLoginAccountEdit:SetText(fastLoginUser);
+		AccountLoginPasswordEdit:SetFocus();
+		AccountLoginPasswordEdit:SetText(fastLoginPass);
+		fastLoginTriedOnce=true;
+		AccountLogin_Login();
+	else
+		AccountLoginAccountEdit:SetFocus();
+	end
+
+end
+
+function AccountLogin_OnKeyDown(this, key)
+	if ( key == "ESCAPE" ) then
+		AccountLogin_Exit();
+	end
+end
+
+function AccountLogin_OnKeyUp(this, key)
+
+end
+
+function AccountLogin_OnMouseDown(this, key)
+
+end
+
+function AccountLogin_OnMouseUp(this, key)
+
+end
+
+function AccountLogin_OnUpdate(this, elapsedTime)
+	if ( AccountLogin.update ) then
+		AccountLogin.update = AccountLogin.update + elapsedTime;
+		Alpha = ( AccountLogin.update - ACCOUNTLOGIN_FADEIN_TIME1 ) / ACCOUNTLOGIN_FADEIN_TIME2;
+		if( Alpha < 0 )then
+			Alpha = 0;
+		elseif( Alpha > 1.0 )then
+			Alpha = 1.0;
+		end
+		AccountLogin:SetAlpha( Alpha );
+
+		if ( Alpha >= 1.0 ) then
+			AccountLogin.update = nil;
+		end
+	end
+end
+
+fastLoginLoggedInUser = "" -- rv
+
+function AccountLogin_Login()
+
+	if ( fastLoginAutoLogin and ( not fastLoginTriedOnce ) ) then
+		fastLoginLoggedInUser = fastLoginUser -- rv
+		DefaultServerLogin(fastLoginUser, fastLoginPass);
+	else
+		fastLoginLoggedInUser = AccountLoginAccountEdit:GetText() -- rv
+		DefaultServerLogin(AccountLoginAccountEdit:GetText(), AccountLoginPasswordEdit:GetText());
+		AccountLoginPasswordEdit:SetText("");
+	end
+
+	AccountLoginAccountEdit:ClearFocus();
+	AccountLoginPasswordEdit:ClearFocus();
+end
+
+function AccountLogin_FocusPassword()
+	AccountLoginPasswordEdit:SetFocus();
+end
+
+function AccountLogin_FocusAccountName()
+	AccountLoginAccountEdit:SetFocus();
+end
+
+function AccountLoginPasswordEdit_OnGained(this, arg1)
+
+end
+
+function AccountLoginPasswordEdit_SetText(text)
+	AccountLoginPasswordEdit:InsertChar(text);
+end
+
+function AccountLogin_Exit()
+	QuitGame();
+end
+
+function AccountLogin_OnLoad()
+  CustomLogin_OnLoad();
+	local file = "Interface\\Login\\Logo\\"..GetImageLocation().."\\RA_LOGO";
+	AccountLogin.update = nil;
+	AccountLoginVersion:SetText(GetVersion());
+	AccountLoginLogo:SetTexture(file);
+end
+
+function AccountLogin_Show()
+	AccountLogin.update = 0;
+	AccountLogin:SetAlpha(0);
+	AccountLogin:Show();
+end
+
+local function ReturnLoginID(ID)
+	if		( ID == 1 )	then	return CustomLogin.Account1.UserName, CustomLogin.Account1.Password, 1 ;
+	elseif	( ID == 2 )	then	return CustomLogin.Account2.UserName, CustomLogin.Account2.Password, 2;
+	elseif	( ID == 3 )	then	return CustomLogin.Account3.UserName, CustomLogin.Account3.Password, 3;
+	elseif	( ID == 4 )	then	return CustomLogin.Account4.UserName, CustomLogin.Account4.Password, 4;
+	elseif	( ID == 5 )	then	return CustomLogin.Account5.UserName, CustomLogin.Account5.Password, 5;
+	elseif	( ID == 6 )	then	return CustomLogin.Account6.UserName, CustomLogin.Account6.Password, 6;
+	elseif	( ID == 7 )	then	return CustomLogin.Account7.UserName, CustomLogin.Account7.Password, 7;
+	elseif	( ID == 8 )	then	return CustomLogin.Account8.UserName, CustomLogin.Account8.Password, 8;
+	elseif	( ID == 9 )	then	return CustomLogin.Account9.UserName, CustomLogin.Account9.Password, 9;
+	elseif	( ID == 10 )	then	return CustomLogin.Account10.UserName, CustomLogin.Account10.Password, 10;
+	elseif	( ID == 11 )	then	return CustomLogin.Account11.UserName, CustomLogin.Account11.Password, 11;
+	elseif	( ID == 12 )	then	return CustomLogin.Account12.UserName, CustomLogin.Account12.Password, 12;
+	elseif	( ID == 13 )	then	return CustomLogin.Account13.UserName, CustomLogin.Account13.Password, 13;
+	elseif	( ID == 14 )	then	return CustomLogin.Account14.UserName, CustomLogin.Account14.Password, 14;
+	elseif	( ID == 15 )	then	return CustomLogin.Account15.UserName, CustomLogin.Account15.Password, 15;
+	elseif	( ID == 16 )	then	return CustomLogin.Account16.UserName, CustomLogin.Account16.Password, 16;
+	elseif	( ID == 17 )	then	return CustomLogin.Account17.UserName, CustomLogin.Account17.Password, 17;
+	elseif	( ID == 18 )	then	return CustomLogin.Account18.UserName, CustomLogin.Account18.Password, 18;
+	end
+end
+
+function CustomLogin_OnLoad()
+	for i=1, 18 do
+		local Name, Pass = ReturnLoginID(i);
+		if ( ( Name ~= nil ) and ( Name ~= "" ) and ( Name ~= " " ) ) then
+			button = getglobal("CustomLoginButton"..i);
+			button:SetText(Name);
+		else
+			button = getglobal("CustomLoginButton"..i);
+			button:Hide();
+		end
+	end
+end
+
+
+function CustomLoginButton_OnClick(ID)
+	local Name, Pass, LocalLogID = ReturnLoginID(ID);
+	AccountLoginAccountEdit:SetText(Name);
+	AccountLoginPasswordEdit:SetText(Pass);
+	LogID = LocalLogID;
+	AccountLogin_Login();
+end
+
+function ToonChange(toontoload, acctoload)
+    local AutoLoginAccount = acctoload
+    local AutoLoginCharacter = toontoload
+    Logout(); 
+      if ( AutoLoginAccount == LogID ) then
+        CHARACTER_SELECT.selectedIndex = AutoLoginCharacter
+        CharacterSelect_EnterWorld();
+      else
+        CharacterSelect_Exit();
+        CustomLoginButton_OnClick("..AutoLoginAccount..");
+        CHARACTER_SELECT.selectedIndex = AutoLoginCharacter
+        CharacterSelect_EnterWorld();
+      end
+end

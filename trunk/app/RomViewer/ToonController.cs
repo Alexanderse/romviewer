@@ -16,10 +16,10 @@ namespace RomViewer
     {
         //public mmServer _server;
         public static string MicroMacroFolder = "";
-        public static int PID = -1;
-        public static int GameWindowHandle;
+        public static int romPID = -1;
+        public static int romWinHandle;
         public static int mmPID;
-        public static int mmHandle;
+        public static int mmWinHandle;
         public static ManagedProc proccessGame = null;
         public static ManagedProc proccessMM = null;
 
@@ -38,15 +38,20 @@ namespace RomViewer
         public static List<ReceivedChat> _says = new List<ReceivedChat>();
         private static Zone _currentZone;
 
+        public static RomSettings _settings;
+        public static ToonSettings _selectedToon;
+
+
         public static List<string> GetWaypointFileList()
         {
             List<string> result = new List<string>();
+            string s = Path.GetDirectoryName(_settings.MicroMacroPath);
 
-            if (MicroMacroFolder.Length > 0)
+            if (s.Length > 0)
             {
-                if (Directory.Exists(MicroMacroFolder))
+                if (Directory.Exists(s))
                 {
-                    string waypointDir = Path.Combine(MicroMacroFolder, "waypoints");
+                    string waypointDir = Path.Combine(s, "scripts/rom/waypoints");
 
                     result.AddRange(GetWaypointFiles(waypointDir, ""));
 
@@ -86,11 +91,11 @@ namespace RomViewer
         {
             if (proccessGame == null)
             {
-                if (PID > 0)
+                if (romPID > 0)
                 {
-                    Process process = Process.GetProcessById(PID);
+                    Process process = Process.GetProcessById(romPID);
                     proccessGame = new ManagedProc(process, 3);
-                    if (((int)proccessGame.Window.hWnd) < 1) proccessGame.Window.hWnd = (IntPtr)GameWindowHandle;
+                    if (((int)proccessGame.Window.hWnd) < 1) proccessGame.Window.hWnd = (IntPtr)romWinHandle;
                 }
             }
 
@@ -100,7 +105,7 @@ namespace RomViewer
                 {
                     Process process = Process.GetProcessById(mmPID);
                     proccessMM = new ManagedProc(process, 10);
-                    if (((int)proccessMM.Window.hWnd) < 1) proccessMM.Window.hWnd = (IntPtr)mmHandle;
+                    if (((int)proccessMM.Window.hWnd) < 1) proccessMM.Window.hWnd = (IntPtr)mmWinHandle;
                 }
             }
         }
@@ -389,10 +394,10 @@ namespace RomViewer
         private static void HandleProcessIdUpdate(ReceivedChat message)
         {
             string[] detail = message.Message.Split((char)2);
-            PID = Convert.ToInt32(detail[0]);
-            GameWindowHandle = Convert.ToInt32(detail[1]);
+            romPID = Convert.ToInt32(detail[0]);
+            romWinHandle = Convert.ToInt32(detail[1]);
             mmPID = Convert.ToInt32(detail[2]);
-            mmHandle = Convert.ToInt32(detail[3]);
+            mmWinHandle = Convert.ToInt32(detail[3]);
 
             AttachProcesses();
         }

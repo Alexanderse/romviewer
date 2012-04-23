@@ -141,6 +141,11 @@ namespace RomViewer
             this.yTextBox = new System.Windows.Forms.TextBox();
             this.zTextBox = new System.Windows.Forms.TextBox();
             this.tpSettings = new System.Windows.Forms.TabPage();
+            this.gbRestart = new System.Windows.Forms.GroupBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.tbRestartCommands = new System.Windows.Forms.TextBox();
+            this.tbRestartCount = new System.Windows.Forms.TextBox();
+            this.xbAutoRestart = new System.Windows.Forms.CheckBox();
             this.btnUpdate = new System.Windows.Forms.Button();
             this.tbChannelsToMonitor = new System.Windows.Forms.TextBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
@@ -240,6 +245,8 @@ namespace RomViewer
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.miLaunch = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.startToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
@@ -284,6 +291,7 @@ namespace RomViewer
             this.cmiOpenWhisper = new System.Windows.Forms.ToolStripMenuItem();
             this.btnToggleLooping = new System.Windows.Forms.Button();
             this.xbUseTeleporters = new System.Windows.Forms.CheckBox();
+            this.xbLoot = new System.Windows.Forms.CheckBox();
             class1Label = new System.Windows.Forms.Label();
             class2Label = new System.Windows.Forms.Label();
             guildLabel = new System.Windows.Forms.Label();
@@ -325,6 +333,7 @@ namespace RomViewer
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.bsPlayer)).BeginInit();
             this.tpSettings.SuspendLayout();
+            this.gbRestart.SuspendLayout();
             this.groupBox8.SuspendLayout();
             this.groupBox7.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gameObjectsDataGridView)).BeginInit();
@@ -1327,6 +1336,7 @@ namespace RomViewer
             // 
             // tpSettings
             // 
+            this.tpSettings.Controls.Add(this.gbRestart);
             this.tpSettings.Controls.Add(this.btnUpdate);
             this.tpSettings.Controls.Add(this.tbChannelsToMonitor);
             this.tpSettings.Controls.Add(this.groupBox8);
@@ -1337,16 +1347,64 @@ namespace RomViewer
             this.tpSettings.Location = new System.Drawing.Point(4, 22);
             this.tpSettings.Name = "tpSettings";
             this.tpSettings.Padding = new System.Windows.Forms.Padding(3);
-            this.tpSettings.Size = new System.Drawing.Size(1101, 534);
+            this.tpSettings.Size = new System.Drawing.Size(1101, 560);
             this.tpSettings.TabIndex = 1;
             this.tpSettings.Text = "Settings";
             this.tpSettings.UseVisualStyleBackColor = true;
             // 
+            // gbRestart
+            // 
+            this.gbRestart.Controls.Add(this.label9);
+            this.gbRestart.Controls.Add(this.tbRestartCommands);
+            this.gbRestart.Controls.Add(this.tbRestartCount);
+            this.gbRestart.Controls.Add(this.xbAutoRestart);
+            this.gbRestart.Location = new System.Drawing.Point(643, 360);
+            this.gbRestart.Name = "gbRestart";
+            this.gbRestart.Size = new System.Drawing.Size(380, 194);
+            this.gbRestart.TabIndex = 11;
+            this.gbRestart.TabStop = false;
+            this.gbRestart.Text = "Recovery options";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(13, 56);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(59, 13);
+            this.label9.TabIndex = 3;
+            this.label9.Text = "Commands";
+            // 
+            // tbRestartCommands
+            // 
+            this.tbRestartCommands.Location = new System.Drawing.Point(13, 82);
+            this.tbRestartCommands.Multiline = true;
+            this.tbRestartCommands.Name = "tbRestartCommands";
+            this.tbRestartCommands.Size = new System.Drawing.Size(349, 106);
+            this.tbRestartCommands.TabIndex = 2;
+            // 
+            // tbRestartCount
+            // 
+            this.tbRestartCount.Location = new System.Drawing.Point(207, 22);
+            this.tbRestartCount.Name = "tbRestartCount";
+            this.tbRestartCount.Size = new System.Drawing.Size(68, 20);
+            this.tbRestartCount.TabIndex = 1;
+            this.tbRestartCount.Text = "180";
+            // 
+            // xbAutoRestart
+            // 
+            this.xbAutoRestart.AutoSize = true;
+            this.xbAutoRestart.Location = new System.Drawing.Point(13, 24);
+            this.xbAutoRestart.Name = "xbAutoRestart";
+            this.xbAutoRestart.Size = new System.Drawing.Size(201, 17);
+            this.xbAutoRestart.TabIndex = 0;
+            this.xbAutoRestart.Text = "Auto Restart after (seconds inactive) ";
+            this.xbAutoRestart.UseVisualStyleBackColor = true;
+            // 
             // btnUpdate
             // 
-            this.btnUpdate.Location = new System.Drawing.Point(813, 364);
+            this.btnUpdate.Location = new System.Drawing.Point(441, 468);
             this.btnUpdate.Name = "btnUpdate";
-            this.btnUpdate.Size = new System.Drawing.Size(75, 23);
+            this.btnUpdate.Size = new System.Drawing.Size(186, 23);
             this.btnUpdate.TabIndex = 10;
             this.btnUpdate.Text = "Update";
             this.btnUpdate.UseVisualStyleBackColor = true;
@@ -1354,10 +1412,10 @@ namespace RomViewer
             // 
             // tbChannelsToMonitor
             // 
-            this.tbChannelsToMonitor.Location = new System.Drawing.Point(615, 361);
+            this.tbChannelsToMonitor.Location = new System.Drawing.Point(441, 360);
             this.tbChannelsToMonitor.Multiline = true;
             this.tbChannelsToMonitor.Name = "tbChannelsToMonitor";
-            this.tbChannelsToMonitor.Size = new System.Drawing.Size(186, 144);
+            this.tbChannelsToMonitor.Size = new System.Drawing.Size(186, 102);
             this.tbChannelsToMonitor.TabIndex = 9;
             this.tbChannelsToMonitor.Text = "WHISPER\r\nSAY\r\nZONE\r\nPARTY\r\nGUILD";
             // 
@@ -1396,7 +1454,7 @@ namespace RomViewer
             // groupBox7
             // 
             this.groupBox7.Controls.Add(this.gameObjectsDataGridView);
-            this.groupBox7.Location = new System.Drawing.Point(15, 447);
+            this.groupBox7.Location = new System.Drawing.Point(15, 344);
             this.groupBox7.Name = "groupBox7";
             this.groupBox7.Size = new System.Drawing.Size(409, 166);
             this.groupBox7.TabIndex = 7;
@@ -1477,6 +1535,7 @@ namespace RomViewer
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.xbLoot);
             this.groupBox4.Controls.Add(this.xbUseBigSlowAttack);
             this.groupBox4.Controls.Add(this.xbUseHeals);
             this.groupBox4.Controls.Add(this.xbUseLongRoot);
@@ -1835,7 +1894,7 @@ namespace RomViewer
             this.tpMap.Location = new System.Drawing.Point(4, 22);
             this.tpMap.Name = "tpMap";
             this.tpMap.Padding = new System.Windows.Forms.Padding(3);
-            this.tpMap.Size = new System.Drawing.Size(1101, 534);
+            this.tpMap.Size = new System.Drawing.Size(1101, 560);
             this.tpMap.TabIndex = 3;
             this.tpMap.Text = "Map";
             this.tpMap.UseVisualStyleBackColor = true;
@@ -1845,7 +1904,7 @@ namespace RomViewer
             this.pbMap.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pbMap.Location = new System.Drawing.Point(3, 3);
             this.pbMap.Name = "pbMap";
-            this.pbMap.Size = new System.Drawing.Size(1060, 511);
+            this.pbMap.Size = new System.Drawing.Size(1060, 537);
             this.pbMap.TabIndex = 3;
             this.pbMap.TabStop = false;
             this.pbMap.Resize += new System.EventHandler(this.pbMap_Resize);
@@ -1869,7 +1928,7 @@ namespace RomViewer
             // hsbMap
             // 
             this.hsbMap.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.hsbMap.Location = new System.Drawing.Point(3, 514);
+            this.hsbMap.Location = new System.Drawing.Point(3, 540);
             this.hsbMap.Name = "hsbMap";
             this.hsbMap.Size = new System.Drawing.Size(1078, 17);
             this.hsbMap.TabIndex = 1;
@@ -1880,7 +1939,7 @@ namespace RomViewer
             this.vsbMap.Dock = System.Windows.Forms.DockStyle.Right;
             this.vsbMap.Location = new System.Drawing.Point(1081, 3);
             this.vsbMap.Name = "vsbMap";
-            this.vsbMap.Size = new System.Drawing.Size(17, 528);
+            this.vsbMap.Size = new System.Drawing.Size(17, 554);
             this.vsbMap.TabIndex = 0;
             this.vsbMap.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hsbMap_Scroll);
             // 
@@ -1891,7 +1950,7 @@ namespace RomViewer
             this.tpFind.Location = new System.Drawing.Point(4, 22);
             this.tpFind.Name = "tpFind";
             this.tpFind.Padding = new System.Windows.Forms.Padding(3);
-            this.tpFind.Size = new System.Drawing.Size(1101, 534);
+            this.tpFind.Size = new System.Drawing.Size(1101, 560);
             this.tpFind.TabIndex = 4;
             this.tpFind.Text = "Objects";
             this.tpFind.UseVisualStyleBackColor = true;
@@ -2018,7 +2077,7 @@ namespace RomViewer
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(1101, 534);
+            this.tabPage1.Size = new System.Drawing.Size(1101, 560);
             this.tabPage1.TabIndex = 5;
             this.tabPage1.Text = "tabPage1";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -2028,7 +2087,7 @@ namespace RomViewer
             this.settingsGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.settingsGrid.Location = new System.Drawing.Point(3, 3);
             this.settingsGrid.Name = "settingsGrid";
-            this.settingsGrid.Size = new System.Drawing.Size(1095, 528);
+            this.settingsGrid.Size = new System.Drawing.Size(1095, 554);
             this.settingsGrid.TabIndex = 0;
             // 
             // tpSummary
@@ -2038,7 +2097,7 @@ namespace RomViewer
             this.tpSummary.Location = new System.Drawing.Point(4, 22);
             this.tpSummary.Name = "tpSummary";
             this.tpSummary.Padding = new System.Windows.Forms.Padding(3);
-            this.tpSummary.Size = new System.Drawing.Size(1101, 534);
+            this.tpSummary.Size = new System.Drawing.Size(1101, 560);
             this.tpSummary.TabIndex = 6;
             this.tpSummary.Text = "Summary";
             this.tpSummary.UseVisualStyleBackColor = true;
@@ -2376,6 +2435,8 @@ namespace RomViewer
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem3,
             this.toolStripSeparator3,
+            this.miLaunch,
+            this.toolStripSeparator5,
             this.startToolStripMenuItem,
             this.stopToolStripMenuItem,
             this.toolStripMenuItem2,
@@ -2395,6 +2456,18 @@ namespace RomViewer
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
             this.toolStripSeparator3.Size = new System.Drawing.Size(165, 6);
+            // 
+            // miLaunch
+            // 
+            this.miLaunch.Name = "miLaunch";
+            this.miLaunch.Size = new System.Drawing.Size(168, 22);
+            this.miLaunch.Text = "Launch";
+            this.miLaunch.Click += new System.EventHandler(this.miLaunch_Click);
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(165, 6);
             // 
             // startToolStripMenuItem
             // 
@@ -2584,7 +2657,7 @@ namespace RomViewer
             // 
             // tmrKeyPress
             // 
-            this.tmrKeyPress.Interval = 5;
+            this.tmrKeyPress.Interval = 50;
             this.tmrKeyPress.Tick += new System.EventHandler(this.tmrKeyPress_Tick);
             // 
             // btnHideShow
@@ -2606,6 +2679,7 @@ namespace RomViewer
             this.cbSendKeys.TabIndex = 53;
             this.cbSendKeys.Text = "Send Keys";
             this.cbSendKeys.UseVisualStyleBackColor = true;
+            this.cbSendKeys.CheckedChanged += new System.EventHandler(this.cbSendKeys_CheckedChanged);
             // 
             // modelLoaderThread
             // 
@@ -2739,6 +2813,17 @@ namespace RomViewer
             this.xbUseTeleporters.UseVisualStyleBackColor = true;
             this.xbUseTeleporters.CheckedChanged += new System.EventHandler(this.xbUseTeleporters_CheckedChanged);
             // 
+            // xbLoot
+            // 
+            this.xbLoot.AutoSize = true;
+            this.xbLoot.Location = new System.Drawing.Point(12, 220);
+            this.xbLoot.Name = "xbLoot";
+            this.xbLoot.Size = new System.Drawing.Size(47, 17);
+            this.xbLoot.TabIndex = 14;
+            this.xbLoot.Text = "Loot";
+            this.xbLoot.UseVisualStyleBackColor = true;
+            this.xbLoot.CheckedChanged += new System.EventHandler(this.xbLoot_CheckedChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2786,6 +2871,8 @@ namespace RomViewer
             ((System.ComponentModel.ISupportInitialize)(this.bsPlayer)).EndInit();
             this.tpSettings.ResumeLayout(false);
             this.tpSettings.PerformLayout();
+            this.gbRestart.ResumeLayout(false);
+            this.gbRestart.PerformLayout();
             this.groupBox8.ResumeLayout(false);
             this.groupBox8.PerformLayout();
             this.groupBox7.ResumeLayout(false);
@@ -3046,6 +3133,14 @@ namespace RomViewer
         private System.Windows.Forms.Button btnUpdate;
         private System.Windows.Forms.TextBox tbChannelsToMonitor;
         private System.Windows.Forms.CheckBox xbUseTeleporters;
+        private System.Windows.Forms.ToolStripMenuItem miLaunch;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.GroupBox gbRestart;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox tbRestartCommands;
+        private System.Windows.Forms.TextBox tbRestartCount;
+        private System.Windows.Forms.CheckBox xbAutoRestart;
+        private System.Windows.Forms.CheckBox xbLoot;
     }
 }
 

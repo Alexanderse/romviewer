@@ -75,7 +75,7 @@ namespace RomViewer
             sb.AppendLine("</waypoints>");
 
             string result = sb.ToString();
-            string filename = Path.Combine(ToonController.MicroMacroFolder, "waypoints\\", "_newPath.xml");
+            string filename = Path.Combine(Path.Combine(Path.GetDirectoryName(ToonController._settings.MicroMacroPath), "scripts\\rom\\waypoints\\_newPath.xml"));
 
             File.WriteAllText(filename, result);
         }

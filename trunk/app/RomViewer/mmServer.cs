@@ -10,6 +10,7 @@ namespace RomViewer
 {
     public delegate void OnDataDelegate(ReceivedChat message);
     public delegate void OnDataListDelegate(List<ReceivedChat> message);
+    public delegate void OnNoCommsDelegate(int ticks);
 
     public class mmServer
     {
@@ -20,6 +21,7 @@ namespace RomViewer
 
         private OnDataDelegate _onData = null;
         private OnDataListDelegate _onDataList = null;
+        private OnNoCommsDelegate _onNoComms = null;
         public Queue MessageQueue = new Queue();
         public Queue IncomingQueue = new Queue();
 
@@ -31,26 +33,46 @@ namespace RomViewer
         private Thread _clearQThread;
         private EventWaitHandle _qHasData = new ManualResetEvent(false);
         private object _lock = new object();
+        private DateTime _lastComms = DateTime.Now;
+        private object _commsLock = new object();
+
+        private DateTime getLastCommsTime()
+        {
+            lock (_commsLock)
+            {
+                return _lastComms;
+            }
+        }
+
+        public void updateLastCommsTime()
+        {
+            lock (_commsLock)
+            {
+                _lastComms = DateTime.Now;
+            }
+        }
 
         public int SendToPort
         {
             get { return sendToPort; }
         }
 
-        public mmServer(int port, int SendToPort, OnDataDelegate onData)
+        public mmServer(int port, int SendToPort, OnDataDelegate onData, OnNoCommsDelegate onNoComms)
         {
             this.port = port;
             this._onData = onData;
             mmServer.ServerInstance = this;
             sendToPort = SendToPort;
+            _onNoComms = onNoComms;
         }
 
-        public mmServer(int port, int SendToPort, OnDataListDelegate onDataList)
+        public mmServer(int port, int SendToPort, OnDataListDelegate onDataList, OnNoCommsDelegate onNoComms)
         {
             _onDataList = onDataList;
             this.port = port;
             mmServer.ServerInstance = this;
             sendToPort = SendToPort;
+            _onNoComms = onNoComms;
         }
 
         public void Start()
@@ -107,6 +129,8 @@ namespace RomViewer
                     string received = Encoding.UTF8.GetString(data, 0, recv);
                     string[] result = received.Split((char)1);
 
+                    updateLastCommsTime();
+
                     if (result[0] == MSG_TYPE_CHAT)
                     {
                         ReceivedChat msg = new ReceivedChat(result[1], result[2], result[3], result[4]);
@@ -115,6 +139,13 @@ namespace RomViewer
                     {
                         CommandResult msg = new CommandResult(result[1]);
                     }
+                }
+
+                int seconds = (int)(DateTime.Now - getLastCommsTime()).TotalSeconds;
+                if (seconds > 30)
+                {
+                    DoOnNoComms(seconds);
+                    
                 }
 
                 recv = 0;
@@ -134,6 +165,20 @@ namespace RomViewer
             }
 
             _socket = null;
+        }
+
+        private void DoOnNoComms(int seconds)
+        {
+            if (_onNoComms != null)
+            {
+                try
+                {
+                    _onNoComms(seconds);
+                }
+                catch (Exception)
+                {
+                }
+            }
         }
 
         private void DoOnData(ReceivedChat msg)

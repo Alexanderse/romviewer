@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RomServiceTestBed", "..\Rom
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RomService.Library", "..\RomService.Library\RomService.Library.csproj", "{5651298B-BFBB-4F0A-A180-55035C199BD5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "romLauncher", "..\..\..\rom\romLauncher\romLauncher\romLauncher.csproj", "{A3E65A1C-13EA-4719-9B97-F54EAFF778FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +123,16 @@ Global
 		{5651298B-BFBB-4F0A-A180-55035C199BD5}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{5651298B-BFBB-4F0A-A180-55035C199BD5}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{5651298B-BFBB-4F0A-A180-55035C199BD5}.Release|x86.ActiveCfg = Release|Any CPU
+		{A3E65A1C-13EA-4719-9B97-F54EAFF778FF}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{A3E65A1C-13EA-4719-9B97-F54EAFF778FF}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{A3E65A1C-13EA-4719-9B97-F54EAFF778FF}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{A3E65A1C-13EA-4719-9B97-F54EAFF778FF}.Debug|x86.ActiveCfg = Debug|x86
+		{A3E65A1C-13EA-4719-9B97-F54EAFF778FF}.Debug|x86.Build.0 = Debug|x86
+		{A3E65A1C-13EA-4719-9B97-F54EAFF778FF}.Release|Any CPU.ActiveCfg = Release|x86
+		{A3E65A1C-13EA-4719-9B97-F54EAFF778FF}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{A3E65A1C-13EA-4719-9B97-F54EAFF778FF}.Release|Mixed Platforms.Build.0 = Release|x86
+		{A3E65A1C-13EA-4719-9B97-F54EAFF778FF}.Release|x86.ActiveCfg = Release|x86
+		{A3E65A1C-13EA-4719-9B97-F54EAFF778FF}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

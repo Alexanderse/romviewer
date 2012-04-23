@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using NHibernate;
 using NHibernate.Cfg;
 using NHibernate.Context;
@@ -90,6 +91,44 @@ namespace Focus.Tests.Tasks
             {
                 tx.Rollback();
             }
+        }
+
+        [Test]
+        public void CanRunFromTo()
+        {
+            ISessionFactory fac = RomViewContainer.Container.GetInstance<ISessionFactory>();
+            ISession session = fac.OpenSession();
+            ITransaction tx = session.BeginTransaction();
+            CallSessionContext.Bind(session);
+
+            try
+            {
+                MapBuilder mb = RomViewContainer.Container.GetInstance<MapBuilder>();
+                Map map = mb.BuildMap();
+                Vector3 loc = new Vector3(-1169, 38, -5527); //logar snoop
+                int zoneId = 1;
+
+                Vector3 dV = new Vector3(-20460, -190, 6507);
+
+                PlottedMapPoint dest = map.FindNearest(dV, 6);
+
+                var result = map.BuildRoute(loc, zoneId, dest.MapPoint);
+
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?><waypoints>");
+                for (int i = 0; i < result.Count; i++)
+                {
+                    string script = "";
+                    //if (i < path.Count - 1) script = path[i + 1].Script;
+                    sb.AppendLine(result[i].Start.ToRomBotXML(i + 1, result[i].Script));
+                }
+                if (result.Count > 0) sb.AppendLine(result[result.Count - 1].End.ToRomBotXML(result.Count, ""));
+                Console.WriteLine(sb.ToString());
+            }
+            finally
+            {
+                tx.Rollback();
+            }            
         }
     }
 }
