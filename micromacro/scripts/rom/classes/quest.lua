@@ -132,16 +132,16 @@ function CQuest:getRewardConfiguredItemIndex()
 end;
 
 function CQuest:update()
-	local questState = RoMScript("CheckQuest("..quest.Id..")");
-	
+	local questState = RoMScript("CheckQuest("..self.Id..")");
+	printf("questState="..tostring(questState).."\n");
 	if (questState==0) then 
-		quest.Accepted = false;
-		quest.Completed = false;
+		self.Accepted = false;
+		self.Completed = false;
 	elseif (questState == 2) then
-		quest.Accepted = true;
-		quest.Completed = true;
+		self.Accepted = true;
+		self.Completed = true;
 	else
-		quest.Accepted = true;
-		quest.Completed = false;
+		self.Accepted = true;
+		self.Completed = false;
 	end;
 end;

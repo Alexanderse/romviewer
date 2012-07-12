@@ -1,5 +1,7 @@
 include("pawn.lua");
 include("skill.lua");
+include("queue.lua");
+include("../queues.lua");
 
 WF_NONE = 0;   -- We didn't fail
 WF_TARGET = 1; -- Failed waypoint because we have a target
@@ -11,6 +13,21 @@ ONLY_FRIENDLY = true;	-- only cast friendly spells HEAL / HOT / BUFF
 JUMP_FALSE = false		-- dont jump to break cast
 JUMP_TRUE = true		-- jump to break cast
 
+-- The craft numbers corespond with their order in memory
+CRAFT_BLACKSMITHING = 0
+CRAFT_CARPENTRY = 1
+CRAFT_ARMORCRAFTING = 2
+CRAFT_TAILORING = 3
+CRAFT_COOKING = 4
+CRAFT_ALCHEMY = 5
+CRAFT_MINING = 6
+CRAFT_WOODCUTTING = 7
+CRAFT_HERBALISM = 8
+
+local BreakFromFight = false
+
+
+
 CPlayer = class(CPawn);
 
 function CPlayer.new()
@@ -18,8 +35,161 @@ function CPlayer.new()
 	local np = CPlayer(playerAddress);
 	np:initialize();
 	np:update();
+	if (player ~= nil) then
+		np.onAddressChanged = player.onAddressChanged;
+	else
+		np.onAddressChanged = nil;
+	end;
 	return np;
 end
+
+function CPlayer:update()
+	local addressChanged = false
+
+	-- Ensure that our address hasn't changed. If it has, fix it.
+	local tmpAddress = memoryReadRepeat("intptr", getProc(), addresses.staticbase_char, addresses.charPtr_offset) or 0;
+	if( tmpAddress ~= self.Address and tmpAddress ~= 0 ) then
+		self.Address = tmpAddress;
+		cprintf(cli.green, language[40], self.Address);
+		addressChanged = true;
+		self.Id = -1;
+		if self.Class1 == CLASS_WARDEN then
+			setpetautoattacks()
+		end
+	end;
+
+	CPawn.update(self); -- run base function
+
+	if addressChanged or (#settings.profile.skills == 0 and next(settings.profile.skillsData) ~= nil) then
+		settings.loadSkillSet(self.Class1)
+		-- Reset editbox false flag on start up
+		if memoryReadUInt(getProc(), addresses.editBoxHasFocus_address) == 0 then
+			RoMScript("GetKeyboardFocus():ClearFocus()")
+		end
+	end
+
+	-- If have 2nd class, look for 3rd class
+	-- Class1 and Class2 are done in the pawn class. Class3 only works for player.
+	local classInfoSize = 0x294
+	if self.Class2 ~= -1 then
+		for i = 1, 8 do
+			local level = memoryReadInt(getProc(),addresses.charClassInfoBase + (classInfoSize * i) + addresses.charClassInfoLevel_offset)
+			if level > 0 and i ~= self.Class1 and i ~= self.Class2 then
+				-- must be class 3
+				self.Class3 = i
+				break
+			end
+		end
+	end
+
+
+	self.Level = memoryReadRepeat("int", getProc(), addresses.charClassInfoBase + (classInfoSize* self.Class1 ) + addresses.charClassInfoLevel_offset) or self.Level
+	self.Level2 = memoryReadRepeat("int", getProc(), addresses.charClassInfoBase + (classInfoSize* self.Class2 ) + addresses.charClassInfoLevel_offset) or self.Level2
+	self.Level3 = memoryReadRepeat("int", getProc(), addresses.charClassInfoBase + (classInfoSize* self.Class3 ) + addresses.charClassInfoLevel_offset) or self.Level3
+	self.XP = memoryReadRepeat("int", getProc(), addresses.charClassInfoBase + (classInfoSize* self.Class1 ) + addresses.charClassInfoXP_offset) or self.XP
+	self.TP = memoryReadRepeat("int", getProc(), addresses.charClassInfoBase + (classInfoSize* self.Class1 ) + addresses.charClassInfoTP_offset) or self.TP
+
+	self.Casting = (memoryReadRepeat("intptr", getProc(), addresses.castingBarPtr, addresses.castingBar_offset) ~= 0);
+
+	self.Battling = memoryReadRepeat("byteptr", getProc(), addresses.staticbase_char, addresses.charBattle_offset) == 1;
+
+	self.Stance = memoryReadRepeat("byteptr", getProc(), addresses.staticbase_char, addresses.charStance_offset) or self.Stance
+	self.Stance2 = memoryReadRepeat("byteptr", getProc(), addresses.staticbase_char, addresses.charStance_offset + 2) or self.Stance2
+
+	self.ActualSpeed = memoryReadFloatPtr(getProc(), addresses.staticbase_char, addresses.actualSpeed_offset) or self.ActualSpeed
+	self.Moving = (self.ActualSpeed > 0)
+
+	local tmp = self:getBuff(503827)
+	if tmp then -- has natures power
+		self.Nature = tmp.Level + 1
+	else
+		self.Nature = 0
+	end
+
+	-- remember aggro start time, used for timed ranged pull
+	if( self.Battling == true ) then
+		if(self.aggro_start_time == 0) then
+			self.aggro_start_time = os.time();
+		end
+	else
+		self.aggro_start_time = 0;
+	end
+
+	if( self.Casting == nil or self.Battling == nil or self.Direction == nil ) then
+		error("Error reading memory in CPlayer:update()");
+	end
+
+	self.PetPtr = memoryReadRepeat("uint", getProc(), self.Address + addresses.pawnPetPtr_offset) or self.PetPtr
+	if( self.Pet == nil ) then
+		self.Pet = CPawn(self.PetPtr);
+	else
+		self.Pet.Address = self.PetPtr;
+		if( self.Pet.Address ~= 0 ) then
+			self.Pet:update();
+		end
+	end
+
+	-- Update our exp gain
+	if( os.difftime(os.time(), self.LastExpUpdateTime) > self.ExpUpdateInterval ) then
+		--local newExp = RoMScript("GetPlayerExp()") or 0;	-- Get newest value
+		--local maxExp = RoMScript("GetPlayerMaxExp()") or 1; -- 1 by default to prevent division by zero
+
+		local newExp = self.XP or 0;
+		local maxExp = memoryReadRepeat("intptr", getProc(), addresses.charMaxExpTable_address, (self.Level-1) * 4) or 1;
+
+		self.LastExpUpdateTime = os.time();					-- Reset timer
+
+		if( type(newExp) ~= "number" ) then newExp = 0; end;
+		if( type(maxExp) ~= "number" ) then maxExp = 1; end;
+
+		-- If we have not begun tracking exp, start by gathering
+		-- our current value, but do not count it as a gain
+		if( self.ExpInsertPos == 0 ) then
+			self.ExpInsertPos = 1;
+			self.LastExp = newExp;
+		else
+			local gain = 0;
+			local expGainSum = 0;
+			local valueCount = 0;
+
+			if( newExp > self.LastExp ) then
+				gain = newExp - self.LastExp;
+			elseif( newExp < self.LastExp ) then
+				-- We probably just leveled up. Just get our current, new value and use that.
+				gain = newExp;
+			end
+
+			self.LastExp = newExp;
+			self.ExpTable[self.ExpInsertPos] = gain;
+			self.ExpInsertPos = self.ExpInsertPos + 1;
+			if( self.ExpInsertPos > self.ExpTableMaxSize ) then
+				self.ExpInsertPos = 1;
+			end;
+
+			for i,v in pairs(self.ExpTable) do
+				valueCount = valueCount + 1;
+				expGainSum = expGainSum + v;
+			end
+
+			self.ExpPerMin = expGainSum / ( valueCount * self.ExpUpdateInterval / 60 );
+			self.TimeTillLevel = (maxExp - newExp) / self.ExpPerMin;
+			if( self.TimeTillLevel > 9999 ) then
+				self.TimeTillLevel = 9999;
+			end
+		end
+	end
+
+	if addressChanged then
+		self:doOnAddressChanged();
+	end;
+end
+
+
+function CPlayer:doOnAddressChanged()
+	if (self.onAddressChanged ~= nil) then
+		self.onAddressChanged();
+	end;
+end;
 
 -- Inserts a skill at the end of the queue.
 -- Accepts a skill name like PRIEST_RISING_TIDE
@@ -156,14 +326,35 @@ function CPlayer:harvest(_id, _second_try)
 			end
 		end
 
+		-- Check harvest skill level.
+		if database.nodes[closestHarvestable.Id] then
+			local harvestLevel = database.nodes[closestHarvestable.Id].Level
+			local harvestType = database.nodes[closestHarvestable.Id].Type
+			local craftLevel
+			if harvestType == NTYPE_ORE then
+				craftLevel = self:getCraftLevel(CRAFT_MINING)
+			elseif harvestType == NTYPE_WOOD then
+				craftLevel = self:getCraftLevel(CRAFT_WOODCUTTING)
+			elseif harvestType == NTYPE_HERB then
+				craftLevel = self:getCraftLevel(CRAFT_HERBALISM)
+			end
+			if harvestLevel > craftLevel then
+				print(language[76]) -- Harvest skill level too low
+				return false;
+			end
+		end
+
 		cprintf(cli.yellow, language[95], closestHarvestable.Name);
 
 		if( distance(self.X, self.Z, self.Y, closestHarvestable.X, closestHarvestable.Z, closestHarvestable.Y) > 80 ) then
 			self:moveInRange(CWaypoint(closestHarvestable.X, closestHarvestable.Z), 39, true);
+			--printf("Moving in range\n");
 		end
 
 		if( nodeStillFound(closestHarvestable) ) then
+			--printf("Node still found -> attacking\n");
 			self:target(closestHarvestable.Address)
+			yrest(100)
 			Attack();
 			yrest(100);
 		else
@@ -171,6 +362,7 @@ function CPlayer:harvest(_id, _second_try)
 		end
 
 		if _id and not database.nodes[closestHarvestable.Id] then -- The rest is not needed if not resource node
+			printf(tostring(closestHarvestable.Id).." is not a resource node - done\n");
 			return true;
 		end
 
@@ -180,6 +372,7 @@ function CPlayer:harvest(_id, _second_try)
 		local timeStart = getTime();
 		local skip = false;
 		while( not self.Harvesting ) do
+			--printf("We don't think we are harvesting\n");
 			-- Wait to start harvesting
 			yrest(100);
 			self:update();
@@ -189,8 +382,9 @@ function CPlayer:harvest(_id, _second_try)
 				break;
 			end
 
-			if( deltaTime(getTime(), timeStart) > 3000 ) then
+			if( deltaTime(getTime(), timeStart) > 4000 ) then
 				-- Maybe the command didn't go through. Try once more.
+				--printf(" - attacking again\n");
 				Attack()
 				yrest(500);
 				break;
@@ -207,6 +401,7 @@ function CPlayer:harvest(_id, _second_try)
 			end
 
 			if( not nodeStillFound(closestHarvestable) or self.TargetPtr ~= closestHarvestable.Address ) then
+				--printf("Node no longer found\n");
 				break;
 			end
 
@@ -218,9 +413,12 @@ function CPlayer:harvest(_id, _second_try)
 		end
 
 		self:update();
+		--printf("Updated.\n");
 		if( not self.Battling ) then
+			--printf("not battling - setting last to current.\n");
 			lastHarvestedNodeAddr = closestHarvestable.Address;
 		else
+			--printf("am battling\n");
 			while( self.Battling ) do
 				local enemy = self:findEnemy(true, nil, nil, nil)
 				self:target(enemy);
@@ -230,6 +428,14 @@ function CPlayer:harvest(_id, _second_try)
 				end
 			end
 		end
+	end
+end
+
+local function roundIt(_number)
+	if _number > (math.floor(_number) + 0.5) then
+		return math.ceil(_number);
+	else
+		return math.floor(_number);
 	end
 end
 
@@ -253,7 +459,6 @@ function CPlayer:findEnemy(aggroOnly, _id, evalFunc, ignore)
 	local SCORE_ATTACKING = 100;    -- attacking = score
 	local SCORE_HEALTHPERCENT = 75; -- lower health = more score
 
-
 	for i = 0,objectList:size() do
 		obj = objectList:getObject(i);
 		if( obj ~= nil ) then
@@ -262,10 +467,9 @@ function CPlayer:findEnemy(aggroOnly, _id, evalFunc, ignore)
 				if( obj.Type == PT_MONSTER and (_id == obj.Id or _id == nil) and obj.Address ~= ignore) then
 					local dist = distance(self.X, self.Z, obj.X, obj.Z);
 					local pawn = CPawn(obj.Address);
-					pawn:update();
 					local _target = pawn:getTarget();
 
-					if( evalFunc(obj.Address) == true ) then
+					if( evalFunc(pawn.Address, pawn) == true ) then
 						if( distance(self.X, self.Z, pawn.X, pawn.Z ) < settings.profile.options.MAX_TARGET_DIST and
 						(( (pawn.TargetPtr == self.Address or (pawn.TargetPtr == self.PetPtr and self.PetPtr ~= 0) or _target.InParty == true ) and
 						aggroOnly == true) or aggroOnly == false) ) then
@@ -286,6 +490,10 @@ function CPlayer:findEnemy(aggroOnly, _id, evalFunc, ignore)
 							end
 						end
 					end
+				elseif (obj.Type == PT_NPC and (obj.Id > 0)) then
+					--local npc = sprintf("NPC\1BOTUPDATE\1%d\2%d\2%s\2%d\2%d\2%d\2%d\2%d\0",obj.Id, obj.GUID, tostring(obj.Name), getZoneId(), roundIt(obj.X), roundIt(obj.Y), roundIt(obj.Z), 0);
+					
+					--__npcQ:push(npc);
 				end
 			end
 		end
@@ -549,6 +757,24 @@ function CPlayer:resetSkillLastCastTime()
 	end
 end
 
+local function RestWhileCheckingForWaypoint(_duration)
+	if #__WPL.Waypoints > 0 and player.Moving then
+		-- rest for _duration but if moving stop when reaching waypoint
+		local starttime = os.clock()
+		local curWP = __WPL.Waypoints[__WPL.CurrentWaypoint]
+		local lastdist = distance(player.X,player.Z,curWP.X, curWP.Z)
+		repeat
+			startdist = lastdist
+			yrest(10)
+			player:update()
+			lastdist = distance(player.X, player.Z, curWP.X, curWP.Z)
+		until (os.clock() - starttime) > _duration/1000 or
+					 (lastdist < 10 or lastdist > startdist) -- and wp reached or moving away
+	else
+		yrest(_duration)
+	end
+end
+
 function CPlayer:cast(skill)
 	-- If given a string, look it up.
 	-- If given a skill object, use it natively.
@@ -629,7 +855,7 @@ function CPlayer:cast(skill)
 
 			self.LastSkillStartTime=getTime() -- now that casting = true reset starttime to now
 		else
-			yrest(700); -- assume .7 second yrest
+			RestWhileCheckingForWaypoint(700); -- assume .7 second yrest
 		end
 
 		-- count cast to enemy targets
@@ -681,8 +907,9 @@ end
 -- if they are needed.
 function CPlayer:checkSkills(_only_friendly, target)
 	local used = false;
-
 	self:update();
+	--=== don't cast any skills if mounted ===--
+	--if settings.profile.options.DISMOUNT == false and player.Mounted then return false end
 
 	local target = target or self:getTarget();
 	if ( target ~= nil and _only_friendly ~= true ) then
@@ -763,9 +990,24 @@ function CPlayer:checkSkills(_only_friendly, target)
 	end
 
 	if( not useQueue ) then
+		local last_dist_to_wp
+		local attack_skill_used = false -- Used for priority casting
 		for i,v in pairs(settings.profile.skills) do
-			if( v.AutoUse and v:canUse(_only_friendly, target) ) then
+			if( v.AutoUse and v:canUse(_only_friendly, target) ) and
+			  (settings.profile.options.PRIORITY_CASTING ~= true or attack_skill_used == false) then
+				-- break if just checking buff, moving and reached WP. So it can turn
+				if _only_friendly and #__WPL.Waypoints > 0 and self.Moving then
+					local curWP = __WPL.Waypoints[__WPL.CurrentWaypoint]
+					local distToWP = distance(self.X, self.Z, curWP.X, curWP.Z)
+					if distToWP < 10 then -- wp reached
+						break
+					end
+					if last_dist_to_wp and distToWP > last_dist_to_wp then -- moving away from wp
+						break
+					end
 
+					last_dist_to_wp = distToWP
+				end
 
 				-- additional potion check while working at a 'casting round'
 				self:checkPotions();
@@ -796,6 +1038,10 @@ function CPlayer:checkSkills(_only_friendly, target)
 					yrest(200); -- Wait to stop only if not an instant cast spell
 				end
 
+				if settings.profile.options.PRIORITY_CASTING == true and (v.Type == STYPE_DAMAGE or v.Type == STYPE_DOT) then
+					attack_skill_used = true
+				end
+
 				self:cast(v);
 				used = true;
 			end
@@ -811,6 +1057,8 @@ end
 function CPlayer:checkPotions()
 -- only one potion type could be used, so we return after using one type
 
+	--=== If rogue is hidden then don't use potions as it breaks hide ===--
+	if self.Class1 == 3 and self:hasBuff(500675) then return false end
 
 	if settings.profile.options.USE_PHIRIUS_POTION == true then
 		-- If we need to use a health potion
@@ -831,7 +1079,7 @@ function CPlayer:checkPotions()
 					cprintf(cli.green, language[10], 		-- Using HP potion
 					   self.HP, self.MaxHP, self.HP/self.MaxHP*100,
 					   item.Name, item.ItemCount);
-					   yrest(1000)
+					   RestWhileCheckingForWaypoint(1000)
 					if( self.Fighting ) then
 						yrest(1000);
 					end
@@ -842,7 +1090,7 @@ function CPlayer:checkPotions()
 				return true;
 			else		-- potions empty
 				if( os.difftime(os.time(), self.PhiriusLastHpEmptyTime) > 16 ) then
-					cprintf(cli.yellow, "No more usable HP Phirius pots", inventory.MaxSlots);
+					cprintf(cli.yellow, "No more usable HP Phirius pots\n");
 					self.PhiriusLastHpEmptyTime = os.time();
 					-- full inventory update if potions empty
 					if( os.difftime(os.time(), self.InventoryLastUpdate) >
@@ -872,7 +1120,7 @@ function CPlayer:checkPotions()
 						cprintf(cli.green, language[11], 		-- Using MP potion
 							self.Mana, self.MaxMana, self.Mana/self.MaxMana*100,
 							item.Name, item.ItemCount);
-							yrest(1000)
+							RestWhileCheckingForWaypoint(1000)
 						if( self.Fighting ) then
 							yrest(1000);
 						end
@@ -883,7 +1131,7 @@ function CPlayer:checkPotions()
 					return true;		-- avoid invalid/use count of
 				else	-- potions empty
 					if( os.difftime(os.time(), self.PhiriusLastManaEmptyTime) > 16 ) then
-						cprintf(cli.yellow, "No more usable MP Phirius pots", inventory.MaxSlots);
+						cprintf(cli.yellow, "No more usable MP Phirius pots\n");
 						self.PhiriusLastManaEmptyTime = os.time();
 						-- full inventory update if potions empty
 						if( os.difftime(os.time(), self.InventoryLastUpdate) >
@@ -919,7 +1167,7 @@ function CPlayer:checkPotions()
 				cprintf(cli.green, language[10], 		-- Using HP potion
 				   self.HP, self.MaxHP, self.HP/self.MaxHP*100,
 				   item.Name, item.ItemCount);
-				   yrest(1000)
+				   RestWhileCheckingForWaypoint(1000)
 				if( self.Fighting ) then
 					yrest(1000);
 				end
@@ -963,7 +1211,7 @@ function CPlayer:checkPotions()
 					cprintf(cli.green, language[11], 		-- Using MP potion
 						self.Mana, self.MaxMana, self.Mana/self.MaxMana*100,
 						item.Name, item.ItemCount);
-						yrest(1000)
+						RestWhileCheckingForWaypoint(1000)
 					if( self.Fighting ) then
 						yrest(1000);
 					end
@@ -1069,9 +1317,6 @@ function CPlayer:checkPotions()
 		end
 	end
 
-
-
-
 	return false
 
 end
@@ -1081,6 +1326,9 @@ function CPlayer:fight()
 	if( not self:haveTarget() ) then
 		return false;
 	end
+	if self.Mounted then
+		self:dismount()
+	end
 	keyboardRelease( settings.hotkeys.MOVE_FORWARD.key);
 
 	if ( settings.profile.options.PARTY == true ) and (settings.profile.options.PARTY_ICONS == true) then
@@ -1088,11 +1336,20 @@ function CPlayer:fight()
 		if (settings.profile.options.PARTY_ICONS ~= true) then printf("Raid Icons not set in character profile.\n") end
 	end
 
+	if self.Class1 == CLASS_WARDEN then -- if warden let pet start fight.
+		petupdate()
+		if pet.Name == GetIdName(102297) or
+		pet.Name == GetIdName(102324) or
+		pet.Name == GetIdName(102803)
+		then
+			petstartcombat()
+		end
+	end
+
 	local target = self:getTarget();
 	self.IgnoreTarget = target.Address;
 	self.Fighting = true;
-	if (commsEnabled) then sendChatMessage("STATE", "Fighting\2True"); end;
-	
+
 	cprintf(cli.green, language[22], target.Name);	-- engagin x in combat
 
 	-- Keep tapping the attack button once every few seconds
@@ -1146,6 +1403,7 @@ function CPlayer:fight()
 	end
 
 	local break_fight = false;	-- flag to avoid kill counts for breaked fights
+	BreakFromFight = false -- For users to manually break from fight using player:breakFight()
 	while( self:haveTarget() ) do
 		self:update();
 		-- If we die, break
@@ -1158,6 +1416,11 @@ function CPlayer:fight()
 --			return;
 			break;
 		end;
+
+		if BreakFromFight == true then
+			break_fight = true;
+			break;
+		end
 
 		local target = self:getTarget();
 
@@ -1205,6 +1468,11 @@ function CPlayer:fight()
 				cprintf(cli.green, language[99]); -- Ranged pulling finished. Mob not really moving
 				self.ranged_pull = false;
 			end;
+
+			if self.ranged_pull == false and settings.profile.options.COMBAT_TYPE == "melee" then
+				registerTimer("timedAttack", secondsToTimer(2), timedAttack);
+				timedAttack();
+			end
 		end
 
 		-- We're a bit TOO close...
@@ -1240,7 +1508,6 @@ function CPlayer:fight()
 			target.TargetPtr ~= self.Pet.Address and
 			CPawn(target.TargetPtr).InParty ~= true ) then	-- but not from that mob
 			cprintf(cli.green, language[36], target.Name);
-			printf("test this line 1100")
 			self:clearTarget();
 			break_fight = true;
 			break;
@@ -1338,6 +1605,8 @@ function CPlayer:fight()
 			-- If we used a potion or a skill, reset our last dist improvement
 			-- to prevent unsticking
 			self.LastDistImprove = os.time();
+		elseif self.Cast_to_target == 0 then
+			self.ranged_pull = false
 		end
 
 		yrest(100);
@@ -1399,7 +1668,6 @@ function CPlayer:fight()
 		inventory:updateSlotsByTime(800);
 
 	end;]]
-
 	-- Monster is dead (0 HP) but still targeted.
 	-- Loot and clear target.
 	self:update();
@@ -1416,36 +1684,41 @@ function CPlayer:fight()
 	if( self.TargetPtr ~= 0 ) then
 		self:clearTarget();
 	end
-	self.Fighting = false;
-	if (commsEnabled) then sendChatMessage("STATE", "Fighting\2False"); end;
 
-	-- update ~ 3-4 slots (about 50 ms each)
-	inventory:updateSlotsByTime(200);
+	self.Fighting = false;
+
+	yrest(200);
+end
+
+function CPlayer:breakFight()
+	BreakFromFight = true
 end
 
 function CPlayer:loot()
 
-	if( settings.profile.options.LOOT ~= true ) then
+	if( settings.profile.options.LOOT ~= true and settings.profile.options.LOOT_SIGILS ~= true) then
 		if( settings.profile.options.DEBUG_LOOT) then
-			cprintf(cli.yellow, "[DEBUG] don't loot reason: settings.profile.options.LOOT ~= true\n");
+			cprintf(cli.yellow, "[DEBUG] don't loot reason: settings.profile.options.LOOT ~= true and settings.profile.options.LOOT_SIGILS ~= true\n");
 		end;
 		return
 	end
 
+	if settings.profile.options.LOOT == true then repeat -- 'repeat' block to 'break' from 'if' statement
 	if( self.TargetPtr == 0 ) then
 		if( settings.profile.options.DEBUG_LOOT) then
 			cprintf(cli.yellow, "[DEBUG] don't loot reason: self.TargetPtr == 0\n");
 		end;
-		return
+			break
 	end
 
-	-- aggro and not loot in combat
-	if( self.Battling  and
-		settings.profile.options.LOOT_IN_COMBAT ~= true ) and
-		self:findEnemy(true, nil, evalTargetDefault) then
-		cprintf(cli.green, language[178]); 	-- Loot skiped because of aggro
-		return
-	end
+		-- aggro and not loot in combat
+		if( self.Battling  and
+			settings.profile.options.LOOT_IN_COMBAT ~= true ) and
+			self:findEnemy(true, nil, evalTargetDefault) then
+			self:clearTarget()
+			cprintf(cli.green, language[178]); 	-- Loot skiped because of aggro
+			return
+		end
 
 	self:update();
 	local target = self:getTarget();
@@ -1454,7 +1727,7 @@ function CPlayer:loot()
 		if( settings.profile.options.DEBUG_LOOT) then
 			cprintf(cli.yellow, "[DEBUG] don't loot reason: target == nil or target.Address == 0\n");
 		end;
-		return;
+			break;
 	end
 
 	local dist = distance(self.X, self.Z, target.X, target.Z);
@@ -1473,7 +1746,7 @@ function CPlayer:loot()
 
 	if( dist > lootdist ) then 	-- only loot when close by
 		cprintf(cli.green, language[32]);	-- Target too far away; not looting.
-		return false
+			break
 	end
 
 
@@ -1498,8 +1771,16 @@ function CPlayer:loot()
 		local maxWaitTime = settings.profile.options.LOOT_TIME + dist*15 -- dist*15 = rough calculation of how long it takes to walk there
 		local startWait = getTime()
 		while target.Lootable == true and deltaTime(getTime(), startWait) < maxWaitTime do
-			inventory:updateSlotsByTime(100)
+			yrest(100)
 			target:update()
+		end
+
+		-- Wait for character to finish standing
+		local starttime = os.clock()
+		self:update()
+		while self.Stance ~= 0 and 2 > (os.clock() - starttime) do
+			yrest(50)
+			self:update()
 		end
 	end
 
@@ -1535,6 +1816,22 @@ function CPlayer:loot()
 
 	-- Close the booty bag.
 	RoMScript("BootyFrame:Hide()");
+	until true end -- 'end' ends the 'if' statement
+
+	local function sigilNameMatch(_name)
+		if settings.profile.options.SIGILS_IGNORE_LIST == nil then
+			return true -- collect all sigils
+		end
+
+		for sigil in string.gmatch(";"..settings.profile.options.SIGILS_IGNORE_LIST,"[,;]([^,;]*)") do
+			if string.match(sigil,"^'.*'$") then sigil = string.match(sigil,"^'(.*)'$") end
+			if sigil == _name then
+				return false -- ignore the sigil
+			end
+		end
+
+		return true -- not in ignore list. Don't ignore.
+	end
 
 	local function getNearestSigil()
 		local nearestSigil = nil;
@@ -1545,19 +1842,18 @@ function CPlayer:loot()
 		for i = 0,objectList:size() do
 			obj = objectList:getObject(i);
 
-			if( obj ~= nil ) then
-				if( obj.Type == PT_SIGIL ) then
-					local dist = distance(self.X, self.Z, obj.X, obj.Z);
+			if( obj ~= nil ) and ( obj.Type == PT_SIGIL ) and sigilNameMatch(obj.Name) then
 
-					if( nearestSigil == nil and dist < settings.profile.options.MAX_TARGET_DIST ) then
+				local dist = distance(self.X, self.Z, obj.X, obj.Z);
+
+				if( nearestSigil == nil and dist < settings.profile.options.LOOT_DISTANCE ) then
+					nearestSigil = obj;
+				else
+
+					if( dist < settings.profile.options.LOOT_DISTANCE and
+						dist < distance(self.X, self.Z, nearestSigil.X, nearestSigil.Z) ) then
+						-- New nearest sigil found
 						nearestSigil = obj;
-					else
-
-						if( dist < settings.profile.options.MAX_TARGET_DIST and
-							dist < distance(self.X, self.Z, nearestSigil.X, nearestSigil.Z) ) then
-							-- New nearest sigil found
-							nearestSigil = obj;
-						end
 					end
 				end
 			end
@@ -1566,34 +1862,38 @@ function CPlayer:loot()
 		return nearestSigil;
 	end
 
-	-- Pick up all nearby sigils
-	self:clearTarget();
-	self:update();
-	local sigil = getNearestSigil();
-	--while( sigil ) do
-	if( sigil ) then
-		local dist = distance(self.X, self.Z, self.Y, sigil.X, sigil.Z, sigil.Y);
-		local angle = math.atan2(sigil.Z - self.Z, sigil.X - self.X);
-		local yangle = math.atan2(sigil.Y - self.Y, ((sigil.X - self.X)^2 + (sigil.Z - self.Z)^2)^.5 );
-		local nY = self.Y + math.sin(yangle) * (dist + 15);
-		local hypotenuse = (1 - math.sin(yangle)^2)^.5
-		local nX = self.X + math.cos(angle) * (dist + 15) * hypotenuse;
-		local nZ = self.Z + math.sin(angle) * (dist + 15) * hypotenuse;
-
-		self:moveTo( CWaypoint(nX, nZ, nY), true );
-		yrest(500);
+	if settings.profile.options.LOOT_SIGILS == true or (settings.profile.options.LOOT == true and settings.profile.options.LOOT_SIGILS == nil) then
+		-- Pick up all nearby sigils
+		self:clearTarget();
 		self:update();
-		sigil = getNearestSigil();
-	end
+		local sigil = getNearestSigil();
+		--while( sigil ) do
+		if( sigil ) then
+			local dist = distance(self.X, self.Z, self.Y, sigil.X, sigil.Z, sigil.Y);
+			local angle = math.atan2(sigil.Z - self.Z, sigil.X - self.X);
+			local yangle = math.atan2(sigil.Y - self.Y, ((sigil.X - self.X)^2 + (sigil.Z - self.Z)^2)^.5 );
+			local nY = self.Y + math.sin(yangle) * (dist + 15);
+			local hypotenuse = (1 - math.sin(yangle)^2)^.5
+			local nX = self.X + math.cos(angle) * (dist + 15) * hypotenuse;
+			local nZ = self.Z + math.sin(angle) * (dist + 15) * hypotenuse;
+			printf("Picking up sigil \"%s\"\n",sigil.Name)
 
+			self:moveTo( CWaypoint(nX, nZ, nY), true );
+			yrest(500);
+			self:update();
+			sigil = getNearestSigil();
+		end
+	end
 end
 
 local lootIgnoreList = {}
 local lootIgnoreListPos = 0
 
-function evalTargetLootable(address)
+function evalTargetLootable(address, target)
 
-	local target = CPawn(address);
+	if not target then
+		target = CPawn(address);
+	end
 
 	-- Check if lootable
 	if not ( target.Lootable ) then
@@ -1639,7 +1939,7 @@ function evalTargetLootable(address)
 		wpl = __WPL;
 	end
 
-	if (__WPL:getMode() == "waypoints") then
+	if (__WPL:getMode() == "waypoints") and #__WPL.Waypoints > 0 then
 		local pA = wpl.Waypoints[wpl.LastWaypoint]
 		local pB = wpl.Waypoints[wpl.CurrentWaypoint]
 
@@ -1649,21 +1949,21 @@ function evalTargetLootable(address)
 	end
 
 	-- use a bounding box first to avoid sqrt when not needed (sqrt is expensive)
-	if( target.X > (V.X - settings.profile.options.MAX_TARGET_DIST) and
-		target.X < (V.X + settings.profile.options.MAX_TARGET_DIST) and
-		target.Z > (V.Z - settings.profile.options.MAX_TARGET_DIST) and
-		target.Z < (V.Z + settings.profile.options.MAX_TARGET_DIST) ) then
+	if( target.X > (V.X - lootdist) and
+		target.X < (V.X + lootdist) and
+		target.Z > (V.Z - lootdist) and
+		target.Z < (V.Z + lootdist) ) then
 
-		if( distance(V.X, V.Z, target.X, target.Z) > settings.profile.options.MAX_TARGET_DIST ) then
+		if( distance(V.X, V.Z, target.X, target.Z) > lootdist ) then
 			if( settings.profile.options.DEBUG_LOOT) then
-				cprintf(cli.yellow, "unlooted monster dist > MAX_TARGET_DIST")
+				cprintf(cli.yellow, "unlooted monster dist > lootdist")
 			end
 			return false;			-- he is not a valid target
 		end;
 	else
 		-- must be too far away
 		if( settings.profile.options.DEBUG_LOOT) then
-			cprintf(cli.yellow, "unlooted monster dist > MAX_TARGET_DIST")
+			cprintf(cli.yellow, "unlooted monster dist > lootdist")
 		end
 		return false;
 	end
@@ -1690,15 +1990,16 @@ function CPlayer:lootAll()
 		cprintf(cli.yellow,"The userfunction 'lootBodies()' is obsolete and might interfere with the bots 'lootAll()' function. Please delete the 'addon_lootbodies.lua' file from the 'userfunctions' folder.\n")
 	end
 
-	-- Check if inventory is full. We don't loot if inventory is full.
-	if inventory:itemTotalCount(0) == 0 then
-		if( settings.profile.options.DEBUG_LOOT) then
-			cprintf(cli.yellow, "[DEBUG] don't loot all reason: inventory is full\n");
-		end;
-		return
-	end
 
 	while true do
+		-- Check if inventory is full. We don't loot if inventory is full.
+		if inventory:itemTotalCount(0) == 0 then
+			if( settings.profile.options.DEBUG_LOOT) then
+				cprintf(cli.yellow, "[DEBUG] don't loot all reason: inventory is full\n");
+			end;
+			return
+		end
+
 		self:update()
 		if( self.Battling  and
 			self:findEnemy(true,nil,evalTargetDefault)) then
@@ -1733,7 +2034,7 @@ end
 
 -- Basic target evaluation.
 -- Returns true if a valid target, else false.
-function evalTargetDefault(address)
+function evalTargetDefault(address, target)
 	local function debug_target(_place)
 		if( settings.profile.options.DEBUG_TARGET and
 			player.TargetPtr ~= player.LastTargetPtr ) then
@@ -1749,7 +2050,9 @@ function evalTargetDefault(address)
 		end
 	end
 
-	local target = CPawn(address);
+	if not target then
+		target = CPawn(address);
+	end
 
 	-- Can't have self as target
 	if( address == player.Address ) then
@@ -1826,6 +2129,44 @@ function evalTargetDefault(address)
 		end;
 	end;
 
+	-- check if in assigned kill zone
+	if (not player.Returning) and #__WPL.KillZone > 0 and not PointInPoly(__WPL.KillZone, target.X, target.Z) then
+		if ( player.Battling == false ) then	-- if we don't have aggro then
+			debug_target("target outside KillZone")
+			return false;			-- he is not a valid target
+		end;
+
+		if( player.Battling == true  and		-- we have aggro
+		target.TargetPtr ~= player.Address ) then	-- but not from that mob
+			debug_target("target outside KillZone with battling from other mob")
+			return false;
+		end;
+	end
+
+	-- check if in one of the exclude zones
+	if (not player.Returning) and next(__WPL.ExcludeZones) then
+		local inazone = false
+		for zonename,zone in pairs(__WPL.ExcludeZones) do
+			if PointInPoly(zone, target.X, target.Z) then
+				inazone = true
+				break
+			end
+		end
+
+		if inazone then
+			if ( player.Battling == false ) then	-- if we don't have aggro then
+				debug_target("target inside an exclude zone")
+				return false;			-- he is not a valid target
+			end;
+
+			if( player.Battling == true  and		-- we have aggro
+			target.TargetPtr ~= player.Address ) then	-- but not from that mob
+				debug_target("target inside an exclude zone with battling from other mob")
+				return false;
+			end;
+		end
+	end
+
 	-- check target distance to path against MAX_TARGET_DIST
 	local wpl; -- this is the waypoint list we're using
 	local V; -- this is the point we will use for distance checking
@@ -1836,7 +2177,7 @@ function evalTargetDefault(address)
 		wpl = __WPL;
 	end
 
-	if (__WPL:getMode() == "waypoints") then
+	if (__WPL:getMode() == "waypoints") and #__WPL.Waypoints > 0 then
 		local pA = wpl.Waypoints[wpl.LastWaypoint]
 		local pB = wpl.Waypoints[wpl.CurrentWaypoint]
 
@@ -1973,8 +2314,32 @@ function evalTargetDefault(address)
 end
 
 function CPlayer:moveTo(waypoint, ignoreCycleTargets, dontStopAtEnd, range)
+
+	local function passed_point(lastpos, point)
+		point.X = tonumber(point.X)
+		point.Z = tonumber(point.Z)
+
+		local posbuffer = 5
+
+		local passed = true
+		if lastpos.X < point.X and self.X < point.X - posbuffer then
+			return false
+		end
+		if lastpos.X > point.X and self.X > point.X + posbuffer then
+			return false
+		end
+		if lastpos.Z < point.Z and self.Z < point.Z - posbuffer then
+			return false
+		end
+		if lastpos.Z > point.Z and self.Z > point.Z + posbuffer then
+			return false
+		end
+
+		return true
+	end
+
 	self:update();
-	local destination
+	local lastpos = {X=self.X, Z=self.Z, Y=self.Y}
 
 	local angle = math.atan2(waypoint.Z - self.Z, waypoint.X - self.X);
 	local yangle = 0
@@ -1982,7 +2347,6 @@ function CPlayer:moveTo(waypoint, ignoreCycleTargets, dontStopAtEnd, range)
 		yangle = math.atan2(waypoint.Y - self.Y, ((waypoint.X - self.X)^2 + (waypoint.Z - self.Z)^2)^.5 );
 	end
 	local angleDif = angleDifference(angle, self.Direction);
-	local canTarget = false;
 	local startTime = os.time();
 	ignoreTargets = ignoreTargets or false;
 
@@ -2076,10 +2440,14 @@ function CPlayer:moveTo(waypoint, ignoreCycleTargets, dontStopAtEnd, range)
 	keyboardRelease( settings.hotkeys.ROTATE_LEFT.key );
 	keyboardRelease( settings.hotkeys.ROTATE_RIGHT.key );
 
-	-- direction ok, now look for a target before start movig
+	-- look for a target before start movig
 	if( (not ignoreCycleTargets) and (not self.Battling) ) then
 		local newTarget = self:findEnemy(false, nil, evalTargetDefault, self.IgnoreTarget);
 		if( newTarget ) then			-- find a new target
+			printf("moveTo: target="..tostring(newTarget).." name="..newTarget.Name.."("..newTarget.X..", "..newTarget.Z..", "..newTarget.Y..") Address:"..tostring(newTarget.Address).."\n");
+			if (player.Pet) then
+				printf("moveTo: pet="..tostring(player.Pet)..", address:"..tostring(player.Pet.Address).." \n");
+			end;
 			self:target(newTarget.Address);
 			local atkMask = memoryReadRepeat("int", getProc(), newTarget.Address + addresses.pawnAttackable_offset);
 			cprintf(cli.turquoise, language[86]);	-- stopping waypoint::target acquired before moving
@@ -2089,34 +2457,29 @@ function CPlayer:moveTo(waypoint, ignoreCycleTargets, dontStopAtEnd, range)
 		end;
 	end;
 
+	-- Direction ok, start moving forward
 	local success, failreason = true, WF_NONE;
 	local dist = distance(self.X, self.Z, self.Y, waypoint.X, waypoint.Z, waypoint.Y);
-	if range then dist = dist - range end
 	local lastDist = dist;
 	self.LastDistImprove = os.time();	-- global, because we reset it whil skill use
 
-
-	local successDist = 30.0 -- Distance to consider successfully reaching the target location
-	if self.Mounted then
-		successDist = 40.0 -- so we don't overpass it and double back when mounted
-	end
-
 	local turning = false
-	while( dist > successDist ) do
+
+	local loopstart
+	local loopduration = 100 -- The duration we want the loop to take
+	local successdist = 10
+	repeat
+		loopstart = os.clock()
+
 		if( self.HP < 1 or self.Alive == false ) then
 			return false, WF_NONE;
 		end;
-
-		if( canTarget == false and os.difftime(os.time(), startTime) > 1 ) then
-			canTarget = true;
-		end
 
 		-- stop moving if aggro, bot will stand and wait until to get the target from the client
 	 	-- only if not in the fight stuff coding (means self.Fighting == false )
 	 	if( self.Battling and 				-- we have aggro
 	 	    self.Fighting == false  and		-- we are not coming from the fight routines (bec. as melee we should move in fight)
 			waypoint.Type ~= WPT_TRAVEL ) then	-- only stop if not waypoint type TRAVEL
-
 			if self:findEnemy(true, nil, evalTargetDefault) then
 				keyboardRelease( settings.hotkeys.MOVE_FORWARD.key );
 				keyboardRelease( settings.hotkeys.ROTATE_LEFT.key );
@@ -2128,7 +2491,7 @@ function CPlayer:moveTo(waypoint, ignoreCycleTargets, dontStopAtEnd, range)
 		end;
 
 		-- look for a new target while moving
-		if( canTarget and (not ignoreCycleTargets) and (not self.Battling) and (not turning) ) then
+		if((not ignoreCycleTargets) and (not self.Battling) and (not turning)) then
 			local newTarget = self:findEnemy(false, nil, evalTargetDefault, self.IgnoreTarget);
 			if( newTarget ) then	-- find a new target
 				self:target(newTarget);
@@ -2140,7 +2503,6 @@ function CPlayer:moveTo(waypoint, ignoreCycleTargets, dontStopAtEnd, range)
 		end
 
 		-- We're still making progress
-		
 		if( dist < lastDist ) then
 			self.LastDistImprove = os.time();
 			lastDist = dist;
@@ -2160,7 +2522,7 @@ function CPlayer:moveTo(waypoint, ignoreCycleTargets, dontStopAtEnd, range)
 		end
 
 		-- while moving without target: check potions / friendly skills
-		if( self:checkPotions() or self:checkSkills(ONLY_FRIENDLY) ) then	-- only cast friendly spells to ourselfe
+		if not self.Mounted and ( self:checkPotions() or self:checkSkills(ONLY_FRIENDLY) ) then	-- only cast friendly spells to ourselfe
 			-- If we used a potion or a skill, reset our last dist improvement
 			-- to prevent unsticking
 			self.LastDistImprove = os.time();
@@ -2176,80 +2538,78 @@ function CPlayer:moveTo(waypoint, ignoreCycleTargets, dontStopAtEnd, range)
 		dist = distance(self.X, self.Z, self.Y, waypoint.X, waypoint.Z, waypoint.Y);
 		angle = math.atan2(waypoint.Z - self.Z, waypoint.X - self.X);
 
-		-- calculate new kcoords if range specified
-		if range and range > 0 then
-			if dist > range then -- Calculate coordinates
-				local movedist = dist - range
-				if movedist < 50 then movedist = 50 end;
-
-				local posX = self.X + math.cos(angle) * (movedist);
-				local posZ = self.Z + math.sin(angle) * (movedist);
-				local posY = self.Y -- default value
-				if waypoint.Y ~= nil then
-					posY = self.Y + (waypoint.Y - self.Y) * movedist
-				end
-				destination = CWaypoint(posX, posZ, posY)
-				dist = dist - range
-			else
-				break -- already in range
-			end
-
-		else
-			destination = CWaypoint(waypoint.X, waypoint.Z, waypoint.Y)
+		-- Check if within range if range specified
+		if range and range > dist then
+			-- within range
+			break
 		end
 
-		if destination.Y ~= nil then
-			yangle = math.atan2(destination.Y - self.Y, ((destination.X - self.X)^2 + (destination.Z - self.Z)^2)^.5 );
+		-- Check if past waypoint
+		if passed_point(lastpos, waypoint) then
+		   -- waypoint reached
+		   break
+		end
+
+		-- Check if close to waypoint.
+		if dist < successdist then
+			break
+		end
+
+		lastpos = {X=self.X, Z=self.Z, Y=self.Y}
+
+		if waypoint.Y ~= nil then
+			yangle = math.atan2(waypoint.Y - self.Y, ((waypoint.X - self.X)^2 + (waypoint.Z - self.Z)^2)^.5 );
 		end
 		angleDif = angleDifference(angle, self.Direction);
 
-		
-		
 		-- Continue to make sure we're facing the right direction
 		if( settings.profile.options.QUICK_TURN and angleDif > math.rad(1) ) then
 			self:faceDirection(angle, yangle);
 			camera:setRotation(angle);
 			self:update()
 			angleDif = angleDifference(angle, self.Direction);
+			keyboardHold( settings.hotkeys.MOVE_FORWARD.key );
 		else
 			self:faceDirection(self.Direction, yangle); -- change only 'Y' angle with 'faceDirection'.
-		end
 
-		if( angleDif > math.rad(15) ) then
-			--keyboardRelease( settings.hotkeys.MOVE_FORWARD.key );
-			--keyboardRelease( settings.hotkeys.MOVE_BACKWARD.key );
+			if( angleDif > math.rad(15) ) then
+				--keyboardRelease( settings.hotkeys.MOVE_FORWARD.key );
+				--keyboardRelease( settings.hotkeys.MOVE_BACKWARD.key );
 
-			if( angleDifference(angle, self.Direction + 0.01) < angleDif ) then
-					keyboardRelease( settings.hotkeys.ROTATE_RIGHT.key );
-					keyboardHold( settings.hotkeys.ROTATE_LEFT.key );
-					yrest(100);
+				if( angleDifference(angle, self.Direction + 0.01) < angleDif ) then
+						keyboardRelease( settings.hotkeys.ROTATE_RIGHT.key );
+						keyboardHold( settings.hotkeys.ROTATE_LEFT.key );
+						yrest(100);
+				else
+						keyboardRelease( settings.hotkeys.ROTATE_LEFT.key );
+						keyboardHold( settings.hotkeys.ROTATE_RIGHT.key );
+						yrest(100);
+				end
+				turning = true
+			elseif( angleDif > math.rad(1) ) then
+				if( settings.profile.options.QUICK_TURN ) then
+					camera:setRotation(angle);
+				end
+
+				self:faceDirection(angle, yangle);
+				keyboardRelease( settings.hotkeys.ROTATE_LEFT.key );
+				keyboardRelease( settings.hotkeys.ROTATE_RIGHT.key );
+				keyboardHold( settings.hotkeys.MOVE_FORWARD.key );
+				turning = false
 			else
-					keyboardRelease( settings.hotkeys.ROTATE_LEFT.key );
-					keyboardHold( settings.hotkeys.ROTATE_RIGHT.key );
-					yrest(100);
+				keyboardHold( settings.hotkeys.MOVE_FORWARD.key );
 			end
-			turning = true
-		elseif( angleDif > math.rad(1) ) then
-			if( settings.profile.options.QUICK_TURN ) then
-				camera:setRotation(angle);
-			end
-
-			self:faceDirection(angle, yangle);
-			keyboardRelease( settings.hotkeys.ROTATE_LEFT.key );
-			keyboardRelease( settings.hotkeys.ROTATE_RIGHT.key );
-			keyboardHold(settings.hotkeys.MOVE_FORWARD.key);
-
-			turning = false
-		else
-			keyboardHold(settings.hotkeys.MOVE_FORWARD.key); 
 		end
+
 
 		--keyboardHold( settings.hotkeys.MOVE_FORWARD.key );
-		yrest(100);
+		local pausetime = loopduration - (os.clock() - loopstart) -- minus the time already elapsed.
+		if pausetime < 1 then pausetime = 1 end
+		yrest(pausetime);
 		self:update();
 		waypoint:update();
 
-	end
+	until false
 
 	if (settings.profile.options.WP_NO_STOP ~= false) then
 		if (success == false) or (dontStopAtEnd ~= true) or (settings.profile.options.QUICK_TURN == false) then
@@ -2262,29 +2622,11 @@ function CPlayer:moveTo(waypoint, ignoreCycleTargets, dontStopAtEnd, range)
 	keyboardRelease( settings.hotkeys.ROTATE_LEFT.key );
 	keyboardRelease( settings.hotkeys.ROTATE_RIGHT.key );
 
-	--[[ Not needed as it is checked in loop, WPT_RUN isn't correct anyway.
-	if( self.Battling and
-		 waypoint.Type ~= WPT_RUN ) then
-		--self:waitForAggro();
-		self:target(self:findEnemy(true, nil, evalTargetDefault, self.IgnoreTarget));
-	end]]
-
 	return success, failreason;
 end
 
 function CPlayer:moveInRange(target, range, ignoreCycleTargets)
-	-- calculates the closest waypoint that is distance "range" from target
-	local playerTargetDist = distance(self.X, self.Z, target.X, target.Z)
-	if playerTargetDist > range then
-		local ratio = (playerTargetDist - range)/playerTargetDist
-		local rx = self.X + (target.X - self.X) * ratio
-		local rz = self.Z + (target.Z - self.Z) * ratio
-		local ry = self.Y -- default value
-		if target.Y ~= nil then
-			ry = self.Y + (target.Y - self.Y) * ratio
-		end
-		self:moveTo( CWaypoint(rx, rz, ry), ignoreCycleTargets )
-	end
+	self:moveTo(target, ignoreCycleTargets, nil, range)
 end
 
 function CPlayer:waitForAggro()
@@ -2318,11 +2660,14 @@ function CPlayer:faceDirection(dir,diry)
 	local Vec1 = math.cos(dir) * hypotenuse;
 	local Vec2 = math.sin(dir) * hypotenuse;
 
-	if self.Mounted then
-		local tmpAddress = memoryReadRepeat("int", getProc(), self.Address + addresses.charPtrMounted_offset);
-		memoryWriteFloat(getProc(), tmpAddress + addresses.pawnDirXUVec_offset, Vec1);
-		memoryWriteFloat(getProc(), tmpAddress + addresses.pawnDirZUVec_offset, Vec2);
-		memoryWriteFloat(getProc(), tmpAddress + addresses.pawnDirYUVec_offset, Vec3);
+	self.Direction = math.atan2(Vec2, Vec1);
+	self.DirectionY = math.atan2(Vec3, (Vec1^2 + Vec2^2)^.5 );
+
+	local tmpMountAddress = memoryReadRepeat("int", getProc(), self.Address + addresses.charPtrMounted_offset);
+	if self.Mounted and tmpMountAddress and tmpMountAddress ~= 0 then
+		memoryWriteFloat(getProc(), tmpMountAddress + addresses.pawnDirXUVec_offset, Vec1);
+		memoryWriteFloat(getProc(), tmpMountAddress + addresses.pawnDirZUVec_offset, Vec2);
+		memoryWriteFloat(getProc(), tmpMountAddress + addresses.pawnDirYUVec_offset, Vec3);
 	else
 		memoryWriteFloat(getProc(), self.Address + addresses.pawnDirXUVec_offset, Vec1);
 		memoryWriteFloat(getProc(), self.Address + addresses.pawnDirZUVec_offset, Vec2);
@@ -2451,8 +2796,7 @@ function CPlayer:haveTarget()
 
 	if( CPawn.haveTarget(self) ) then
 		local target = self:getTarget();
-		local targettarget = CPawn(target.TargetPtr)
-		
+			 local targettarget = CPawn(target.TargetPtr)
 		local function debug_target(_place)
 			if( settings.profile.options.DEBUG_TARGET and
 				self.TargetPtr ~= self.LastTargetPtr ) then
@@ -2644,143 +2988,6 @@ function CPlayer:haveTarget()
 	end
 end
 
-function CPlayer:update()
-	-- Ensure that our address hasn't changed. If it has, fix it.
-	local tmpAddress = memoryReadRepeat("intptr", getProc(), addresses.staticbase_char, addresses.charPtr_offset);
-	if( tmpAddress ~= self.Address and tmpAddress ~= 0 ) then
-		self.Address = tmpAddress;
-		cprintf(cli.green, language[40], self.Address);
-	end;
-
-
-	local oldclass = self.Class1
-
-	CPawn.update(self); -- run base function
-
-	if self.Class1 ~= oldclass or (#settings.profile.skills == 0 and next(settings.profile.skillsData) ~= nil) then
-		settings.loadSkillSet(self.Class1)
-	end
-
-	-- If have 2nd class, look for 3rd class
-	-- Class1 and Class2 are done in the pawn class. Class3 only works for player.
-	local classInfoSize = 0x294
-	if self.Class2 ~= -1 then
-		for i = 1, 8 do
-			local level = memoryReadInt(getProc(),addresses.charClassInfoBase + (classInfoSize * i) + addresses.charClassInfoLevel_offset)
-			if level > 0 and i ~= self.Class1 and i ~= self.Class2 then
-				-- must be class 3
-				self.Class3 = i
-				break
-			end
-		end
-	end
-
-
-	self.Level = memoryReadRepeat("int", getProc(), addresses.charClassInfoBase + (classInfoSize* self.Class1 ) + addresses.charClassInfoLevel_offset)
-	self.Level2 = memoryReadRepeat("int", getProc(), addresses.charClassInfoBase + (classInfoSize* self.Class2 ) + addresses.charClassInfoLevel_offset)
-	self.Level3 = memoryReadRepeat("int", getProc(), addresses.charClassInfoBase + (classInfoSize* self.Class3 ) + addresses.charClassInfoLevel_offset)
-	self.XP = memoryReadRepeat("int", getProc(), addresses.charClassInfoBase + (classInfoSize* self.Class1 ) + addresses.charClassInfoXP_offset)
-	self.TP = memoryReadRepeat("int", getProc(), addresses.charClassInfoBase + (classInfoSize* self.Class1 ) + addresses.charClassInfoTP_offset)
-
-	self.Casting = (memoryReadRepeat("intptr", getProc(), addresses.castingBarPtr, addresses.castingBar_offset) ~= 0);
-
-	self.Battling = memoryReadRepeat("byteptr", getProc(), addresses.staticbase_char, addresses.charBattle_offset) == 1;
-
-	self.Stance = memoryReadRepeat("byteptr", getProc(), addresses.staticbase_char, addresses.charStance_offset);
-	self.Stance2 = memoryReadRepeat("byteptr", getProc(), addresses.staticbase_char, addresses.charStance_offset + 2);
-
-	local tmp = self:getBuff(503827)
-	if tmp then -- has natures power
-		self.Nature = tmp.Level + 1
-	else
-		self.Nature = 0
-	end
-
-	-- remember aggro start time, used for timed ranged pull
-	if( self.Battling == true ) then
-		if(self.aggro_start_time == 0) then
-			self.aggro_start_time = os.time();
-		end
-	else
-		self.aggro_start_time = 0;
-	end
-
-	local Vec1 = memoryReadRepeat("float", getProc(), self.Address + addresses.pawnDirXUVec_offset);
-	local Vec2 = memoryReadRepeat("float", getProc(), self.Address + addresses.pawnDirZUVec_offset);
-	local Vec3 = memoryReadRepeat("float", getProc(), self.Address + addresses.pawnDirYUVec_offset);
-
-	if( Vec1 == nil ) then Vec1 = 0.0; end;
-	if( Vec2 == nil ) then Vec2 = 0.0; end;
-	if( Vec3 == nil ) then Vec3 = 0.0; end;
-
-	self.Direction = math.atan2(Vec2, Vec1);
-	self.DirectionY = math.atan2(Vec3, (Vec1^2 + Vec2^2)^.5 );
-
-
-	if( self.Casting == nil or self.Battling == nil or self.Direction == nil ) then
-		error("Error reading memory in CPlayer:update()");
-	end
-
-	self.PetPtr = memoryReadRepeat("uint", getProc(), self.Address + addresses.pawnPetPtr_offset);
-	if( self.Pet == nil ) then
-		self.Pet = CPawn(self.PetPtr);
-	else
-		self.Pet.Address = self.PetPtr;
-		if( self.Pet.Address ~= 0 ) then
-			self.Pet:update();
-		end
-	end
-
-	-- Update our exp gain
-	if( os.difftime(os.time(), self.LastExpUpdateTime) > self.ExpUpdateInterval ) then
-		--local newExp = RoMScript("GetPlayerExp()") or 0;	-- Get newest value
-		--local maxExp = RoMScript("GetPlayerMaxExp()") or 1; -- 1 by default to prevent division by zero
-
-		local newExp = self.XP or 0;
-		local maxExp = memoryReadRepeat("intptr", getProc(), addresses.charMaxExpTable_address, (self.Level-1) * 4) or 1;
-
-		self.LastExpUpdateTime = os.time();					-- Reset timer
-
-		if( type(newExp) ~= "number" ) then newExp = 0; end;
-		if( type(maxExp) ~= "number" ) then maxExp = 1; end;
-
-		-- If we have not begun tracking exp, start by gathering
-		-- our current value, but do not count it as a gain
-		if( self.ExpInsertPos == 0 ) then
-			self.ExpInsertPos = 1;
-			self.LastExp = newExp;
-		else
-			local gain = 0;
-			local expGainSum = 0;
-			local valueCount = 0;
-
-			if( newExp > self.LastExp ) then
-				gain = newExp - self.LastExp;
-			elseif( newExp < self.LastExp ) then
-				-- We probably just leveled up. Just get our current, new value and use that.
-				gain = newExp;
-			end
-
-			self.LastExp = newExp;
-			self.ExpTable[self.ExpInsertPos] = gain;
-			self.ExpInsertPos = self.ExpInsertPos + 1;
-			if( self.ExpInsertPos > self.ExpTableMaxSize ) then
-				self.ExpInsertPos = 1;
-			end;
-
-			for i,v in pairs(self.ExpTable) do
-				valueCount = valueCount + 1;
-				expGainSum = expGainSum + v;
-			end
-
-			self.ExpPerMin = expGainSum / ( valueCount * self.ExpUpdateInterval / 60 );
-			self.TimeTillLevel = (maxExp - newExp) / self.ExpPerMin;
-			if( self.TimeTillLevel > 9999 ) then
-				self.TimeTillLevel = 9999;
-			end
-		end
-	end
-end
 
 function CPlayer:clearTarget()
 	cprintf(cli.green, language[33]);
@@ -2932,35 +3139,39 @@ function CPlayer:check_aggro_before_cast(_jump, _skill_type)
 
 	-- check if the target is attacking us, if not we can break and take the other mob
 
-	if( target.TargetPtr ~= self.Address  and	-- check HP, because death targets also have not target
+	if( target.TargetPtr ~= self.Address and	-- check HP, because death targets also have not target
 	-- Fix: there is aspecial dog mob 'Tatus', he switch from red to green at about 90%
 	-- there seems to be a bug, so that sometimes Tatus don't have us into the target but still attacking us
 	-- to prevent from skipping him while he is still attacking us, we do that special fix
 		target.Name ~= "Tatus"	and
 		-- even he is attacking us
-	    target.HP/target.MaxHP*100 > 90 ) then			-- target is alive and no attacking us
+		target.TargetPtr ~= self.PetPtr and
+	    target.HP/target.MaxHP*100 > 90	) then
+		-- target is alive and not attacking us
 -- there is a bug in client. Sometimes target is death and so it is not targeting us anymore
 -- and at the same time the target HP are above 0
 -- so we say > 90% life is alive :-)
 
-		if( _jump == true ) then		-- jump to abort casting
-			keyboardPress(settings.hotkeys.JUMP.key);
-		end;
 		cprintf(cli.green, language[36], target.Name);	-- Aggro during first strike/cast
 		self:clearTarget();
-		end
+
 		-- try fo find the aggressore a little faster by targeting it itselfe instead of waiting from the client
 		if( self:findTarget() ) then	-- we found a target
 			local target = self:getTarget();
-			if( target.TargetPtr == self.Address ) then	-- it is the right aggressor
+			if( target.TargetPtr == self.Address or target.TargetPtr == self.PetPtr ) then	-- it is the right aggressor
 				cprintf(cli.green, "%s is attacking us, we take that target.\n", target.Name);	-- attacking us
 			else
 				cprintf(cli.green, "%s is not attacking us, we clear that target.\n", target.Name);	-- not attacking us
 				self:clearTarget();
 			end
 		end
+	end
 
-		return true;
+	if self.Class1 == CLASS_WARDEN then -- has issues with pet as target, temp fix.
+		return false
+	end
+
+	return true;
 
 end
 
@@ -3138,14 +3349,14 @@ function CPlayer:sleep()
 	local sleep_start = os.time();		-- calculate the sleep time
 	self.Sleeping = true;	-- we are sleeping
 
-	cprintf(cli.yellow, language[89], os.date(), getKeyName(settings.hotkeys.START_BOT.key)  );
+	cprintf(cli.yellow, language[89], os.date(), getKeyName(getStartKey())  );
 
 	local hf_key = "";
 	while(true) do
 
 		local hf_key_pressed = false;
 
-		if( keyPressedLocal(settings.hotkeys.START_BOT.key) ) then	-- start key pressed
+		if( keyPressedLocal(getStartKey()) ) then	-- start key pressed
 			hf_key_pressed = true;
 			hf_key = "AWAKE";
 		end;
@@ -3156,7 +3367,7 @@ function CPlayer:sleep()
 			if( hf_key == "AWAKE" ) then
 				hf_key = " ";	-- clear last pressed key
 
-				cprintf(cli.yellow, language[90], getKeyName(settings.hotkeys.START_BOT.key),  os.date() );
+				cprintf(cli.yellow, language[90], getKeyName(getStartKey()),  os.date() );
 				self.Sleeping = false;	-- we are awake
 				break;
 			end;
@@ -3436,7 +3647,7 @@ function CPlayer:target_NPC(_npcname)
 		-- target NPC
 		self:target(npc.Address)
 		Attack(); yrest(50); Attack(); -- 'click' again to be sure
-		yrest(1000);
+		yrest(500);
 		return true
 	else
 		cprintf(cli.green, language[137], _npcname);	-- we can't find NPC
@@ -3544,8 +3755,8 @@ function CPlayer:findNearestNameOrId(_objtable, ignore, evalFunc)
 
 		if( obj ~= nil ) then
 			for __, _objnameorid in pairs(_objtable) do
-				if( obj.Address ~= ignore and (obj.Id == tonumber(_objnameorid) or string.find(obj.Name, _objnameorid) )) then
-					if( evalFunc(obj.Address) == true ) then
+				if( obj.Address ~= ignore and (obj.Id == tonumber(_objnameorid) or string.find(obj.Name, _objnameorid, 1, true) )) then
+					if( evalFunc(obj.Address,obj) == true ) then
 						local dist = distance(self.X, self.Z, self.Y, obj.X, obj.Z, obj.Y);
 						if( closestObject == nil ) then
 							closestObject = obj;
@@ -3646,19 +3857,28 @@ function CPlayer:target_Object(_objname, _waittime, _harvestall, _donotignore, e
 	end
 end
 
-function CPlayer:mount()
-	if( self.Mounted ) then
+function CPlayer:mount(_dismount)
+	if( (not _dismount) and self.Mounted ) then
 		printf("Already mounted.\n");
 		return;
+	end
+
+	if( _dismount and (not self.Mounted) ) then
+		printf("Already dismounted.\n");
+		return;
+	end
+
+	if self.Swimming then
+		printf("Swimming. Can't mount.\n")
+		return
 	end
 
 	local mountMethod = false
 	local mount
 
-	--     First find mount
-	-- Look in partner bag first
+	-- Find mount
 	if RoMScript("PartnerFrame_GetPartnerCount(2)") > 0 then
-		-- There is a mount in the bag. Assign the mountmethod.
+		-- There is a mount in the partner bag. Assign the mountmethod.
 		mountMethod = "partner"
 	elseif inventory then -- Make sure inventory has been mapped.
 		mount = inventory:getMount();
@@ -3667,30 +3887,62 @@ function CPlayer:mount()
 		end
 	end
 
-	if( mountMethod ) then -- mount found
-		--repeat
-			while( self.Battling ) do
-				self:target(self:findEnemy(true, nil, nil, nil));
-				self:update();
-				if( self:haveTarget() ) then
-					self:fight();
-				end
-			end
-
-			-- mount
-			if mountMethod == "partner" then
-				RoMScript("PartnerFrame_CallPartner(2,1)")
-			else
-				mount:use()
-			end
-
-			yrest(500)
-			repeat
-				yrest(100);
-				self:update();
-			until self.Casting == false
-		--until self.Mounted
+	-- Mount found?
+	if(not mountMethod ) then
+		return
 	end
+
+	-- Make sure we are not battling before trying to mount
+	if not _dismount and not (self.Current_waypoint_type == WPT_TRAVEL) then
+		while( self.Battling ) do
+			self:target(self:findEnemy(true, nil, nil, nil));
+			self:update();
+			if( self:haveTarget() ) then
+				self:fight();
+			else
+				break
+			end
+		end
+	end
+
+	-- if _dismount and mountmethod is inventory then assume buff name equals item name and cancel buff if exists. Mainly needed for 15m and 2h mounts
+	if _dismount and mountMethod == "inventory" then
+		for index, buff in pairs(self.Buffs) do
+			if string.find(mount.Name,buff.Name,1, true) then
+				sendMacro("CancelPlayerBuff("..index..");")
+				return
+			end
+		end
+	end
+
+	-- mount/dismount
+	if mountMethod == "partner" then
+		RoMScript("PartnerFrame_CallPartner(2,1)")
+	else
+		mount:use()
+	end
+
+	yrest(500)
+	repeat
+		yrest(100);
+		self:update();
+	until self.Casting == false
+
+	-- Just in case you mounted a different mount instead of dismounting
+	if _dismount == true and self.Mounted then
+		-- second try dismount
+		yrest(1000)
+		if mountMethod == "partner" then
+			RoMScript("PartnerFrame_CallPartner(2,1)")
+		else
+			mount:use()
+		end
+	end
+	yrest(500)
+end
+
+function CPlayer:dismount()
+	self:mount(true)
 end
 
 -- Waits till casting ends minus SKILL_USE_PRIOR.
@@ -3714,4 +3966,56 @@ function CPlayer:waitTillCastingEnds()
 			break;
 		end
 	end
+end
+
+function CPlayer:aimAt(target)
+	if target.Address then target:update() end -- only update if a pawn
+	camera:update()
+
+	-- camera distance to camera focus
+	local cameraDistance = distance(camera.XFocus,camera.ZFocus,camera.YFocus,camera.X,camera.Z,camera.Y)
+	if cameraDistance > 150 then cameraDistance = 150 end
+
+	-- Target distance to camera focus
+	local targetDistance = distance(camera.XFocus,camera.ZFocus,camera.YFocus,target.X,target.Z,target.Y)
+
+	-- Ratio
+	local ratio = cameraDistance/targetDistance
+
+	-- Vectors
+	local vec1 = (camera.XFocus - target.X) * ratio
+	local vec2 = (camera.ZFocus - target.Z) * ratio
+	local vec3 = (camera.YFocus - (target.Y or camera.YFocus)) * ratio
+
+	-- New Camera coordinates
+	local nx = camera.XFocus + vec1
+	local nz = camera.ZFocus + vec2
+	local ny = camera.YFocus + vec3
+
+	-- write camera coordinates
+	memoryWriteFloat(getProc(), camera.Address + addresses.camX_offset, nx);
+	memoryWriteFloat(getProc(), camera.Address + addresses.camZ_offset, nz);
+	memoryWriteFloat(getProc(), camera.Address + addresses.camY_offset, ny);
+end
+
+function CPlayer:getCraftLevel(craft)
+	if string.lower(craft) == "blacksmithing" then craft = CRAFT_BLACKSMITHING
+	elseif string.lower(craft) == "carpentry" then craft = CRAFT_CARPENTRY
+	elseif string.lower(craft) == "armorcrafting" then craft = CRAFT_ARMORCRAFTING
+	elseif string.lower(craft) == "tailoring" then craft = CRAFT_TAILORING
+	elseif string.lower(craft) == "cooking" then craft = CRAFT_COOKING
+	elseif string.lower(craft) == "alchemy" then craft = CRAFT_ALCHEMY
+	elseif string.lower(craft) == "mining" then craft = CRAFT_MINING
+	elseif string.lower(craft) == "woodcutting" then craft = CRAFT_WOODCUTTING
+	elseif string.lower(craft) == "herbalism" then craft = CRAFT_HERBALISM
+	end
+
+	if type(craft) ~= "number" or craft < 0 or craft > 8 then
+		cprintf(cli.yellow, language[77])
+		return
+	end
+
+	local lvl = memoryReadFloat(getProc(),addresses.playerCraftLevelBase + addresses.playerCraftLevel_offset + craft*4)
+
+	return lvl
 end

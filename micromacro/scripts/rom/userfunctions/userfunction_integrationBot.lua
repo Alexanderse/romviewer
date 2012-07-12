@@ -20,10 +20,11 @@ end
 global.cprintf = locCPrintf;
 
 function SetCommsState(state)
+	
 	if (state=="off") then
-		commsEnabled = false;
+		--commsEnabled = false;
 	else
-		commsEnabled = true;
+		--commsEnabled = true;
 	end
 end
 
@@ -44,16 +45,20 @@ function runChatMonitors()
 			printEvents("Say", cli.white)
 			printEvents("World", cli.red)
 			printEvents("Zone", cli.purple)
+			printEvents("Party", cli.lightgreen)
 			sendPlayerCoords();
 			coroutine.yield();
-			printEvents("Party", cli.lightgreen)
 			printEvents("Trade", cli.lightblue)
 			printEvents("GM", cli.lightblue)
-			printEvents("Sale", cli.lightblue)
 			printEvents("System", cli.lightgray)
 			printEvents("Channel", cli.lightgray)
-			printEvents("newQuest", cli.lightgray)
+			printEvents("Warnings", cli.lightgray)
+			yrest(50);
+			processNewQuestEvent("newQuest")
 			--printEvents("Combat", cli.lightgray)
+			yrest(500);
+		else
+			yrest(1000);
 		end;
 		sendPlayerCoords();
 		coroutine.yield();
@@ -79,9 +84,8 @@ function runCommandListener()
 			if (style=="CHAT") then
 				local channel = string.upper(res[2])
 			
-				local p1 = string.gsub(res[3], "\\", "\\\\")
+				local p1 = string.gsub(res[3], "\\", "\\")
 				p1 = string.gsub(p1, "'", "\\'")
-
 				
 				local p2 = res[4]
 				
@@ -121,33 +125,33 @@ function startChatMonitors()
 	EventMonitorStart("allSay", "CHAT_MSG_SAY")
 	EventMonitorStart("allWhisper", "CHAT_MSG_WHISPER")
 	EventMonitorStart("allZone", "CHAT_MSG_ZONE")
-	EventMonitorStart("allZone", "CHAT_MSG_ZONE")
 	EventMonitorStart("allWorld", "CHAT_MSG_YELL")
 	EventMonitorStart("allParty", "CHAT_MSG_PARTY")
 	EventMonitorStart("allTrade", "CHAT_MSG_TRADE")
 	--EventMonitorStart("allCombat", "CHAT_MSG_COMBAT")
 	EventMonitorStart("allGM", "CHAT_MSG_GM")
-	EventMonitorStart("allSale", "CHAT_MSG_SALE")
 	EventMonitorStart("allSystem", "CHAT_MSG_SYSTEM")
 	EventMonitorStart("allChannel", "CHAT_MSG_CHANNEL")
-	EventMonitorStart("allnewQuest", "ADDNEW_QUESTBOOK")
-	 
+	EventMonitorStart("newQuest", "ADDNEW_QUESTBOOK")
+	EventMonitorStart("allWarnings", "WARNING_MESSAGE")
+	commsEnabled = true;
 end
 
 function stopChatMonitors()
-	EventMonitorEnd("allGuild")
-	EventMonitorEnd("allSay")
-	EventMonitorEnd("allWhisper")
-	EventMonitorEnd("allZone")
-	EventMonitorEnd("allWorld")
-	EventMonitorEnd("allParty")
-	EventMonitorEnd("allTrade")
-	--EventMonitorEnd("allCombat")
-	EventMonitorEnd("allGM")
-	EventMonitorEnd("allSale")
-	EventMonitorEnd("allSystem")
-	EventMonitorEnd("allChannel")
-	EventMonitorEnd("allnewQuest")
+	commsEnabled = false;
+	EventMonitorStop("allGuild")
+	EventMonitorStop("allSay")
+	EventMonitorStop("allWhisper")
+	EventMonitorStop("allZone")
+	EventMonitorStop("allWorld")
+	EventMonitorStop("allParty")
+	EventMonitorStop("allTrade")
+	--EventMonitorStop("allCombat")
+	EventMonitorStop("allGM")
+	EventMonitorStop("allSystem")
+	EventMonitorStop("allChannel")
+	EventMonitorStop("allnewQuest")
+	EventMonitorStop("allWarnings")
 end
 
 function runQueueProcessor()
@@ -181,6 +185,31 @@ function printEvents(channel, color)
 		end
 	until (not more)
 end
+
+function processNewQuestEvent(channel)
+	local _count = 0;
+	local _time, more, msg, name = EventMonitorCheck(channel)
+	local newQuestFound = (_time ~= nil);
+	repeat
+		if (_time ~= nil) then 
+			--cprintf(cli.white, "[%s] (%s) %s %s", os.date(), channel, getPlayerNameFromLink(name), msg);
+			local st = sprintf("CHAT\1%s\1%s\1%s\1%s", channel, getPlayerNameFromLink(name), stripColorCodes(msg), os.date())
+			c:send(st)
+		end
+		if (more) then _time, more, msg, name = EventMonitorCheck("all"..channel) end
+		_count = _count + 1;
+		if (_count > 10) then
+			_count = 0;
+			coroutine.yield();
+		end
+	until (not more)
+	
+	if (newQuestFound) then
+		__QB:update();
+		__QB:updateRewardItems();
+		__QB:syncWithServer();		
+	end;
+end;
 
 function getPlayerNameFromLink(playerLink)
 	if playerLink == "" or playerLink == nil then
@@ -271,14 +300,14 @@ function getInventory()
 end
 
 function getEquipment()
-	inventory:update(nil);
+	equipment:update(nil);
 	local result = "";
- 	for slot,item in pairs(inventory.EquipSlots) do
+ 	for slot,item in pairs(equipment.BagSlot) do
 		local bind = 0;
 		if (item.Bound) then bind = 1; end;
 		
 			result = sprintf("%s%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\2%s\3",
-							result, item.Name, item.ItemCount, item.Slot, item.ItemLink, 
+							result, item.Name, item.ItemCount, item.SlotNumber, item.ItemLink, 
 							item.Durability, item.Quality, bind, item.RequiredLvl, "", "", "");
 			
 			--result = result..item.Id.." - "..item.Name.."["..item.ItemCount.."]\n";
@@ -297,6 +326,16 @@ function sendPlayerCoords()
 					
 	sendChatMessage("PlayerUpdate", result);
 end
+
+function getZoneName(_zoneId)
+	local result = sprintf("%s\2%s", _zoneId, RoMScript("GetZoneLocalName(".._zoneId..")"));
+	sendChatMessage("ZONEDETAILS", result);
+end;
+
+function getZoneAreaName()
+	local result = sprintf("%s", RoMScript("GetZoneName()"));
+	sendChatMessage("ZONEAREADETAILS", result);
+end;
 
 function sendPlayerDetails()
 	player:update();
@@ -373,17 +412,13 @@ loadingNewWaypoint = false
 --methods for creating waypoints etc!!!
 function LoadNewWaypointList(filename)
 	loadingNewWaypoint = true
-	printf("Received new waypoint file: "..filename)
+	printf("Received new waypoint file: "..filename.."\n")
 	SetCommsState("off");
 	loadPaths(filename);
+	--__WPL.Filename=filename;
 	--__WPL.Type = WPT_TRAVEL;
 	sendChatMessage("NavPoint", "start");
 	loadingNewWaypoint = false;
-end
-
-function refreshZoneID()
-	local zoneID = memoryReadShortPtr(getProc(),playerAddress,charZoneID_offset);
-	return zoneID;
 end
 
 local function roundIt(_number)
@@ -418,37 +453,39 @@ function sendObjects()
 	local s = "";
 	
 	
+	
 	for i = 0,objSize do 
+	
 		obj = objectList:getObject(i);
 				
+		--printf("%d, %d: %d\2%d\2%d\2%s\2%s\2%s\2%s\2%x\2%d\n\n",i,setCount, roundIt(obj.X), roundIt(obj.Z), roundIt(obj.Y), fixString(tostring(obj.Type),5), fixString(obj.Name,24), fixString(tostring(obj.Id),7), fixString(tostring(obj.Attackable),7), obj.Address, obj.GUID);
 		s = sprintf("%s%d\2%d\2%d\2%s\2%s\2%s\2%s\2%x\2%d\3",s, roundIt(obj.X), roundIt(obj.Z), roundIt(obj.Y), fixString(tostring(obj.Type),5), fixString(obj.Name,24), fixString(tostring(obj.Id),7), fixString(tostring(obj.Attackable),7), obj.Address, obj.GUID);
-           -- return string.Format("{1}{0}{2}{0}{3}{0}{4}{0}{5}{0}{6}{0}{7}{0}{8}", (char)2, RomId, UniqueId, Name, ZoneId, X, Y, Z, (byte)EntityTypes);
-
 		setCount = setCount -1;
 		if (setCount <= 1) then
 			sendChatMessage("romObjects", s);
 			setCount = 10;
+			yrest(50);
 			s = "";
 		end;
 
-		if (obj.Type == PT_NPC and (obj.Id > 0) and (string.len(obj.Name) > 0) and (obj.Name~="<UNKNOWN>")) then
-			local npc = sprintf("NPC\1BOTUPDATE\1%d\2%d\2%s\2%d\2%d\2%d\2%d\2%d\0",obj.Id, obj.GUID, tostring(obj.Name), getZoneId(), roundIt(obj.X), roundIt(obj.Y), roundIt(obj.Z), 0);
+		if ((obj.Type == PT_NPC or obj.Type == PT_MONSTER)  and (obj.Id > 0) and (string.len(obj.Name) > 0) and (obj.Name~="<UNKNOWN>")) then
+			local npc = sprintf("NPC\1BOTUPDATE\1%d\2%d\2%s\2%d\2%d\2%d\2%d\2%d\2%d\0",obj.Id, obj.GUID, tostring(obj.Name), getZoneId(), roundIt(obj.X), roundIt(obj.Y), roundIt(obj.Z), 0, obj.Type);
 
 			__npcQ:push(npc);		
 		end;
 	end
-	if (setCount > 0) then sendChatMessage("romObjects", s); end;
+	--printf("****** Ending: setCount="..setCount.."\n");
+	if (setCount < 10) then 
+		--printf("sending: "..s.."\n\n");
+		sendChatMessage("romObjects", s); 
+		yrest(50);
+	end;
 	
 	sendChatMessage("romObjects", "end");
 end
 
-local captureWaypointPress = false;
 
-wpKey = key.VK_NUMPAD1;			-- insert a movement point
 
-function SetWaypointCapture(state)
-	captureInsertPress = (state == "on");
-end
 
 function __log(filename, text)
 	if ((filename ~= nil) and (text ~= nil)) then
