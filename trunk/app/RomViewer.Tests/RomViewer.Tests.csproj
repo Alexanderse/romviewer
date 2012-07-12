@@ -8,8 +8,8 @@
     <ProjectGuid>{CEF24DDD-1D15-42BC-B035-4A33388C3F8C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Focus.Tests</RootNamespace>
-    <AssemblyName>Focus.Tests</AssemblyName>
+    <RootNamespace>RomViewer.Tests</RootNamespace>
+    <AssemblyName>RomViewer.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

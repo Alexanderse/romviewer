@@ -15,10 +15,10 @@ namespace RomViewer.Core
             Name = detail[idx]; idx++;
             Class1 = Convert.ToInt32(detail[idx]); idx++;
             Class2 = Convert.ToInt32(detail[idx]); idx++;
-            Class3 = Convert.ToInt32(detail[idx]); idx++;
+            //Class3 = Convert.ToInt32(detail[idx]); idx++;
             Level = Convert.ToInt32(detail[idx]); idx++;
             Level2 = Convert.ToInt32(detail[idx]); idx++;
-            Level3 = Convert.ToInt32(detail[idx]); idx++;
+            //Level3 = Convert.ToInt32(detail[idx]); idx++;
             Guild = detail[idx]; idx++;
             HP = Convert.ToInt32(detail[idx]); idx++;
             MaxHP = Convert.ToInt32(detail[idx]); idx++;

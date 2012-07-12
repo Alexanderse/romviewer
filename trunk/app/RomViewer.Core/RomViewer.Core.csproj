@@ -68,6 +68,7 @@
     <Compile Include="NPCs\EntityTypes.cs" />
     <Compile Include="NPCs\INonPlayerEntityRepository.cs" />
     <Compile Include="NPCs\NonPlayerEntity.cs" />
+    <Compile Include="NPCs\RomEntityType.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Pawn.cs" />
     <Compile Include="Quests\IQuestRepository.cs" />

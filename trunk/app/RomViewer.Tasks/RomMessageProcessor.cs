@@ -22,6 +22,7 @@ namespace RomViewer.Tasks
         private ICharacterRepository _characterRepository;
         private ILog _logger = LogManager.GetLogger(typeof (RomMessageProcessor));
         private Map _map;
+        private double _maxDistanceForNPEMatch;
 
         public RomMessageProcessor(IItemRepository itemRepository, INonPlayerEntityRepository npeRepository, IQuestRepository questRepository, ISessionFactory factory, ICharacterRepository characterRepository, Map map)
         {
@@ -31,6 +32,7 @@ namespace RomViewer.Tasks
             _factory = factory;
             _characterRepository = characterRepository;
             _map = map;
+            _maxDistanceForNPEMatch = 50;
         }
 
 
@@ -85,7 +87,7 @@ namespace RomViewer.Tasks
             {
                 tx.Rollback();
                 LogManager.GetLogger(typeof(RomMessageProcessor)).Error(ex.ToString());
-                return null;
+                return ex.Message;
             }
             finally
             {
@@ -100,27 +102,40 @@ namespace RomViewer.Tasks
             QuestDefinition entity;
             int romId;
             QuestDefinition match;
+            string[] data;
+            double x, y, z;
+            int startZone;
+            int uniqueID;
+            int npeID;
+            int endZone;
+            Vector3 start;
+            List<MapLink> result;
+            string targetType;
+            EntityTypes eType;
+            PlottedMapPoint end;
+            NonPlayerEntity target;
+            PlottedMapPoint pmpStart;
             switch (sections[1])
             {
                 case "GETROUTE":
 
-                    string[] data = sections[2].Split((char) 2);
-                    double x, y, z;
+                    data = sections[2].Split((char) 2);
                     x = Convert.ToDouble(data[0]);
                     y = Convert.ToDouble(data[1]);
                     z = Convert.ToDouble(data[2]);
-                    int zoneID = Convert.ToInt32(data[3]);
-                    int npeID = Convert.ToInt32(data[4]);
-                    int uniqueID = -1;
-                    if (data.Length > 5) uniqueID = Convert.ToInt32(data[5]);
+                    startZone = Convert.ToInt32(data[3]);
+                    endZone = Convert.ToInt32(data[4]);
+                    npeID = Convert.ToInt32(data[5]);
+                    uniqueID = -1;
+                    if (data.Length > 6) uniqueID = Convert.ToInt32(data[6]);
 
-                    Vector3 start = new Vector3(x, y, z);
+                    start = new Vector3(x, y, z);
 
-                    List<MapLink> result = null;
-                    if (data.Length > 5)
-                        result = _map.BuildRoute(start, zoneID, npeID, uniqueID);
+                    result = null;
+                    if (data.Length > 6)
+                        result = _map.BuildRoute(start, startZone, npeID, uniqueID);
                     else
-                        result = _map.BuildRoute(start, zoneID, npeID);
+                        result = _map.BuildRoute(start, startZone, npeID);
 
                     foreach (MapLink link in result)
                     {
@@ -130,6 +145,71 @@ namespace RomViewer.Tasks
                         response = response.Remove(response.Length - 1);
                     else
                         response += (char)0;
+                    break;
+                case "GETROUTENEAREST":
+                    data = sections[2].Split((char) 2);
+                    x = Convert.ToDouble(data[0]);
+                    y = Convert.ToDouble(data[1]);
+                    z = Convert.ToDouble(data[2]);
+                    startZone = Convert.ToInt32(data[3]);
+                    targetType = data[4];
+                    eType = (EntityTypes) Enum.Parse(typeof (EntityTypes), targetType, true);
+
+                    start = new Vector3(x, y, z);
+
+                    pmpStart = _map.FindNearest(start, startZone);
+                    result = _map.BuildRouteToNearestType(pmpStart.MapPoint, eType);
+
+                    if (result.Count > 0)
+                        end = (PlottedMapPoint)_map.MappedPoints[result[result.Count - 1].End.Id];
+                    else
+                        end = pmpStart;
+
+                    result = _map.BuildRouteToNearestType(_map.FindNearest(start, startZone).MapPoint, eType);
+
+                    foreach (MapLink link in result)
+                    {
+                        response += link.ToDelimitedString(2) + ((char) 2);
+                    }
+
+                    target = end.NonPlayerEntities.Find(playerEntity => (playerEntity.EntityTypes & eType) == eType);
+
+                    response = response + ((char)1) + target.RomId;
+                    response += (char)0;
+
+                    break;
+                case "FINDNEAREST":
+                    if (sections[2] == "ENTITYTYPE")
+                    {
+                        data = sections[3].Split((char) 2);
+                        x = Convert.ToDouble(data[0]);
+                        y = Convert.ToDouble(data[1]);
+                        z = Convert.ToDouble(data[2]);
+                        startZone = Convert.ToInt32(data[3]);
+                        targetType = data[4];
+                        eType = (EntityTypes) Convert.ToInt32(targetType);
+
+                        start = new Vector3(x, y, z);
+
+                        pmpStart = _map.FindNearest(start, startZone);
+                        result = _map.BuildRouteToNearestType(pmpStart.MapPoint, eType);
+
+                        if (result.Count > 0)
+                            end = (PlottedMapPoint)_map.MappedPoints[result[result.Count - 1].End.Id];
+                        else
+                            end = pmpStart;
+
+                        target = end.NonPlayerEntities.Find(playerEntity => (playerEntity.EntityTypes & eType) == eType);
+                        foreach (MapLink link in result)
+                        {
+                            response += link.ToDelimitedString(3) + ((char)2);
+                        }
+                        response = string.Format("{1}{0}{2}{0}{3}{0}{4}{0}{5}{6}", (char)1, target.Name, target.RomId, target.UniqueId, target.ZoneId, response, (char)0);
+                    }
+                    else
+                    {
+                        response = " ";
+                    }
                     break;
                 default:
                     break;
@@ -176,7 +256,9 @@ namespace RomViewer.Tasks
             {
                 case "SAVE":
                     entity = new NonPlayerEntity(sections[2], 2);
-                    match = _npeRepository.GetByRomId(entity.RomId, entity.UniqueId);
+
+                    match = _locateMatch(entity);
+
                     if (match != null)
                     {
                         match.Name = entity.Name;
@@ -184,7 +266,10 @@ namespace RomViewer.Tasks
                         match.X = entity.X;
                         match.Y = entity.Y;
                         match.Z = entity.Z;
-                        match.EntityTypes = entity.EntityTypes;
+                        if (entity.EntityTypes > 0) match.EntityTypes = entity.EntityTypes;
+                        match.RomType = entity.RomType;
+                        match.UniqueId = entity.UniqueId;
+
                         _npeRepository.Update(match);
                     }
                     else
@@ -194,8 +279,8 @@ namespace RomViewer.Tasks
                     break;
                 case "BOTUPDATE":
                     entity = new NonPlayerEntity(sections[2], 2);
-                    match = _npeRepository.GetByRomId(entity.RomId, entity.UniqueId);
-                    if (match == null) match = _npeRepository.GetByRomId(entity.RomId, 0);
+                    match = _locateMatch(entity);
+
                     if (match != null)
                     {
                         if (entity.Name.Length > 0) match.Name = entity.Name;
@@ -203,6 +288,8 @@ namespace RomViewer.Tasks
                         match.X = entity.X;
                         match.Y = entity.Y;
                         match.Z = entity.Z;
+                        match.UniqueId = entity.UniqueId;
+
                         _npeRepository.Update(match);
                     }
                     else
@@ -230,6 +317,31 @@ namespace RomViewer.Tasks
             }
 
             return response;
+        }
+
+        private NonPlayerEntity _locateMatch(NonPlayerEntity entity)
+        {
+            if (entity == null) throw new ArgumentNullException("entity");
+
+            var matches = _npeRepository.GetByRomId(entity.RomId);
+
+            double distance = _maxDistanceForNPEMatch;
+            NonPlayerEntity result = null;
+            Vector3 entityLocation = new Vector3(entity.X, entity.Y, entity.Z);
+
+            //locate closest
+            foreach (NonPlayerEntity npe in matches)
+            {
+                Vector3 loc = new Vector3(npe.X, npe.Y, npe.Z);
+                double dist = entityLocation.Distance(loc);
+                if (dist < distance)
+                {
+                    distance = dist;
+                    result = npe;
+                }
+            }
+
+            return result;
         }
 
         private string _handleQuestMessage(string[] sections)
