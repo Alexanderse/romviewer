@@ -45,8 +45,8 @@
     <Reference Include="NHibernate">
       <HintPath>..\..\lib\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="ProgressODoom">
-      <HintPath>..\..\controls\ProgressODoom\ProgressODoom\bin\Debug\ProgressODoom.dll</HintPath>
+    <Reference Include="ProgressODoom, Version=1.0.4415.10052, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\src\lib\ProgressODoom.dll</HintPath>
     </Reference>
     <Reference Include="SharpLite.Domain">
       <HintPath>..\..\lib\SharpLite.Domain.dll</HintPath>
