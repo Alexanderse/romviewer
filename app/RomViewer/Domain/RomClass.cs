@@ -26,5 +26,26 @@ namespace RomViewer.Domain
 
             return result;
         }
+
+        public static string GetClassName(int romClass)
+        {
+            switch ((RomClass)romClass)
+            {
+                case RomClass.NONE: return "";
+                case RomClass.GM: return "GM";
+                case RomClass.WARRIOR: return "Warrior";
+                case RomClass.SCOUT: return "Scout";
+                case RomClass.ROGUE: return "Rogue";
+                case RomClass.MAGE: return "Mage";
+                case RomClass.PRIEST: return "Priest";
+                case RomClass.KNIGHT: return "Knight";
+                case RomClass.WARDEN: return "Warden";
+                case RomClass.DRUID: return "Druid";
+                default:
+                    throw new ArgumentOutOfRangeException("romClass");
+            }
+        }
     }
+
+    
 }

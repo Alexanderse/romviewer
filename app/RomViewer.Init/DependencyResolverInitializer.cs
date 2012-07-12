@@ -32,6 +32,7 @@ namespace RomViewer.Init
                 x.For(typeof(ICharacterRepository)).Use(typeof(CharacterRepository));
                 x.For(typeof(GoalSetter)).Use(typeof(GoalSetter));
                 x.For(typeof(IRomMessageProcessor)).Use(typeof(RomMessageProcessor));
+
             });
         }
     }

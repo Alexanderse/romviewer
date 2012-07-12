@@ -21,6 +21,7 @@ namespace RomViewer.Core.Quests
         public virtual IList<QuestReward> Rewards { get; protected set; }
         public virtual QuestChain QuestChain { get; set; }
         public virtual int ChainIndex { get; set; }
+        public virtual bool IsDaily { get; set; }
 
         public virtual string ToDelimitedString(int delimiter)
         {
@@ -34,8 +35,8 @@ namespace RomViewer.Core.Quests
 
             return
                 string.Format(
-                    "{1}{0}{2}{0}{3}{0}{4}{0}{5}{0}{6}{0}{7}{0}{8}{0}{9}{0}{10}{0}{11}{0}{12}{0}{13}{0}{14}", (char)delimiter, RomId, Name, MinLevel, Level,
-                    StarterId, EnderId, Gold, XP, TP, RewardCategory, RewardSubCategory, (QuestChain != null) ? QuestChain.ToDelimitedString(delimiter+1) : "", ChainIndex, rewards);
+                    "{1}{0}{2}{0}{3}{0}{4}{0}{5}{0}{6}{0}{7}{0}{8}{0}{9}{0}{10}{0}{11}{0}{12}{0}{13}{0}{14}{0}{15}", (char)delimiter, RomId, Name, MinLevel, Level,
+                    StarterId, EnderId, Gold, XP, TP, IsDaily, RewardCategory, RewardSubCategory, (QuestChain != null) ? QuestChain.ToDelimitedString(delimiter+1) : "", ChainIndex, rewards);
         }
 
         public static string GetNullDefinitionString(int delimiter)
@@ -62,6 +63,7 @@ namespace RomViewer.Core.Quests
             Gold = Convert.ToInt32(detail[i]); i++;
             XP = Convert.ToInt32(detail[i]); i++;
             TP = Convert.ToInt32(detail[i]); i++;
+            IsDaily = Convert.ToBoolean(detail[i]); i++;
             RewardCategory = (RewardCategory)Enum.Parse(typeof(RewardCategory), detail[i]); i++;
             RewardSubCategory = (RewardSubCategory)Enum.Parse(typeof(RewardSubCategory), detail[i]); i++;
             if (detail[i].Length > 0) this.QuestChain = new QuestChain(detail[i], delimiter + 1);

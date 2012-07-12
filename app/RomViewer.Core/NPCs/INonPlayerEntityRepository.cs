@@ -7,6 +7,7 @@ namespace RomViewer.Core.NPCs
         IList<NonPlayerEntity> GetAll();
         NonPlayerEntity Get(int entityId);
         NonPlayerEntity GetByRomId(int romId, int uniqueId);
+        IEnumerable<NonPlayerEntity> GetByRomId(int romId);
 
         void Add(NonPlayerEntity entity);
         void Update(NonPlayerEntity entity);

@@ -14,6 +14,7 @@ namespace RomViewer.Core.NPCs
         public virtual double X { get; set; }
         public virtual double Y { get; set; }
         public virtual double Z { get; set; }
+        public virtual RomEntityType RomType { get; set; }
         public virtual IList<TeleportLink> Links { get; protected set; } 
 
         public virtual EntityTypes EntityTypes { get; set; }
@@ -25,12 +26,12 @@ namespace RomViewer.Core.NPCs
 
         public virtual string ToDelimitedString(int delimiter)
         {
-            return string.Format("{1}{0}{2}{0}{3}{0}{4}{0}{5}{0}{6}{0}{7}{0}{8}", (char)delimiter, RomId, UniqueId, Name, ZoneId, X, Y, Z, (byte)EntityTypes);
+            return string.Format("{1}{0}{2}{0}{3}{0}{4}{0}{5}{0}{6}{0}{7}{0}{8}{0}{9}", (char)delimiter, RomId, UniqueId, Name, ZoneId, X, Y, Z, (byte)EntityTypes, (byte)RomType);
         }
 
         public static string GetNullDefinitionString(int delimiter)
         {
-            return string.Format("{0}{0}{0}{0}{0}{0}{0}", (char)delimiter);
+            return string.Format("{0}{0}{0}{0}{0}{0}{0}{0}", (char)delimiter);
         }
 
         public NonPlayerEntity(string source, int delimiter)
@@ -48,6 +49,8 @@ namespace RomViewer.Core.NPCs
 
             byte et = Convert.ToByte(detail[i]); i++;
             EntityTypes = (EntityTypes) et;
+            byte rt = Convert.ToByte(detail[i]); i++;
+            RomType = (RomEntityType)rt;
         }
     }
 }

@@ -21,7 +21,7 @@ namespace RomViewer.Tasks
             _zoneRepo = zoneRepo;
         }
 
-        public Map BuildMap()
+        public Map BuildMap(int maxDistanceFromNode)
         {
 
             var allZones = _zoneRepo.GetAll();
@@ -35,7 +35,7 @@ namespace RomViewer.Tasks
 
 
             Map map = new Map(zones, points, npcs);
-            map.Chart();
+            map.Chart(maxDistanceFromNode);
             return map;
         }
     }
@@ -43,12 +43,13 @@ namespace RomViewer.Tasks
     public class Map
     {
         private Hashtable _mapPoints = new Hashtable();
-        private Hashtable _mapZones = new Hashtable();
+        public Hashtable Zones = new Hashtable();
         private List<NonPlayerEntity> _npcs = new List<NonPlayerEntity>();
         private Hashtable _npcLookup = new Hashtable();
         private Hashtable _npcByRomId = new Hashtable();
         private Hashtable _mappedPoints = new Hashtable();
         private Hashtable _npcLocations = new Hashtable();
+        private int _maxDistanceFromNode = 0;
 
         public Hashtable MappedPoints
         {
@@ -62,7 +63,7 @@ namespace RomViewer.Tasks
 
         public Map(List<MapZone> zones, List<MapPoint> points, List<NonPlayerEntity> npcs)
         {
-            foreach (var zone in zones){_mapZones.Add(zone.RomId, zone);}
+            foreach (var zone in zones){Zones.Add(zone.RomId, zone);}
             foreach (var npc in npcs)
             {
                 string key = npc.RomId.ToString() + "." + npc.UniqueId.ToString();
@@ -80,15 +81,24 @@ namespace RomViewer.Tasks
             }
         }
 
-        public void Chart()
+        public void Chart(int maxDistanceFromNode)
         {
+            _maxDistanceFromNode = maxDistanceFromNode;
+
+            foreach (DictionaryEntry entry in MappedPoints)
+            {
+                (entry.Value as PlottedMapPoint).NonPlayerEntities.Clear();
+            }
+
             //locate all npcs
             foreach (var npc in _npcs)
             {
                 NonPlayerEntity entity = npc;
+                _npcLocations.Remove(entity);
+                
                 Vector3 coords = new Vector3(entity.X, entity.Y, entity.Z);
                 PlottedMapPoint pt = FindNearest(coords, entity.ZoneId);
-                if ((pt!=null) && (pt.Location.Distance(coords) < 800))
+                if ((pt != null) && (pt.Location.Distance(coords) < maxDistanceFromNode))
                 {
                     pt.AddNPC(entity);
                     _npcLocations.Add(entity, pt);
@@ -98,6 +108,33 @@ namespace RomViewer.Tasks
             //find shortest routes for each type (caching here so faster when playing game).
 
         }
+
+        public void AddPoint(MapPoint point)
+        {
+            _mapPoints.Add(point.Id, point);
+            _mappedPoints.Add(point.Id, new PlottedMapPoint(point));
+
+            Chart(_maxDistanceFromNode);
+        }
+
+        public void AddNPE(NonPlayerEntity entity)
+        {
+            string key = entity.RomId.ToString() + "." + entity.UniqueId.ToString();
+            if (_npcLookup.ContainsKey(key)) throw new ArgumentException("Entity Id already exists in the map", "entity");
+
+            _npcLookup.Add(key, entity);
+            if (_npcByRomId.ContainsKey(entity.RomId)) throw new ArgumentException("Entity RomId already exists in the map", "entity"); ;
+            _npcByRomId.Add(entity.RomId, entity);
+
+            Vector3 coords = new Vector3(entity.X, entity.Y, entity.Z);
+            PlottedMapPoint pt = FindNearest(coords, entity.ZoneId);
+            if ((pt != null) && (pt.Location.Distance(coords) < _maxDistanceFromNode))
+            {
+                pt.AddNPC(entity);
+                _npcLocations.Add(entity, pt);
+            }
+        }
+
 
         private class mapNode
         {
@@ -210,6 +247,95 @@ namespace RomViewer.Tasks
             return result;
         }
 
+        public List<MapLink> BuildRouteToNearestType(MapPoint start, EntityTypes entityType)
+        {
+            List<MapLink> result = new List<MapLink>();
+
+            mapNode beginning = null;
+            mapNode ending = null;
+            PlottedMapPoint pStart = (PlottedMapPoint)_mappedPoints[start.Id];
+            if ((pStart.EntityTypes & entityType) == entityType)
+            {
+                return result;
+            }
+            
+
+
+            Dictionary<int, mapNode> nodes = new Dictionary<int, mapNode>();
+            beginning = new mapNode(pStart, 0);
+            nodes.Add(pStart.MapPoint.Id, beginning);
+
+            foreach (DictionaryEntry entry in _mappedPoints)
+            {
+                if (nodes.ContainsKey(((PlottedMapPoint)entry.Value).MapPoint.Id)) continue;
+
+                mapNode node = new mapNode((PlottedMapPoint)entry.Value, double.MaxValue);
+                nodes.Add(node.MapPoint.MapPoint.Id, node);
+            }
+
+
+            SortableList openList = new SortableList(new MapNodeComparer());
+            openList.KeepSorted = true;
+            openList.AddDuplicates = true;
+
+            openList.Add(beginning);
+            Dictionary<int, mapNode> closedList = new Dictionary<int, mapNode>();
+
+            bool found = false;
+            while ((!found) && (openList.Count > 0))
+            {
+                mapNode current = (mapNode)openList[0];
+                if ((current.MapPoint.EntityTypes & entityType) == entityType)
+                {
+                    found = true;
+                    ending = current;
+                }
+                else
+                {
+                    closedList.Add(current.MapPoint.MapPoint.Id, current);
+                    openList.Remove(current);
+
+                    foreach (MapLink link in current.MapPoint.Links)
+                    {
+                        PlottedMapPoint end = (PlottedMapPoint)_mappedPoints[link.End.Id];
+                        mapNode nEnd = nodes[link.End.Id];
+
+                        double distance = 0;
+                        if (link.LinkType == LinkType.Teleport) distance = 2000 + current.distance;
+                        else
+                            distance = current.Location.Distance(end.Location) + current.distance;
+
+                        if (distance < nEnd.distance)
+                        {
+                            nEnd.distance = distance;
+                            nEnd.Parent = current;
+                            nEnd.link = link;
+                            if ((!closedList.ContainsKey(end.MapPoint.Id)) && (!_sortedListContains(openList, nEnd)))
+                            {
+                                openList.Add(nEnd);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (found)
+            {
+                mapNode node = ending;
+                while (node != beginning)
+                {
+                    result.Insert(0, node.link);
+                    node = node.Parent;
+                }
+            }
+
+
+
+
+            return result;
+        }
+
+
         private bool _sortedListContains(SortableList list, object o)
         {
             foreach (var item in list)
@@ -221,7 +347,7 @@ namespace RomViewer.Tasks
 
         public PlottedMapPoint FindNearest(Vector3 location, int zoneId)
         {
-            MapZone zone = (MapZone) _mapZones[zoneId];
+            MapZone zone = (MapZone) Zones[zoneId];
 
             PlottedMapPoint result = null;
             double distance= 0;
@@ -247,9 +373,9 @@ namespace RomViewer.Tasks
             return result;
         }
 
-        public List<MapLink> BuildRoute(Vector3 start, int zoneId, MapPoint destination)
+        public List<MapLink> BuildRoute(Vector3 start, int startZoneId, MapPoint destination)
         {
-            PlottedMapPoint pStart = FindNearest(start, zoneId);
+            PlottedMapPoint pStart = FindNearest(start, startZoneId);
             if (pStart == null) return new List<MapLink>();
 
             return BuildRoute(pStart.MapPoint, destination);
@@ -269,9 +395,9 @@ namespace RomViewer.Tasks
             return null;
         }
 
-        public List<MapLink> BuildRoute(Vector3 start, int zoneId, int npeId, int uniqueId)
+        public List<MapLink> BuildRoute(Vector3 start, int startZoneId, int npeId, int uniqueId)
         {
-            PlottedMapPoint pStart = FindNearest(start, zoneId);
+            PlottedMapPoint pStart = FindNearest(start, startZoneId);
 
             //locate npe
             NonPlayerEntity entity = GetEntity(npeId, uniqueId);
@@ -283,9 +409,9 @@ namespace RomViewer.Tasks
             return BuildRoute(pStart.MapPoint, pEnd.MapPoint);
         }
 
-        public List<MapLink> BuildRoute(Vector3 start, int zoneId, int npeId)
+        public List<MapLink> BuildRoute(Vector3 start, int startZoneId, int npeId)
         {
-            PlottedMapPoint pStart = FindNearest(start, zoneId);
+            PlottedMapPoint pStart = FindNearest(start, startZoneId);
 
             //locate npe
             NonPlayerEntity entity = GetEntity(npeId);

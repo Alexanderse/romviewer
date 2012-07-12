@@ -38,6 +38,16 @@ namespace RomViewer.Tasks.Repositories
             return result;
         }
 
+        public IEnumerable<NonPlayerEntity> GetByRomId(int romId)
+        {
+            try
+            {
+                return _repository.GetAll().Where(entity => (entity.RomId == romId));
+            }catch{}
+
+            return new List<NonPlayerEntity>();
+        }
+
         public void Add(NonPlayerEntity entity)
         {
             _repository.SaveOrUpdate(entity);

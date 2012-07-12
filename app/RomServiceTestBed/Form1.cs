@@ -58,7 +58,7 @@ namespace RomServiceTestBed
                 IRepository<MapZone> zoneRepo = RomViewContainer.Container.GetInstance<IRepository<MapZone>>();
 
                 MapBuilder mb = new MapBuilder(npeRepo, pointRepo, zoneRepo);
-                Map map = mb.BuildMap();
+                Map map = mb.BuildMap(100);
                 RomViewContainer.Container.Inject(typeof (Map), map);
 
                 _server = new TCPServer(31001);

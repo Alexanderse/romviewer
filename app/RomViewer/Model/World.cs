@@ -7,6 +7,12 @@ using System.Text;
 using System.Xml;
 using System.ComponentModel;
 using System.Diagnostics;
+using NHibernate;
+using NHibernate.Context;
+using RomViewer.Core.Mapping;
+using RomViewer.Core.NPCs;
+using RomViewer.Init;
+using SharpLite.Domain.DataInterfaces;
 
 namespace RomViewer.Model
 {
@@ -24,6 +30,24 @@ namespace RomViewer.Model
         private static int _maxDepth;
         public static string PlayerName;
         public static bool UseTransporters = true;
+        public static ISessionFactory SessionFactory;
+        public static ISession Session;
+        public static INonPlayerEntityRepository NpeRepository;
+        public static IRepository<MapPoint> MapPointRepository;
+        public static IRepository<MapZone> ZoneRepository;
+
+        public static void Init()
+        {
+            RomViewContainer.Initialize();
+            SessionFactory = RomViewContainer.Container.GetInstance<ISessionFactory>();
+            Session = SessionFactory.OpenSession();
+            CallSessionContext.Bind(Session);
+
+            NpeRepository = RomViewContainer.Container.GetInstance<INonPlayerEntityRepository>();
+            MapPointRepository = RomViewContainer.Container.GetInstance<IRepository<MapPoint>>();
+            ZoneRepository = RomViewContainer.Container.GetInstance<IRepository<MapZone>>(); 
+        }
+
 
         public static void SaveToDirectory(string path)
         {

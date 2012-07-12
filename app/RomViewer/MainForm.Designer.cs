@@ -117,6 +117,7 @@ namespace RomViewer
             this.objectSubSubTypeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.bsInventory = new System.Windows.Forms.BindingSource(this.components);
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btnLoadProfile = new System.Windows.Forms.Button();
             this.btnMount = new System.Windows.Forms.Button();
             this.btnTeleport = new System.Windows.Forms.Button();
             this.btnPlayerUpdate = new System.Windows.Forms.Button();
@@ -159,6 +160,7 @@ namespace RomViewer
             this.gameObjectsBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.gameNodeBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.xbLoot = new System.Windows.Forms.CheckBox();
             this.xbUseBigSlowAttack = new System.Windows.Forms.CheckBox();
             this.xbUseHeals = new System.Windows.Forms.CheckBox();
             this.xbUseLongRoot = new System.Windows.Forms.CheckBox();
@@ -198,13 +200,6 @@ namespace RomViewer
             this.tpFind = new System.Windows.Forms.TabPage();
             this.btnClear = new System.Windows.Forms.Button();
             this.foundObjectDataGridView = new System.Windows.Forms.DataGridView();
-            this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn10 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn11 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewCheckBoxColumn1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.colDistance = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colAddObject = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.colTarget = new System.Windows.Forms.DataGridViewButtonColumn();
             this.foundObjectBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.settingsGrid = new System.Windows.Forms.PropertyGrid();
@@ -291,7 +286,17 @@ namespace RomViewer
             this.cmiOpenWhisper = new System.Windows.Forms.ToolStripMenuItem();
             this.btnToggleLooping = new System.Windows.Forms.Button();
             this.xbUseTeleporters = new System.Windows.Forms.CheckBox();
-            this.xbLoot = new System.Windows.Forms.CheckBox();
+            this.btnClearWP = new System.Windows.Forms.Button();
+            this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Guid = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn10 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn11 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ObjectType = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ZoneId = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewCheckBoxColumn1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.colDistance = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colAddObject = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.colTarget = new System.Windows.Forms.DataGridViewButtonColumn();
             class1Label = new System.Windows.Forms.Label();
             class2Label = new System.Windows.Forms.Label();
             guildLabel = new System.Windows.Forms.Label();
@@ -626,9 +631,9 @@ namespace RomViewer
             // 
             // tcChats
             // 
-            this.tcChats.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tcChats.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.tcChats.Controls.Add(this.pageCharacter);
             this.tcChats.Controls.Add(this.tpSettings);
             this.tcChats.Controls.Add(this.tpMap);
@@ -785,9 +790,9 @@ namespace RomViewer
             // 
             // groupBox2
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.pbModelProgressa);
             this.groupBox2.Controls.Add(this.lblGold);
             this.groupBox2.Controls.Add(this.dataGridView1);
@@ -821,8 +826,8 @@ namespace RomViewer
             // 
             this.dataGridView1.AllowUserToAddRows = false;
             this.dataGridView1.AllowUserToDeleteRows = false;
-            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridView1.AutoGenerateColumns = false;
             dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
@@ -965,9 +970,9 @@ namespace RomViewer
             // 
             this.dgvInventory.AllowUserToAddRows = false;
             this.dgvInventory.AllowUserToDeleteRows = false;
-            this.dgvInventory.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvInventory.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvInventory.AutoGenerateColumns = false;
             dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
@@ -1097,8 +1102,9 @@ namespace RomViewer
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.btnLoadProfile);
             this.groupBox1.Controls.Add(this.btnMount);
             this.groupBox1.Controls.Add(this.btnTeleport);
             this.groupBox1.Controls.Add(this.btnPlayerUpdate);
@@ -1146,6 +1152,16 @@ namespace RomViewer
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Player";
+            // 
+            // btnLoadProfile
+            // 
+            this.btnLoadProfile.Location = new System.Drawing.Point(635, 104);
+            this.btnLoadProfile.Name = "btnLoadProfile";
+            this.btnLoadProfile.Size = new System.Drawing.Size(75, 23);
+            this.btnLoadProfile.TabIndex = 41;
+            this.btnLoadProfile.Text = "Load Profile";
+            this.btnLoadProfile.UseVisualStyleBackColor = true;
+            this.btnLoadProfile.Click += new System.EventHandler(this.btnLoadProfile_Click);
             // 
             // btnMount
             // 
@@ -1555,6 +1571,17 @@ namespace RomViewer
             this.groupBox4.TabIndex = 0;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Auto Combat";
+            // 
+            // xbLoot
+            // 
+            this.xbLoot.AutoSize = true;
+            this.xbLoot.Location = new System.Drawing.Point(12, 220);
+            this.xbLoot.Name = "xbLoot";
+            this.xbLoot.Size = new System.Drawing.Size(47, 17);
+            this.xbLoot.TabIndex = 14;
+            this.xbLoot.Text = "Loot";
+            this.xbLoot.UseVisualStyleBackColor = true;
+            this.xbLoot.CheckedChanged += new System.EventHandler(this.xbLoot_CheckedChanged);
             // 
             // xbUseBigSlowAttack
             // 
@@ -1969,9 +1996,9 @@ namespace RomViewer
             // 
             this.foundObjectDataGridView.AllowUserToAddRows = false;
             this.foundObjectDataGridView.AllowUserToDeleteRows = false;
-            this.foundObjectDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.foundObjectDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.foundObjectDataGridView.AutoGenerateColumns = false;
             dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Control;
@@ -1984,8 +2011,11 @@ namespace RomViewer
             this.foundObjectDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.foundObjectDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.dataGridViewTextBoxColumn4,
+            this.Guid,
             this.dataGridViewTextBoxColumn10,
             this.dataGridViewTextBoxColumn11,
+            this.ObjectType,
+            this.ZoneId,
             this.dataGridViewCheckBoxColumn1,
             this.colDistance,
             this.colAddObject,
@@ -2004,68 +2034,10 @@ namespace RomViewer
             this.foundObjectDataGridView.Name = "foundObjectDataGridView";
             this.foundObjectDataGridView.ReadOnly = true;
             this.foundObjectDataGridView.RowHeadersVisible = false;
-            this.foundObjectDataGridView.Size = new System.Drawing.Size(1095, 623);
+            this.foundObjectDataGridView.Size = new System.Drawing.Size(1095, 519);
             this.foundObjectDataGridView.TabIndex = 0;
             this.foundObjectDataGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.foundObjectDataGridView_CellClick);
             this.foundObjectDataGridView.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.foundObjectDataGridView_CellFormatting);
-            // 
-            // dataGridViewTextBoxColumn4
-            // 
-            this.dataGridViewTextBoxColumn4.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.dataGridViewTextBoxColumn4.DataPropertyName = "Id";
-            this.dataGridViewTextBoxColumn4.HeaderText = "Id";
-            this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
-            this.dataGridViewTextBoxColumn4.ReadOnly = true;
-            this.dataGridViewTextBoxColumn4.Width = 41;
-            // 
-            // dataGridViewTextBoxColumn10
-            // 
-            this.dataGridViewTextBoxColumn10.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.dataGridViewTextBoxColumn10.DataPropertyName = "Name";
-            this.dataGridViewTextBoxColumn10.HeaderText = "Name";
-            this.dataGridViewTextBoxColumn10.Name = "dataGridViewTextBoxColumn10";
-            this.dataGridViewTextBoxColumn10.ReadOnly = true;
-            // 
-            // dataGridViewTextBoxColumn11
-            // 
-            this.dataGridViewTextBoxColumn11.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.dataGridViewTextBoxColumn11.DataPropertyName = "Coordinates";
-            this.dataGridViewTextBoxColumn11.HeaderText = "Coordinates";
-            this.dataGridViewTextBoxColumn11.Name = "dataGridViewTextBoxColumn11";
-            this.dataGridViewTextBoxColumn11.ReadOnly = true;
-            this.dataGridViewTextBoxColumn11.Width = 88;
-            // 
-            // dataGridViewCheckBoxColumn1
-            // 
-            this.dataGridViewCheckBoxColumn1.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.dataGridViewCheckBoxColumn1.DataPropertyName = "Attackable";
-            this.dataGridViewCheckBoxColumn1.HeaderText = "Attackable";
-            this.dataGridViewCheckBoxColumn1.Name = "dataGridViewCheckBoxColumn1";
-            this.dataGridViewCheckBoxColumn1.ReadOnly = true;
-            this.dataGridViewCheckBoxColumn1.Width = 64;
-            // 
-            // colDistance
-            // 
-            this.colDistance.HeaderText = "Distance";
-            this.colDistance.Name = "colDistance";
-            this.colDistance.ReadOnly = true;
-            // 
-            // colAddObject
-            // 
-            this.colAddObject.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.colAddObject.HeaderText = "Add at current";
-            this.colAddObject.Name = "colAddObject";
-            this.colAddObject.ReadOnly = true;
-            this.colAddObject.Width = 80;
-            // 
-            // colTarget
-            // 
-            this.colTarget.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.colTarget.HeaderText = "Target";
-            this.colTarget.Name = "colTarget";
-            this.colTarget.ReadOnly = true;
-            this.colTarget.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.colTarget.Width = 44;
             // 
             // foundObjectBindingSource
             // 
@@ -2781,7 +2753,7 @@ namespace RomViewer
             this.cmWhisper.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cmiOpenWhisper});
             this.cmWhisper.Name = "cmWhisper";
-            this.cmWhisper.Size = new System.Drawing.Size(159, 48);
+            this.cmWhisper.Size = new System.Drawing.Size(159, 26);
             // 
             // cmiOpenWhisper
             // 
@@ -2813,22 +2785,101 @@ namespace RomViewer
             this.xbUseTeleporters.UseVisualStyleBackColor = true;
             this.xbUseTeleporters.CheckedChanged += new System.EventHandler(this.xbUseTeleporters_CheckedChanged);
             // 
-            // xbLoot
+            // btnClearWP
             // 
-            this.xbLoot.AutoSize = true;
-            this.xbLoot.Location = new System.Drawing.Point(12, 220);
-            this.xbLoot.Name = "xbLoot";
-            this.xbLoot.Size = new System.Drawing.Size(47, 17);
-            this.xbLoot.TabIndex = 14;
-            this.xbLoot.Text = "Loot";
-            this.xbLoot.UseVisualStyleBackColor = true;
-            this.xbLoot.CheckedChanged += new System.EventHandler(this.xbLoot_CheckedChanged);
+            this.btnClearWP.Location = new System.Drawing.Point(812, 2);
+            this.btnClearWP.Name = "btnClearWP";
+            this.btnClearWP.Size = new System.Drawing.Size(111, 23);
+            this.btnClearWP.TabIndex = 63;
+            this.btnClearWP.Text = "Clear Waypoint";
+            this.btnClearWP.UseVisualStyleBackColor = true;
+            this.btnClearWP.Click += new System.EventHandler(this.btnClearWP_Click);
+            // 
+            // dataGridViewTextBoxColumn4
+            // 
+            this.dataGridViewTextBoxColumn4.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.dataGridViewTextBoxColumn4.DataPropertyName = "Id";
+            this.dataGridViewTextBoxColumn4.HeaderText = "Id";
+            this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
+            this.dataGridViewTextBoxColumn4.ReadOnly = true;
+            this.dataGridViewTextBoxColumn4.Width = 41;
+            // 
+            // Guid
+            // 
+            this.Guid.DataPropertyName = "Guid";
+            this.Guid.HeaderText = "Guid";
+            this.Guid.Name = "Guid";
+            this.Guid.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn10
+            // 
+            this.dataGridViewTextBoxColumn10.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.dataGridViewTextBoxColumn10.DataPropertyName = "Name";
+            this.dataGridViewTextBoxColumn10.HeaderText = "Name";
+            this.dataGridViewTextBoxColumn10.Name = "dataGridViewTextBoxColumn10";
+            this.dataGridViewTextBoxColumn10.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn11
+            // 
+            this.dataGridViewTextBoxColumn11.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.dataGridViewTextBoxColumn11.DataPropertyName = "Coordinates";
+            this.dataGridViewTextBoxColumn11.HeaderText = "Coordinates";
+            this.dataGridViewTextBoxColumn11.Name = "dataGridViewTextBoxColumn11";
+            this.dataGridViewTextBoxColumn11.ReadOnly = true;
+            this.dataGridViewTextBoxColumn11.Width = 88;
+            // 
+            // ObjectType
+            // 
+            this.ObjectType.DataPropertyName = "ObjectType";
+            this.ObjectType.HeaderText = "ObjectType";
+            this.ObjectType.Name = "ObjectType";
+            this.ObjectType.ReadOnly = true;
+            // 
+            // ZoneId
+            // 
+            this.ZoneId.DataPropertyName = "ZoneId";
+            this.ZoneId.HeaderText = "ZoneId";
+            this.ZoneId.Name = "ZoneId";
+            this.ZoneId.ReadOnly = true;
+            // 
+            // dataGridViewCheckBoxColumn1
+            // 
+            this.dataGridViewCheckBoxColumn1.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.dataGridViewCheckBoxColumn1.DataPropertyName = "Attackable";
+            this.dataGridViewCheckBoxColumn1.HeaderText = "Attackable";
+            this.dataGridViewCheckBoxColumn1.Name = "dataGridViewCheckBoxColumn1";
+            this.dataGridViewCheckBoxColumn1.ReadOnly = true;
+            this.dataGridViewCheckBoxColumn1.Width = 64;
+            // 
+            // colDistance
+            // 
+            this.colDistance.HeaderText = "Distance";
+            this.colDistance.Name = "colDistance";
+            this.colDistance.ReadOnly = true;
+            // 
+            // colAddObject
+            // 
+            this.colAddObject.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.colAddObject.HeaderText = "Add at current";
+            this.colAddObject.Name = "colAddObject";
+            this.colAddObject.ReadOnly = true;
+            this.colAddObject.Width = 80;
+            // 
+            // colTarget
+            // 
+            this.colTarget.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.colTarget.HeaderText = "Target";
+            this.colTarget.Name = "colTarget";
+            this.colTarget.ReadOnly = true;
+            this.colTarget.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.colTarget.Width = 44;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1136, 668);
+            this.Controls.Add(this.btnClearWP);
             this.Controls.Add(this.xbUseTeleporters);
             this.Controls.Add(this.btnToggleLooping);
             this.Controls.Add(this.btnUpdateWin);
@@ -3085,13 +3136,6 @@ namespace RomViewer
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem3;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem4;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn10;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn11;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn dataGridViewCheckBoxColumn1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colDistance;
-        private System.Windows.Forms.DataGridViewButtonColumn colAddObject;
-        private System.Windows.Forms.DataGridViewButtonColumn colTarget;
         private System.Windows.Forms.TextBox tbTargets;
         private System.Windows.Forms.ToolStripMenuItem pathBuilderToolStripMenuItem;
         private System.Windows.Forms.TabPage tabPage1;
@@ -3141,6 +3185,18 @@ namespace RomViewer
         private System.Windows.Forms.TextBox tbRestartCount;
         private System.Windows.Forms.CheckBox xbAutoRestart;
         private System.Windows.Forms.CheckBox xbLoot;
+        private System.Windows.Forms.Button btnClearWP;
+        private System.Windows.Forms.Button btnLoadProfile;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Guid;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn10;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn11;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ObjectType;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ZoneId;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn dataGridViewCheckBoxColumn1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colDistance;
+        private System.Windows.Forms.DataGridViewButtonColumn colAddObject;
+        private System.Windows.Forms.DataGridViewButtonColumn colTarget;
     }
 }
 

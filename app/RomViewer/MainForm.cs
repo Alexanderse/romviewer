@@ -369,23 +369,31 @@ namespace RomViewer
                 string currentPlayer = _player.Name;
 
                 miLaunch_Click(null, null);
-
+                Thread.Sleep(10000);
                 //force settings to be resent
                 ToonController.QueryPlayerDetails();
+                Thread.Sleep(500);
                 ToonController.QueryInventory();
-                xbACSOn_CheckedChanged(null, null);
+                Thread.Sleep(500);
+                //xbACSOn_CheckedChanged(null, null);
                 xbACSPaused_CheckedChanged(null, null);
+                Thread.Sleep(500);
                 xbAutoTurn_CheckedChanged(null, null);
                 xbACSAutoTarget_CheckedChanged(null, null);
+                Thread.Sleep(500);
                 btnClearTargets_Click(null, null);
                 xbUseBuffs_CheckedChanged(null, null);
+                Thread.Sleep(500);
                 xbUseLongRoot_CheckedChanged(null, null);
                 xbUseHeals_CheckedChanged(null, null);
+                Thread.Sleep(500);
                 xbUseBigSlowAttack_CheckedChanged(null, null);
                 xbLoot_CheckedChanged(null, null);
+                Thread.Sleep(500);
                 btnApplyLootfilterSettings_Click(null, null);
                 string command = "setWaypointLooping(" + (xbLoop.Checked).ToString().ToLower() + ")";
                 SendCommand(command);
+                Thread.Sleep(500);
 
                 mmServer.ServerInstance.QueueCommand(tbRestartCommands.Text);
 
@@ -1009,11 +1017,11 @@ namespace RomViewer
         private void xbACSOn_CheckedChanged(object sender, EventArgs e)
         {
 
-            string state = "on";
-            if (!xbACSOn.Checked) state = "off";
+            //string state = "on";
+            //if (!xbACSOn.Checked) state = "off";
 
-            string command = "sendMacro(\"acsSlash(\\\""+state+"\\\")\")";
-            SendCommand(command);
+            //string command = "sendMacro(\"acsSlash(\\\""+state+"\\\")\")";
+            //SendCommand(command);
         }
 
         private void SendCommand(string command)
@@ -1983,6 +1991,20 @@ namespace RomViewer
                 string command = "sendMacro(\"DIYCE_SetOption(\\\"loot\\\", " + xbLoot.Checked.ToString().ToLower() + ");\")";
                 SendCommand(command);
             }
+        }
+
+        private void btnClearWP_Click(object sender, EventArgs e)
+        {
+            string command = "LoadNewWaypointList(\"clear.xml\")";
+            SendCommand(command);
+        }
+
+        private void btnLoadProfile_Click(object sender, EventArgs e)
+        {
+            //
+            
+            string command = string.Format("loadProfile(\"{0}{1}{2}\"); sendMacro(\"ReadSkills()\")", _player.Name, RomClassHelper.GetClassName(_player.Class1+1), RomClassHelper.GetClassName(_player.Class2+1));
+            SendCommand(command);
         }
 
     }

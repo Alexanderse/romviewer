@@ -51,6 +51,9 @@
     <Reference Include="SharpLite.Domain">
       <HintPath>..\..\lib\SharpLite.Domain.dll</HintPath>
     </Reference>
+    <Reference Include="StructureMap">
+      <HintPath>..\..\lib\StructureMap.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -280,6 +283,7 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="ClassDiagram1.cd" />
     <None Include="Properties\DataSources\FoundObject.datasource" />
     <None Include="Properties\DataSources\PathWaypoint.datasource" />
     <None Include="Properties\DataSources\RomViewer.Model.GameNode.datasource" />
@@ -301,6 +305,10 @@
     <ProjectReference Include="..\RomViewer.Core\RomViewer.Core.csproj">
       <Project>{E3EC854C-424B-4A23-8692-FDF2F3A2FF92}</Project>
       <Name>RomViewer.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RomViewer.Init\RomViewer.Init.csproj">
+      <Project>{7112AC6B-C406-481D-99D4-56BA796B7173}</Project>
+      <Name>RomViewer.Init</Name>
     </ProjectReference>
     <ProjectReference Include="..\RomViewer.NHibernateProvider\RomViewer.NHibernateProvider.csproj">
       <Project>{4E471CAC-A108-49AE-A4D6-155DC35712C9}</Project>

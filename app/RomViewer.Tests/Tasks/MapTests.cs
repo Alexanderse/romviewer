@@ -5,14 +5,11 @@ using NHibernate.Cfg;
 using NHibernate.Context;
 using NUnit.Framework;
 using RomViewer.Core;
-using RomViewer.Core.Items;
 using RomViewer.Core.Mapping;
 using RomViewer.Init;
 using RomViewer.Tasks;
-using RomViewer.Tasks.Repositories;
-using SharpLite.Domain.DataInterfaces;
 
-namespace Focus.Tests.Tasks
+namespace RomViewer.Tests.Tasks
 {
     [TestFixture]
     public class MapTests
@@ -39,7 +36,7 @@ namespace Focus.Tests.Tasks
             try
             {
                 MapBuilder mb = RomViewContainer.Container.GetInstance<MapBuilder>();
-                Map map = mb.BuildMap();
+                Map map = mb.BuildMap(100);
                 MapPoint start = (MapPoint)map.MapPoints[1];
                 MapPoint end = (MapPoint)map.MapPoints[5];
 
@@ -76,7 +73,7 @@ namespace Focus.Tests.Tasks
             try
             {
                 MapBuilder mb = RomViewContainer.Container.GetInstance<MapBuilder>();
-                Map map = mb.BuildMap();
+                Map map = mb.BuildMap(100);
                 Vector3 loc = new Vector3(-4574,81,7477);
                 int zoneId = 15;
 
@@ -104,7 +101,7 @@ namespace Focus.Tests.Tasks
             try
             {
                 MapBuilder mb = RomViewContainer.Container.GetInstance<MapBuilder>();
-                Map map = mb.BuildMap();
+                Map map = mb.BuildMap(100);
                 Vector3 loc = new Vector3(-1169, 38, -5527); //logar snoop
                 int zoneId = 1;
 
