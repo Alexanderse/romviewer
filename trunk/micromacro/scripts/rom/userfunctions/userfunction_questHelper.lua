@@ -95,7 +95,7 @@ end;
 
 function CheckGoalsComplete(questId)
 	-- make sure QuestBook:update() has been called if necessary!!!
-	printf("Checking quest: "..tostring(questId).."\n");
+	printf("CheckGoalsComplete quest: "..tostring(questId).."\n");
 	__QB:updateQuest(questId);
 	local questInfo = __QB:getQuestById(questId)
 	
@@ -139,8 +139,12 @@ function CheckGoalIsComplete(questId, goal)
 end;
 
 function PickupQuestIfIDontHaveIt(qst)
+	--printf("\n");
+	--printf("qst:update();\n");
 	qst:update();
+	--printf("if (not qst.Accepted) then\n");
 	if (not qst.Accepted) then
+		printf("player:target_NPC(qst.StarterId);\n");
 		player:target_NPC(qst.StarterId);
 		yrest(200);
 		AcceptQuestByName(qst.Name);
@@ -149,9 +153,25 @@ function PickupQuestIfIDontHaveIt(qst)
 		__QB:update();
 	end;
 		
-	if (#__QB.Quests < 1) then __QB:update(); end; --just to be sure!~!!
+	--printf("if (#__QB.Quests < 1) then __QB:update(); end;\n");
+	if (#__QB.Quests < 1) then 
+		printf("No quests were found in the Quest Book. Updating again to re-check\n");
+		__QB:update(); 
+	end; --just to be sure!~!!
 	
-	local idx = __QB:getQuestIndex(quest.Id);
+	--printf("__QB:getQuestIndex(quest.Id);\n");
+	local idx = __QB:getQuestIndex(qst.Id);
+	if (idx < 0) then
+		player:target_NPC(qst.StarterId);
+		yrest(200);
+		AcceptQuestByName(qst.Name);
+		yrest(1000);
+		qst:update();
+		__QB:update();
+		idx = __QB:getQuestIndex(qst.Id);
+	end;
+	
+	--printf("\n");
 	__QB:updateQuest(idx);
 	__QB:fetchRewardItems(idx);
 	--quest = __QB.Quests[idx];
@@ -174,11 +194,13 @@ function TurnInQuest(quest)
 	if ((quest.Rewards == nil) or (quest.Rewards.count == 0)) then
 		local idx = __QB:getQuestIndex(quest.Id);
 		__QB:fetchRewardItems(idx);
+		quest.Rewards = __QB.Quests[idx].Rewards;
 	end;
 	if (quest.Rewards.count > 0) then
 		rewardIndex = quest:getRewardConfiguredItemIndex();
 	end;
 	
+	printf("Completing quest "..quest.Id.." with reward index: "..tostring(rewardIndex).."\n");
 	CompleteQuestByName(quest.Name,rewardIndex);
 	yrest(200);
 	quest.Completed= true;
@@ -190,6 +212,53 @@ function TurnInQuest(quest)
 	link:close();
 end;
 
+function HarvestFromSpot(_item, _harvestTime, _range)
+	printf("Harvesting: ".._item.."\n");
+	local x = player.X;
+	local y = player.Y;
+	local z = player.Z;
+	
+	local obj = player:findNearestNameOrId(_item);
+	local dist = distance(player.X, player.Z, player.Y, obj.X, obj.Z, obj.Y);
+	
+	while (dist > _range) do
+		player:update();
+		if (player.Battling) then
+			player:fight();
+		else
+			yrest(300);
+			obj = player:findNearestNameOrId(_item);
+			dist = distance(player.X, player.Z, player.Y, obj.X, obj.Z, obj.Y);
+		end;
+	end;
+	
+	player:target_Object(_item, _harvestTime);
+	
+	player:moveTo( CWaypoint(x,z,y), true );
+end;
+
+function Harvest(_item, _harvestTime, _range)
+	printf("Harvesting: ".._item.."\n");
+	local x = player.X;
+	local y = player.Y;
+	local z = player.Z;
+	
+	local obj = player:findNearestNameOrId(_item);
+	local dist = distance(player.X, player.Z, player.Y, obj.X, obj.Z, obj.Y);
+	
+	while (dist > _range) do
+		player:update();
+		if (player.Battling) then
+			player:fight();
+		else
+			yrest(300);
+			obj = player:findNearestNameOrId(_item);
+			dist = distance(player.X, player.Z, player.Y, obj.X, obj.Z, obj.Y);
+		end;
+	end;
+	
+	player:target_Object(_item, _harvestTime);
+end;
 
 --[[
 local qCount = RoMScript("GetNumQuestBookButton_QuestBook()");

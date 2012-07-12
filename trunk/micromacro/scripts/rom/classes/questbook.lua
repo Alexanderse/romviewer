@@ -53,11 +53,13 @@ function CQuestBook:update()
 end
 
 function CQuestBook:updateQuest(questId)
-	PrintLine("updating goals for quest: "..tostring(questId));
+	PrintLine("updateQuest goals for quest: "..tostring(questId));
 	local idx = self:getQuestIndex(questId);
-	PrintLine("  : idx="..tostring(idx));
 	
-	if (idx < 0) then return; end;
+	if (idx < 0) then 
+		PrintLine("Could not find index for quest!!!");
+		return; 
+	end;
 	
 	local quest = self.Quests[idx];
 	RoMScript("ViewQuest_QuestBook("..tostring(idx)..");");
@@ -71,13 +73,11 @@ end;
 
 
 function CQuestBook:getQuestIndex(questId)
-	PrintLine("Searching for quest Id: "..tostring(questId));
 	local i = 1;
 	local idx = -1;
 
-	while ((idx == -1) and (i < #self.Quests)) do
-		PrintLine("Comparing index "..tostring(i).." ["..tostring(self.Quests[i].Id).."]");
-		if (self.Quests[i].Id == questId) then
+	while ((idx == -1) and (i <= #self.Quests)) do
+		if (tonumber(self.Quests[i].Id) == tonumber(questId)) then
 			idx = i;
 		end;
 		i = i + 1;
